@@ -36,8 +36,10 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
   Run: `python -m app.datagen.generate` from `backend/`.
 - `scheduling/` — `compatibility.py` (shared task/block compatibility check,
   spec section 6), `config.py` (tunable `PriorityWeights`), `prioritizer.py`
-  (rule-based score, section 4 — done). TODO: CP-SAT Stage A/B scheduler
-  (section 5), safety validator (section 6), explainability (section 7).
+  (rule-based score, section 4), `validator.py` (all 6 safety rules, run
+  against solver output, section 6), `stage_a.py` (single-section CP-SAT,
+  no merging, section 5 — done, ~20ms/section on the demo dataset). TODO:
+  Stage B (merging, section 5), explainability (section 7).
 - `api/` — FastAPI routers exposing tasks, blocks, and generated plans to
   the dashboard.
 
