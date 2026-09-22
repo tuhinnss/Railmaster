@@ -1,0 +1,3687 @@
+<!DOCTYPE HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+<meta http-equiv='cache-control' content='no-cache'>
+<meta http-equiv='expires' content='0'>
+<meta http-equiv='pragma' content='no-cache'>
+<meta name="Accept-encoding" content="deflate">
+<meta name="Content-Encoding" content="deflate">
+<meta name="X-Frame-Options" content="deny">
+<meta name="X-XSS-Protection" content="1; mode=block">
+<meta name="Access-Control-Allow-Origin" content="*">
+<meta name="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+
+<link rel="shortcut icon"  type="image/png" href="app_icon.ico">
+<link rel="apple-touch-icon-precomposed" sizes="57x57" href="icon_144.png" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Official Indian Railways site for travelers using railways for taking holiday vacation trips, official trips, tours, and daily commute. Site provides train-running related and real-time status queries for all trains of India.">
+<meta name="keywords" content="India Travel, Indian Railways, Trains, Travel across India, Things to do in India,Train Station, Time Table, Train Schedules, Train Arrivals, Train Delays, Online Tracking, Mobile Tracking, Cheap Travel, yatra,Journey Planner, Trip Planner,Train Enquiry,Train Running,Train Running Status,Train Running Information,Spot Your Train,Live Train Status,Ntes,National Train Enquiry System">
+<title>NTES</title>
+<link rel="stylesheet" type="text/css" href="theme/mntes.css">
+<script src="javascripts/LibraryFunctions.js?v=2"></script>
+<script src="javascripts/mntes.js?v=8"></script>
+<script src="javascripts/mntes_utility.js?v=3"></script>
+<link rel="stylesheet" href="theme/bootstrap-theme.min.css" >
+<link rel="stylesheet" href="theme/w3.css">
+<!-- Bootstrap CSS CDN -->
+<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">-->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+
+<style>
+
+ #divert {
+    width: 18px;
+    height: 18px;
+    background: url(images/icons-18-white.png) -360px 0;
+    background-repeat:no-repeat;
+}
+#cancel {
+    width: 18px;
+    height: 18px;
+    background: url(images/icons-18-white.png) -72px 0;
+    background-repeat:no-repeat;
+}
+#reschedule {
+    width: 18px;
+    height: 18px;
+    background: url(images/icons-18-white.png) -432px 0;
+    background-repeat:no-repeat;
+}
+#exception {
+    width: 18px;
+    height: 18px;
+    background: url(images/icons-18-white.png) -504px 0;
+    background-repeat:no-repeat;
+}
+ #divert1 {
+    width: 18px;
+    height: 18px;
+    background: url(images/icons-18-black.png) -360px 0;
+    background-repeat:no-repeat;
+}
+#cancel1 {
+    width: 18px;
+    height: 18px;
+    background: url(images/icons-18-black.png) -72px 0;
+    background-repeat:no-repeat;
+}
+#reschedule1 {
+    width: 18px;
+    height: 18px;
+    background: url(images/icons-18-black.png) -432px 0;
+    background-repeat:no-repeat;
+}
+#exception1 {
+    width: 18px;
+    height: 18px;
+    background: url(images/icons-18-black.png) -504px 0;
+    background-repeat:no-repeat;
+}
+
+#info {
+    width: 18px;
+    height: 18px;
+    background: url(images/icons-18-white.png) -536px 0;
+    background-repeat:no-repeat;
+}
+
+#divshadow {
+	width: 100%;
+	max-width:1380px;
+	margin:auto;
+    height: auto;
+    padding:1px;
+    border-radius:5px;
+   /* background-color: white;*/
+}
+
+body.small-font { font-size: 10px; }
+body.medium-font { font-size: 14px; }
+body.large-font { font-size: 20px; }
+ :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --panel-bg: #ffffff;
+      --button-bg: #eeeeee;
+      --button-hover: #dddddd;
+    }
+
+</style>
+<style>
+  :root {
+      --bg-color: #ffffff;
+      --text-color: #1a1a1a;
+      --link-color: #0066cc;
+      --highlight-color: #ff9800;
+      --secondary-text-color: #757575;
+      --heading-color: #2c3e50;
+    }
+
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --link-color: #8ab4f8;
+      --highlight-color: #ffb74d;
+      --secondary-text-color: #b0b0b0;
+      --heading-color: #ecf0f1;
+      --panel-bg: #1e1e1e;
+      --button-bg: #333333;
+      --button-hover: #444444;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: Arial, sans-serif;
+      margin: 0;
+      /*padding: 2rem;*/
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    h1, h2 {
+      color: var(--heading-color);
+    }
+
+    p {
+      color: var(--secondary-text-color);
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+/*
+    .container {
+      max-width: 800px;
+      margin: auto;
+      text-align: center;
+    }
+*/
+    .highlight {
+      color: var(--highlight-color);
+      font-weight: bold;
+    }
+
+    /* Toggle switch style */
+    .switch-wrapper {
+      margin: 20px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .switch-label {
+      margin-right: 10px;
+      font-size: 1rem;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    body.dark table.table {
+	  color: white !important;            /* Make text readable */
+	  background-color: black !important; /* Set dark background */
+	  border-color: #666 !important;      /* Softer borders */
+	}
+	
+	body.dark table.table thead th {
+	  color: yellow !important;           /* Highlight headers */
+	  background-color: #111 !important;  /* Slight contrast from body */
+	  border-color: #666 !important;
+	}
+	
+	body.dark table.table td,
+	body.dark table.table th {
+	  border-color: #666 !important;
+	   color: white !important; 
+	}
+	
+	body.dark table.table-striped tbody tr:nth-child(odd) {
+	  background-color: #222 !important;
+	}
+	
+	body.dark table.table-striped tbody tr:nth-child(even) {
+	 background-color: #000 !important;
+	}
+	
+    body.dark .w3-modal .w3-modal-content .w3-center{
+     background-color:#292727;/* #121212;*/
+     color: #eee;
+     border: 1px solid #333;
+    }
+	body.dark .form-control {
+  background-color: #1e1e1e;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+body.dark .form-control::placeholder {
+  color: #aaa;
+}
+
+body.dark .input-group i {
+  color: #ccc;
+}
+
+body.dark .input-group i:hover {
+  color: #fff;
+}
+	  
+body.dark .w3-blue {
+  background-color: #333336 !important; 
+  color: #e0e0e0 !important; 
+}    
+
+ .nav-tabs .nav-link {
+            border-left: 1px solid #1E90FF;
+            border-top: 1px solid #1E90FF;
+            border-right: 1px solid #1E90FF;
+            border-bottom: 3px solid #1E90FF;
+            background-color: #FFFFFF;
+        }
+ .nav-tabs .nav-link.active {
+            border-left: 1px solid #1E90FF;
+            border-top: 1px solid #1E90FF;
+            border-right: 1px solid #1E90FF;
+            border-bottom: 3px solid #1E90FF;
+            background-color: #1E90FF;
+            font-weight: 500;
+            color: #FFFFFF;
+        }
+
+body.dark .nav-tabs .nav-link {
+  background-color: #333336 !important; 
+  color: #e0e0e0 !important;
+  border-left :1px solid #232640;
+  border-top :1px solid #232640;
+  border-right :1px solid #232640;
+  border-bottom :3px solid #232640;
+}
+
+body.dark .nav-tabs .nav-link.active  {
+  background-color: #232640 !important; 
+  color: #e0e0e0 !important;
+  border-left :1px solid #232640;
+  border-top :1px solid #232640;
+  border-right :1px solid #232640;
+  border-bottom :3px solid #232640;
+}  
+
+body.dark .tt-suggestion:hover {
+	cursor: pointer;
+	background-color: #3d4142;
+	color: #FFFFFF;
+}
+ 
+body.dark .tt-menu {
+	background-color: #4e4f4f;
+	color:#fff;
+	}
+body.dark .tt-suggestion {
+	color:#e9f0f2;
+	}
+/*	
+body.dark .ui-autocomplete{
+	background-color: #4e4f4f;
+	color:#fff;
+	}
+*/	
+body.dark .ui-autocomplete {
+    background-color: #2a2a2a; 
+    border-color: #555;        
+    color: #eee;               
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+body.dark .ui-autocomplete li {
+    color: #ddd;
+    background-color: #2a2a2a;
+    padding-left:5px;
+    border:none;
+}
+
+body.dark .ui-autocomplete li.ui-state-focus, 
+body.dark .ui-autocomplete li.ui-state-active {
+    background-color: #444; 
+    color: #fff;
+}
+body.dark #myInput {
+background-image: url('images/search_w.png');
+}
+</style>
+<style>
+    .floating-accessibility {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
+    #accessibilityToggle {
+      background-color: #4729A3;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    #accessibilityToggle:hover {
+      background-color: #351e7d;
+    }
+
+    .accessibility-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .accessibility-panel {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 0;
+      background: var(--panel-bg);
+      color: var(--text-color);
+      min-width: 250px;
+      max-width: 480px;
+      width: 100%;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .accessibility-panel.show {
+      display: block;
+    }
+
+    .accessibility-panel h2 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+
+    .accessibility-panel ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .accessibility-panel li {
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .accessibility-panel button {
+      background: var(--button-bg);
+      color: var(--text-color);
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .accessibility-panel button:hover {
+      background: var(--button-hover);
+    }
+
+    /* Toggle switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #4729A3;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    .switch-label {
+      margin-right: 10px;
+      font-size: 14px;
+    }
+	
+	.button-row {
+	  display: flex;
+	  gap: 10px;
+	}
+	
+	.button-row.single .access-btn {
+	  flex: 1;
+	}
+    
+    .access-btn {
+	  flex: 1;
+	  height: 100px;
+	  padding:10px;
+	  background-color: #f2f2f2;
+	  border: none;
+	  border-radius: 8px;
+	  display: flex;
+	  flex-direction: column;
+	  align-items: center;
+	  justify-content: center;
+	  cursor: pointer;
+	  text-align: center;
+	  transition: background 0.2s ease;
+	}
+
+.access-btn:hover {
+  background-color: #e0e0e0;
+}
+.access-btn[aria-pressed="true"] {
+  background-color: #4729A3; 
+  color:#eee;
+}
+
+body.dark .access-btn[aria-pressed="true"] {
+  background-color: #4729A3; /* highlight color when active */
+}  
+</style>
+<style>
+/* Dark mode for modal with .dark-modal class */
+body.dark .modal-content {
+  background-color: #121212;
+  color: #e0e0e0;
+  border: none;
+}
+
+body.dark .modal-header {
+  background-color: #1f1f1f;
+  border-bottom: 1px solid #333;
+}
+
+body.dark .w3-panel.w3-orange {
+  background-color: #b36b00 !important; /* Darker orange */
+  color: #fff !important;
+}
+
+body.dark .w3-table-all {
+  background-color: #1c1c1c;
+  color: #ddd;
+  border-color: #333;
+}
+
+body.dark .w3-table-all th {
+  background-color: #2c2c2c;
+  color: #fff;
+  border-bottom: 2px solid #444;
+}
+
+body.dark .w3-table-all tr {
+  border-bottom: 1px solid #333;
+}
+
+body.dark .w3-table-all tr:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+body.dark .close {
+  color: #ccc;
+  opacity: 1;
+}
+
+body.dark .close:hover {
+  color: #fff;
+}
+
+/* Normal (light) mode button */
+.custom-btn {
+  background-color: #07498f;  /* nice blue */
+  border: 1px solid #0459b5;
+  color: white;
+  padding: 0.5em 1.25em;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  user-select: none;
+}
+
+ .custom-btn:hover,
+ .custom-btn:focus {
+  background-color: #0056b3;
+  border-color: #004085;
+  outline: none;
+}
+
+/* Dark mode overrides */
+body.dark .custom-btn {
+  background-color: #2b2b2b;   /* dark gray */
+  border: 1px solid #1c1c1c;
+  color: #eee;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+body.dark .custom-btn:hover,
+body.dark .custom-btn:focus {
+  background-color: #1c1c1c;
+  border-color: #121212;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.8);
+  outline: none;
+}
+
+body.dark .custom-btn:active {
+  background-color: #0f0f0f;
+  border-color: #0a0a0a;
+  box-shadow: none;
+}
+.dropdown-toggle::after {
+    display: none !important;
+}
+.bluehead{
+    font-family:Calibri;
+    font-size:12pt;
+	color:#0000FF;
+}
+body.dark .bluehead{
+	font-family:Calibri;
+    font-size:12pt;
+	color:#ddd;
+}
+ body.big-cursor, body.big-cursor * {
+    cursor: url('images/cursor.svg') 16 16, auto;
+  }
+  
+body.big-cursor a,
+body.big-cursor button {
+  cursor: url('images/pointer.svg') 16 16, pointer;
+}
+
+body.high-link a{
+  font-weight: bold !important;
+  text-decoration: underline !important;
+}
+
+body.dark.high-link a{
+  color: yellow !important;
+  font-weight: bold !important;
+  text-decoration: underline !important;
+}
+
+body.dark .w3-sand {
+  background-color: #333336 !important; /* dark muted brown */
+  color: #f4e8d8 !important; /* light sandy text */
+}
+
+/* Override links inside w3-sand */
+body.dark .w3-sand a {
+  color: #e0c097 !important;
+}
+
+/* Optional: buttons inside w3-sand in dark mode */
+body.dark .w3-sand button {
+  background-color: #5c4a3d !important;
+  color: #f4e8d8 !important;
+  border: none !important;
+}
+
+/* Button hover in dark mode */
+body.dark .w3-sand button:hover {
+  background-color: #7a644d !important;
+}
+
+</style>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" rel="stylesheet"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="https://getbootstrap.com/2.3.2/assets/js/bootstrap.js"></script>
+
+
+
+
+
+
+
+
+<script>
+
+
+
+	
+
+
+
+
+
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+ 
+function s1790097246161(){
+	var _loc="ht" + "t" + "ps://enquiry.indianra" + "il.gov.in/mntes/";
+	var n1790097247161=function(){
+		setTimeout(function(){document.location=_loc + "NoAccess.html";},2000);
+	};
+	try{
+		if(parent){
+			try{if(parent.location!=document.location)parent.location=_loc; return;}catch(ex){}
+			try{if(parent.document.location!=document.location)parent.document.location=_loc; return;}catch(ex){}
+			try{if(parent.window.document.location!=document.location)parent.window.document.location=_loc; return;}catch(ex){}
+			try{n1790097247161();}catch(ex){}
+		}
+		if(window.parent){
+			try{if(window.parent.location!=document.location)window.parent.location=_loc; return;}catch(ex){}
+			try{if(window.parent.document.location!=document.location)window.parent.document.location=_loc; return;}catch(ex){}
+			try{if(window.parent.window.document.location!=document.location)window.parent.window.document.location=_loc; return;}catch(ex){}
+			try{n1790097247161();}catch(ex){}
+		}
+		if(opener){
+			try{if(opener.location!=document.location)opener.location=_loc; return;}catch(ex){}
+			try{if(opener.document.location!=document.location)opener.document.location=_loc; return;}catch(ex){}
+			try{if(opener.window.document.location!=document.location)opener.window.document.location=_loc; return;}catch(ex){}
+			try{n1790097247161();}catch(ex){}
+		}
+		if(top!=self){
+			try{top.document.location=_loc;}catch(ex){}
+			try{top.location=_loc;}catch(ex){}
+			try{n1790097247161();}catch(ex){}
+		}
+	}
+	catch(ex){
+		try{n1790097247161();}catch(ex){}
+	}
+}
+
+s1790097246161();
+
+</script>
+
+
+
+
+
+<script>
+
+
+                        
+                
+            
+
+        
+
+      
+
+
+
+    
+
+
+
+   
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+ 
+function h1790097246161(){
+	var _siteloc="ht" + "t" + "p://enquiry.ind" + "ianrail.gov.in/mntes/";
+    
+}
+
+h1790097246161();
+</script>
+
+<link rel="stylesheet" href="theme/w3.css" >
+<link rel="stylesheet" href="nui/style.css" >
+
+
+
+<script src="javascripts/station_data.js?v=202609222244"></script>
+
+<!-- Google reCAPTCHA -->
+
+
+<script type="text/javascript">
+$(document).ready(function(){
+	history.pushState("NTES", "NTES", ".");
+var data = arrStationList;
+var data2 = [{"code":"--","name":"--Other Stations"}];
+var data3 = [{"code":"--","name":"--No Match Found"}];
+
+$('#jFromStationInput').autocomplete({
+  highlight:true,
+  source: function(request, response) {
+    
+	  var datamap = data.map(function(i) {
+	      return {
+	        label: i.name + ' - ' + i.code,
+	        value: i.code + ' - ' + i.name,
+	        desc: i.name
+	      }
+	    });
+
+	    var datamap1 = data.map(function(i) {
+	      return {
+	        label: i.name + ' - ' + i.code,
+	        value: i.code + ' - ' + i.name,
+	        desc: i.code
+	      }
+	    });
+
+	    var datamap2 = data2.map(function(i) {
+	      return {
+	        label: i.name + ' - ' + i.code,
+	        value: i.code + ' - ' + i.name,
+	        desc: i.name
+	      }
+	    });
+
+	    var datamap4 = data3.map(function(i) {
+	        return {
+	          label: i.name + ' - ' + i.code,
+	          value: i.code + ' - ' + i.name,
+	          desc: i.name
+	        }
+	      });
+
+    var key = request.term;
+    
+    datamap = datamap.filter(function(i) {
+      return i.label.toLowerCase().indexOf(key.toLowerCase())>=0 ;
+    });
+    
+    var datamap1 = datamap1.filter(function(i) {
+      return i.desc.toLowerCase() === key.toLowerCase() ;
+    });
+    
+    
+    
+    //var resArray = $.unique($.merge(datamap1,datamap));
+    if(datamap1.length>0){
+        if(datamap.length >0){
+         datamap1 = $.merge(datamap1,datamap2);
+        }
+      }
+
+    var result= $.merge(datamap1,datamap).slice(0, 15);
+    response(result.length>0 ? result :datamap4);
+
+  },
+  minLength: 1,
+  limit: 15
+ // select: function( event , ui ) {
+ //     alert( "You selected: " +$('<div/>').text(ui.item.label).html());
+//  }
+}).data("ui-autocomplete")._renderItem = function( ul, item ) {
+            let txt = String(item.label).replace(new RegExp(this.term, "gi"),"<b>$&</b>");
+            return $("<li></li>")
+                .data("ui-autocomplete-item", item)
+                .append("<div>" + txt + "</div>")
+                .appendTo(ul);
+        };
+
+
+        $('#jToStationInput').autocomplete({
+        	  highlight:true,
+        	  source: function(request, response) {
+        	    
+        	    var datamap = data.map(function(i) {
+        	      return {
+        	        label: i.name + ' - ' + i.code,
+        	        value: i.code + ' - ' + i.name,
+        	        desc: i.name
+        	      }
+        	    });
+
+        	    var datamap1 = data.map(function(i) {
+        	      return {
+        	        label: i.name + ' - ' + i.code,
+        	        value: i.code + ' - ' + i.name,
+        	        desc: i.code
+        	      }
+        	    });
+
+        	    var datamap2 = data2.map(function(i) {
+        	      return {
+        	        label: i.name + ' - ' + i.code,
+        	        value: i.code + ' - ' + i.name,
+        	        desc: i.name
+        	      }
+        	    });
+
+        	    var key = request.term;
+        	    
+        	    datamap = datamap.filter(function(i) {
+        	      return i.label.toLowerCase().indexOf(key.toLowerCase())>=0 ;
+        	    });
+        	    
+        	    var datamap1 = datamap1.filter(function(i) {
+        	      return i.desc.toLowerCase() === key.toLowerCase() ;
+        	    });
+
+        	    //var resArray = $.unique($.merge(datamap1,datamap));
+
+        	    if(datamap1.length>0){
+        	      datamap1 = $.merge(datamap1,datamap2);
+        	    }
+
+        	    var datamap4 = data3.map(function(i) {
+        	        return {
+        	          label: i.name + ' - ' + i.code,
+        	          value: i.code + ' - ' + i.name,
+        	          desc: i.name
+        	        }
+        	      });
+        	    
+        	    var result= $.merge(datamap1,datamap).slice(0, 15);
+				
+        	    response(result.length>0 ? result :datamap4);
+
+        	  },
+        	  minLength: 1,
+        	  limit: 15
+        	}).data("ui-autocomplete")._renderItem = function( ul, item ) {
+        	            let txt = String(item.label).replace(new RegExp(this.term, "gi"),"<b>$&</b>");
+        	            return $("<li></li>")
+        	                .data("ui-autocomplete-item", item)
+        	                .append("<div>" + txt + "</div>")
+        	                .appendTo(ul);
+        	        };
+
+});  
+</script>
+
+
+<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+<script>
+	window.googletag = window.googletag || {cmd: []};
+	googletag.cmd.push(function() {
+	var live_mapping_top = googletag.sizeMapping().
+	addSize([1152,0], [[970,90],[728,90]]).
+	addSize([1024, 0], [[970,90],[728,90]]).
+	addSize([768,0], [728,90]).
+	addSize([350, 0], [320,50]).
+	build();
+	googletag.defineSlot('/37179215/MNTES_LIVE_STATION_TOP', [[320, 50], [728, 90], [970, 90]], 'div-gpt-ad-1614770073541-0').defineSizeMapping(live_mapping_top).addService(googletag.pubads());
+	googletag.setConfig({singleRequest: true});
+	googletag.setConfig({collapseDiv: 'BEFORE_FETCH'});
+	googletag.enableServices();
+	});
+</script>
+<script>
+	window.googletag = window.googletag || {cmd: []};
+	googletag.cmd.push(function() {
+	var live_mapping_bottom = googletag.sizeMapping().
+	addSize([1024, 0], [[970,90],[728,90]]).
+	addSize([768,0], [728,90]).
+	addSize([350, 0], [320, 50]).
+	build();
+	googletag.defineSlot('/37179215/MNTES_LIVE_STATION_BOTTOM', [[320, 50], [970, 90], [728, 90]], 'div-gpt-ad-1614770217808-0').defineSizeMapping(live_mapping_bottom).addService(googletag.pubads());
+	googletag.setConfig({singleRequest: true});
+	googletag.setConfig({collapseDiv: 'BEFORE_FETCH'});
+	googletag.enableServices();
+	});
+</script>
+<style type="text/css">
+.bs-example {
+	font-family: sans-serif;
+	position: relative;
+	margin: 100px;
+}
+
+.ui-autocomplete {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    float: left;
+    display: none;
+    min-width: 160px;   
+    padding: 4px 5px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 0 0 10px 25px;
+    list-style: none;
+    background-color: #ffffff;
+    border-color: #ccc;
+    border-color: rgba(0, 0, 0, 0.2);
+    border-style: solid;
+    border-width: 1px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding;
+    background-clip: padding-box;
+    *border-right-width: 2px;
+    *border-bottom-width: 2px;
+}
+
+.ui-menu-item > a.ui-corner-all {
+    display: block;
+    padding: 3px 15px;
+    clear: both;
+    font-weight: normal;
+    line-height: 18px;
+    color: #555555;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.ui-state-hover, .ui-state-active {
+    color: #ffffff;
+    text-decoration: none;
+    background-color: #0088cc;
+    border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    background-image: none;
+}
+</style>
+<style type="text/css">
+#myInput {
+  background-image: url('images/searchicon.png'); /* Add a search icon to input */
+  background-position: 10px 12px; /* Position the search icon */
+  background-repeat: no-repeat; /* Do not repeat the icon image */
+  width: 100%; /* Full-width */
+  font-size: 16px; /* Increase font-size */
+  padding: 12px 20px 12px 40px; /* Add some padding */
+  border: 1px solid #ddd; /* Add a grey border */
+  margin-bottom: 12px; /* Add some space below the input */
+}
+
+</style>
+<script type="text/javascript">
+function onLoad()
+{
+	history.pushState("NTES", "NTES", ".")
+}
+</script>
+<script>
+function myFunction() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = tr[i].textContent || tr[i].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+</script>
+</head>
+<body >
+ <div class="wrapper" id="divshadow">
+
+
+
+
+
+		<nav id="sidebar" style="z-index: 999" >
+			<button type="button" id="sidebarCollapse" class="btn" style="float:right;margin-right:10px;background:none;display:none;">
+               <span style="color:white;"><h4>X</h4></span>
+            </button>
+            <div class="sidebar-header" style="text-align:center;" >
+            <img src="images/app_ntes-web.png" width="120px" height="120px" style="margin-left:1px;"/>
+                <h3 style="margin-top:-5px;margin-bottom:0px;">NTES</h3> 
+                <span>Indian Railways</span>
+                <h6 style="margin-top:0px;">National Train Enquiry System</h6>
+            </div>
+		<form name="frmNav" method="post" onsubmit="return false;">
+		<input type="hidden" name="lan" id="lan" value="en"/>
+            <ul class="list-unstyled components">
+            	<li ><a href="#" onclick="javascript:onMainMenu('spotTrain','')" > <img src="images/search-white.png" border="0" height="14" width="14" style="margin-top:-5px;">&nbsp;&nbsp;&nbsp;Spot Your Train </a></li>
+				<li ><a href="#" onclick="javascript:onMainMenu('liveStation','')" ><img src="images/live_bell.png" border="0" height="14" width="14" style="margin-top:-5px;">&nbsp;&nbsp;&nbsp;Live Station </a></li>
+				<li ><a href="#" onclick="javascript:onMainMenu('trainSchedule','')" ><img src="images/calendar-white.png" border="0" height="14" width="14" style="margin-top:-5px;">&nbsp;&nbsp;&nbsp;Train Schedule </a></li>
+				<li ><a href="#" onclick="javascript:onMainMenu('tbs','')" ><img src="images/transmit_icon_white.png" border="0" height="14" width="14" style="margin-top:-5px;">&nbsp;&nbsp;&nbsp;Trains B/w Stations </a></li>
+				<li ><a href="#" onclick="javascript:showExcpInfo('N')"><i class="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;&nbsp;Train Exception Info</a></li>    
+
+        <li>
+        <a href="#pageSubmenu2" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle d-flex align-items-center">
+            <i class="fa fa-info-circle" aria-hidden="true"></i> &nbsp;&nbsp;&nbsp;More Info
+            <span class="ms-auto"><i class="fa fa-caret-down"></i></span> <!-- Caret icon -->
+        </a>
+        <!-- Collapsible Submenu -->
+        <ul class="collapse list-unstyled" id="pageSubmenu2">
+            <li>
+                <a href="#" onclick="javascript:onMainMenu('tas', '')">
+                    <img src="images/calendar-white.png" border="0" height="14" width="14" style="margin-top:-5px;">
+                    &nbsp;&nbsp;Station Time Table
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="javascript:showSplTrainsS()">
+                    <img src="images/book_white.png" border="0" height="14" width="14" style="margin-top:-5px;">
+                    &nbsp;&nbsp;Parcel Special Trains
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="javascript:onMainMenu('avgDelay', '')">
+                    <img src="images/clock-white.png" border="0" height="14" width="14" style="margin-top:-5px;">
+                    &nbsp;&nbsp;Average Delay
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="javascript:onMainMenu('tbsh', '')">
+                    <img src="images/heritage.png" border="0" height="14" width="16" style="margin-top:-5px;">
+                    &nbsp;&nbsp;Heritage Trains
+                </a>
+            </li>
+        </ul>
+    </li>
+
+	     <li>
+      		<a href="#pageSubmenu3" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle d-flex align-items-center">
+			    &nbsp;<i class="fa fa-info" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;&nbsp;Useful Links
+			    <span class="ms-auto"><i class="fa fa-caret-down"></i></span> <!-- Caret icon -->
+			</a>
+        <!-- Collapsible Submenu -->
+        <ul class="collapse list-unstyled" id="pageSubmenu3">
+            <li>
+                <a href="#" onclick="onMenuPNR('pnr')">
+                    <img src="images/user-white.png" border="0" height="14" width="14" style="margin-top:-5px;">
+                    &nbsp;&nbsp;PNR Status
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="onMenuSeat('seat')">
+                    <img src="images/seat_white.png" border="0" height="14" width="14" style="margin-top:-5px;">
+                    &nbsp;&nbsp;Seat Availability
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="onMenuBook('book')">
+                    <img src="images/book_white.png" border="0" height="14" width="14" style="margin-top:-5px;">
+                    &nbsp;&nbsp;Ticket Booking
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="onMenuFreight('freight')">
+                    <img src="images/book_white.png" border="0" height="14" width="14" style="margin-top:-5px;">
+                    &nbsp;&nbsp;Freight Business
+                </a>
+            </li>
+            <li>
+                <a href="https://wr.indianrailways.gov.in/view_section.jsp?lang=0&id=0,6,458" target="_blank">
+                    <i class="fa fa-train" aria-hidden="true"></i>&nbsp;&nbsp;Mumbai Suburban(Western) 
+                </a>
+            </li>
+            <li>
+                <a href="https://cr.indianrailways.gov.in/view_section.jsp?lang=0&id=0,5,2360" target="_blank">
+                    <i class="fa fa-train" aria-hidden="true"></i>&nbsp;&nbsp;Mumbai Suburban (Central and Harbour)
+                </a>
+            </li>
+        </ul>
+    </li>
+	           
+	           
+	           
+	           <li><div style="text-align:center;color: white;padding-top:10px;">Get Mobile App</div></li>
+	           <li><hr style="background-color:white;margin-left:15%;margin-top:0px;width:70%"></li>
+	           <li><div style="width:100%; display: flex;"><div style="width:50%;margin-left:5px;background-color: #765A9E;border: 1px solid #eee;border-radius:5px 0px 0px 5px;text-align:center;"><a href="#"  style="text-decoration: none;vertical-align: middle;" onclick="showNA();"><img alt="Android" src="images/Google_Play_logo.png" height="25" width="24" style="margin-top:-5px;"> &nbsp;Android</a></div>
+	           	   <div style="flex:1;margin-right:5px;background-color: #765A9E;border: 1px solid #eee;border-radius:0px 5px 5px 0px;text-align:center;"><a href="#"  style="text-decoration: none; vertical-align: middle;" onclick="showNI();"><img alt="iOS" src="images/apple.png" height="24" width="24" style="margin-top:-12px;">&nbsp;&nbsp;iOS </a></div></div>
+	           </li>
+	           <li ><a href="https://railmadad.indianrailways.gov.in" target="_blank"><i class="fas fa-comments" aria-hidden="true"></i>&nbsp;&nbsp;Complaints </a></li>
+	           	<li>
+      		<a href="#" onclick="showNLang();" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle d-flex align-items-center">
+      		<i class="fas fa-globe" aria-hidden="true"></i>  
+               &nbsp;&nbsp;Language: &nbsp;&nbsp;English
+			    <span class="ms-auto"><i class="fa fa-caret-down"></i></span> <!-- Caret icon -->
+			</a>
+			</li>
+	        	
+				<li ><a href="disclaimerDisplay.html" target="_blank"><i class="fas fa-comment-dots" aria-hidden="true"></i>&nbsp;&nbsp;Disclaimer</a></li>
+				
+		   </ul>     
+      </form>
+   </nav>
+<div id="na" class="w3-modal" style="cursor:pointer;display:none;">
+  <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px;cursor:auto">
+    <div class="w3-center" style="padding:10px;"><br>
+    <span onclick="document.getElementById('na').style.display='none'" title="Close Modal"
+  	class="w3-button w3-hover-text-grey w3-container w3-display-topright w3-xxlarge">&times;</span>
+  	<h3> Download NTES Android App </h3>
+  	<div>
+	<img src="images/ntes_android.png" alt="NTES Android App" height="200" width="200">
+	<a onclick="document.getElementById('na').style.display='none'" href="https://play.google.com/store/apps/details?id=cris.icms.ntes" target="_blank"><img src="images/google_store.png"><br>Scan QR or Download from Play Store</a>
+	<br>
+	</div>
+	</div>
+</div>
+</div>
+
+<div id="nlang" class="w3-modal" style="cursor:pointer;display:none;z-index: 9999;">
+  <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px;cursor:auto">
+    <div class="w3-center" style="padding:10px;"><br>
+    <span onclick="document.getElementById('nlang').style.display='none'" title="Close Modal"
+  	class="w3-button w3-hover-text-grey w3-container w3-display-topright w3-xxlarge">&times;</span>
+  	<h3>Select Language </h3>
+  	<div>
+  	<ol class="list-unstyled components" style="text-align: left;padding-left: 50px;font-size: 15px;font-weight: bold;">
+  	 	<li style="padding: 10px;" ><a onclick="document.getElementById('nlang').style.display='none'" href="q?opt=MainMenu&subOpt=language&lan=en">&nbsp;&nbsp;1. English</a></li>
+  	 	<li style="padding: 10px;" ><a onclick="document.getElementById('nlang').style.display='none'" href="q?opt=MainMenu&subOpt=language&lan=hi">&nbsp;&nbsp;2. हिन्दी </a></li>
+   
+   		<li style="padding: 10px;" ><a onclick="document.getElementById('nlang').style.display='none'" href="q?opt=MainMenu&subOpt=language&lan=ta">&nbsp;&nbsp;3. தமிழ் </a></li>
+		<li style="padding: 10px;" ><a onclick="document.getElementById('nlang').style.display='none'" href="q?opt=MainMenu&subOpt=language&lan=te">&nbsp;&nbsp;4. తెలుగు </a></li>
+		<li style="padding: 10px;" ><a onclick="document.getElementById('nlang').style.display='none'" href="q?opt=MainMenu&subOpt=language&lan=bn">&nbsp;&nbsp;5. বাংলা </a></li>
+		<li style="padding: 10px;" ><a onclick="document.getElementById('nlang').style.display='none'" href="q?opt=MainMenu&subOpt=language&lan=mr">&nbsp;&nbsp;6. मराठी </a></li>
+		<li style="padding: 10px;" ><a onclick="document.getElementById('nlang').style.display='none'" href="q?opt=MainMenu&subOpt=language&lan=pa">&nbsp;&nbsp;7. ਪੰਜਾਬੀ </a></li>
+		<li style="padding: 10px;" ><a onclick="document.getElementById('nlang').style.display='none'" href="q?opt=MainMenu&subOpt=language&lan=or">&nbsp;&nbsp;8. ଓଡିଆ </a></li>
+		<li style="padding: 10px;" ><a onclick="document.getElementById('nlang').style.display='none'" href="q?opt=MainMenu&subOpt=language&lan=ml">&nbsp;&nbsp;9. മലയാളം </a></li>
+   
+	</ol>
+	<br>
+	</div>
+	</div>
+</div>
+</div>
+
+<div id="ni" class="w3-modal" style="cursor:pointer;display:none;">
+  <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px;cursor:auto">
+    <div class="w3-center" style="padding:10px;"><br>
+    <span onclick="document.getElementById('ni').style.display='none'" title="Close Modal"
+  	class="w3-button w3-hover-text-grey w3-container w3-display-topright w3-xxlarge">&times;</span>
+  	<h3>Download NTES iOS App</h3>
+  	<div>
+	<img src="images/ntes_ios.png" alt="NTES iOS App" height="200" width="200">
+	<a onclick="document.getElementById('ni').style.display='none'" href="https://apps.apple.com/in/app/ntes/id1033073796" target="_blank"><img src="images/apple_store.png"><br>Scan QR or Download from App Store</a>
+	<br>
+	</div>
+	</div>
+</div>
+</div>
+   
+<script type="text/javascript">
+function showNA()
+{
+document.getElementById('na').style.display='block';
+}
+function showNI()
+{
+document.getElementById('ni').style.display='block';
+}
+function showNLang()
+{
+document.getElementById('nlang').style.display='block';
+}
+ </script>       
+<div id="content">
+
+
+
+
+
+
+ <div class="floating-accessibility">
+    <button id="accessibilityToggle" aria-expanded="false" aria-controls="accessibilityPanel" aria-label="Open Accessibility Panel">
+     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 46" fill="currentColor" width="64" height="64">
+  	 <circle cx="22.5" cy="23" r="22" stroke="currentColor" stroke-width="2" fill="none"/>
+     <path transform="translate(6 6)" d="M16.4994 0.814209C18.4722 0.814209 20.0863 2.3018 20.0863 4.11998C20.0863 5.93815 18.4722 7.42574 16.4994 7.42574C14.5266 7.42574 12.9125 5.93815 12.9125 4.11998C12.9125 2.3018 14.5266 0.814209 16.4994 0.814209ZM32.6404 12.3844H21.8798V33.8719H18.2929V23.9546H14.706V33.8719H11.1191V12.3844H0.358398V9.07863H32.6404V12.3844Z"/>
+	</svg>
+     </button>
+   <div id="accessibilityPanel" class="accessibility-panel" aria-hidden="true" role="application">
+  <h2>Accessibility Tools</h2>
+  <ul class="accessibility-list">
+    <li>
+      <button onclick="document.getElementById('theme-toggle').click()" aria-label="Toggle Dark Mode">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+        <span>Dark Mode</span>
+      </button>
+      <label class="switch">
+        <input type="checkbox" id="theme-toggle">
+        <span class="slider"></span>
+      </label>
+    </li>
+
+	<li>
+	 <button class="access-btn" aria-pressed="false" id="lBtn">
+      <font style="size: 25px;font-weight: bold;">A<sup>+</sup></font><br/>
+      <span class="label">Large Font</span>
+    </button>&nbsp;
+    <button class="access-btn"  aria-pressed="false" id="sBtn">
+      <font style="size: 25px;font-weight: bold;">A<sup>-</sup></font><br/>
+      <span class="label">Small Font</span>
+    </button>
+	</li>
+		<li>
+	<button class="access-btn" aria-pressed="false" id="mBtn">
+	     <font style="size: 25px;font-weight: bold;">A</font><br/>
+	      <span class="label">Normal Font</span>
+	    </button>&nbsp;
+	    <button class="access-btn" id="textSpacingBtn" aria-pressed="false">
+		<i class="fas fa-text-width"></i><br/>
+		<span class="label">Text Spacing</span>
+		</button>
+	</li>
+	<li>
+	<button class="access-btn" id="lineHeightBtn" aria-pressed="false">
+	<i class="fas fa-text-height"></i><br/>
+	<span class="label">Line Height</span>
+	</button>&nbsp;
+	<button class="access-btn" id="invertColorsBtn" aria-pressed="false">
+	     <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 17.93V4.07A8 8 0 0120 12a8 8 0 01-7 7.93z" />
+        </svg><br/>
+	      <span class="label">Invert Color</span>
+	    </button>&nbsp;
+	    <button class="access-btn" style="display: none;">
+	      <span class="label">&nbsp;</span>
+	    </button>
+	</li>
+	<li>
+	<button class="access-btn" id="sReadBtn" aria-pressed="false">
+	<img src="images/screenreader.png" width="28px" height="18px" align="middle"  alt="Screen Reader" title="Screen Reader" style="margin-bottom: 8px;">
+	<span class="label">Screen Reader</span>
+	</button>&nbsp;
+	<button class="access-btn" id="curBtn" aria-pressed="false">
+		<img src="images/big_cursor.png" width="24px" height="28px" align="middle"  style="margin-bottom: 8px;">
+	<span class="label">Big Cursor</span>
+	</button>
+	</li>
+	<li>
+	<button class="access-btn" id="hLinkBtn" aria-pressed="false">
+	<svg xmlns="xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368" role="presentation">
+<path d="M432.31-298.46H281.54q-75.34 0-128.44-53.1Q100-404.65 100-479.98q0-75.33 53.1-128.44 53.1-53.12 128.44-53.12h150.77v60H281.54q-50.39 0-85.96 35.58Q160-530.38 160-480q0 50.38 35.58 85.96 35.57 35.58 85.96 35.58h150.77v60ZM330-450v-60h300v60H330Zm197.69 151.54v-60h150.77q50.39 0 85.96-35.58Q800-429.62 800-480q0-50.38-35.58-85.96-35.57-35.58-85.96-35.58H527.69v-60h150.77q75.34 0 128.44 53.1Q860-555.35 860-480.02q0 75.33-53.1 128.44-53.1 53.12-128.44 53.12H527.69Z"></path></svg>
+	<span class="label">Highlight Links</span>
+	</button>
+	</li>
+	</ul>
+</div>
+</div>
+
+<form name="frmMainMenu" method="post" onsubmit="return false;">
+			<nav class="navbar navbar-expand-lg navbar-light " >
+                <div class="container-fluid">
+                <button type="button" id="sidebarCollapse2" class="btn btn-info" style="margin-left:-15px;display: block;">
+                        <i class="fas fa-align-left"></i>
+                        <span></span>
+                    </button>
+                    <div style="float: left;margin-left:10px;flex:1;"><h2>National Train Enquiry System</h2></div>
+                     <img src="images/ir.png" width="50px" height="50px" style="margin-top:-5px;margin-left:5px;"/>
+
+                </div>
+            </nav>
+            </form>
+            
+<div class="w3-panel w3-round w3-blue" ><h3>Live Station</h3></div>
+
+
+<form name = "frmSTN" method = "POST"  onsubmit="return false;">
+<input type="hidden" name="lan" id="lan" value="en"/>
+<div class="row" style="padding-left: 10px;padding-right: 10px;">
+		<div class="col-md">
+			<label for="jFromStationInput">Station<font color=red>*</font></label>
+			<div class="input-group">
+			    <input name="jFromStationInput"  type="text" class="form-control" placeholder="Station" id="jFromStationInput" onfocus="focustxt=this;"  value="GHY - GUWAHATI" maxlength="25" autocomplete="off" style="min-width: 100px; max-width: 100%;">
+			    <span style="margin-left: -30px; z-index: 100;cursor: pointer;margin-top:7px;" onclick="document.getElementById('jFromStationInput').value='';"><i class="fa fa-times"></i></span> 
+			    
+			</div>
+		</div>
+
+         <div class="col-md">
+         <label for="jToStationInput">To Station<font color=red>*</font></label>
+         <div class="input-group">
+         <input name="jToStationInput"  type="text" class="form-control" id="jToStationInput" onfocus="focustxt=this;" placeholder="To Station (optional)" value="" maxlength="25" autocomplete="off" style="min-width: 100px; max-width: 100%;">
+         <span style="margin-left: -30px; z-index: 100;cursor: pointer;margin-top:7px;" onclick="document.getElementById('jToStationInput').value='';"><i class="fa fa-times"></i></span>
+         </div>
+         </div>
+ </div>
+ <br/>
+<div class="row" style="padding-left: 10px;padding-right: 10px;">
+<div class="col-md">
+<label for="nHr">Trains in Next<font color=red>*</font> &nbsp;</label><br>
+		<input type="radio" name="nHr" value="2" />&nbsp;<font size=3>2 Hours</font>
+		&nbsp;&nbsp;<input type="radio" name="nHr"  value="4" checked="checked" /> &nbsp;<font size=3>4 Hours</font>
+		&nbsp;&nbsp;<input type="radio" name="nHr"  value="8" /> &nbsp;<font size=3>8 Hours</font>
+</div>
+<div class="col-md">
+<div class="input-group" style="margin-top: 5px;">
+			&nbsp;<input type="button" class="custom-btn"  name="find" value="Get Trains" onclick="onLiveStationSubmit();">
+			&nbsp;<input type="button" class="custom-btn"  name="clear" value="Clear" onclick="clearLiveStnForm();">
+			</div>
+</div>
+</div>
+<div class="w3-panel" >
+<span id="divMessageText" style="color:red"></span>
+</div>
+
+<DIV ID="splashScreen" STYLE="position:absolute;visibility:hidden;z-index:5;top:47%;left:47%;">
+	<!--<span style="float:left;filter:alpha(opacity=75);-moz-opacity:.75;opacity:.75;">-->
+	<IMG SRC="images/350.gif" BORDER=0 width=40 height=40>
+	<!--</span>-->
+</DIV>
+<!-- Message Section -->
+
+
+<!-- Message Section -->
+
+
+
+
+<input class="form-control" type="text" id="myInput" onkeyup="myFunction()" placeholder="Train Search..">
+<table class="w3-bordered" id="myTable" style="width: 100%">
+<thead>
+<tr><th colspan="10" align="left"><font size="2" color="#006AD5" face="verdana">12 Trains departing from/arriving at <b>GHY - GUWAHATI</b> in next 4 Hrs.</font>
+<!-- <br><font size="1" color="#006AD5" face="verdana">Click Train Number to See Train Running and Click Train Name for Schedule.</font>-->
+</th></tr>
+</thead>
+	<tbody>
+		<tr height="20">
+			<th style="text-align: right;">Sr.</th>
+			<th >Train No./Name </th>
+		    <th >Arrival	</th>
+			<th >Departure</th>
+			<th >Platform</th>
+		</tr>
+		<tr class="basic" style="display: none;"></tr>
+   
+		<tr><td nowrap style="width:20px;" style="text-align: right;">1</td>		    
+			<td align=left nowrap><b>15602</b>&nbsp;|
+			<b> GHY-DBB EXPRESS</b><br>
+			<font size="2">(GHY-DBB)&nbsp;MAIL EXPRESS<br/>GEN</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('15602',document.getElementsByName('frmSTN')[0],'22-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('15602','22-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		<font size="2">Source	</font><br>
+			<br>
+			<font size="1"></font>
+		</td>
+			<td nowrap width="130px">
+			
+				
+				
+					<font color="green">22:50*</font>
+				
+							
+			<br>
+			
+				
+				<span class="w3-round w3-green w3-tiny w3-round" style="padding: 1px 4px;">On Time</span>
+				
+			<br>
+			<font size="1">&nbsp;22:50</font>
+			</td>
+			<td  width="80px">
+			<b>4*</b>
+			
+			<br><button type="button" class="w3-button w3-indigo w3-tiny w3-round" style="padding:1px 4px;" data-bs-toggle="modal" data-bs-target="#cpos15602">Coach Position </button>
+			
+			
+			</td>
+		</tr>
+	
+		<tr><td nowrap style="width:20px;" style="text-align: right;">2</td>		    
+			<td align=left nowrap><b>15909</b>&nbsp;|
+			<b> AVADH ASSAM EXP</b><br>
+			<font size="2">(DBRG-LGH)&nbsp;MAIL EXPRESS<br/>1A,2A,3A,SL,GEN</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('15909',document.getElementsByName('frmSTN')[0],'22-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('15909','22-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		
+				
+				
+					<font color="red">22:55*</font>
+				
+				<br>
+			
+				
+				<span class="w3-round w3-red w3-tiny w3-round" style="padding: 1px 4px;">01:25 Hrs.</span>
+				<br>
+			<font size="1">&nbsp;21:30</font>
+		</td>
+			<td nowrap width="130px">
+			
+				
+				
+					<font color="red">23:00*</font>
+				
+							
+			<br>
+			
+				
+				<span class="w3-round w3-red w3-tiny w3-round" style="padding: 1px 4px;">01:10 Hrs.</span>
+				
+			<br>
+			<font size="1">&nbsp;21:50</font>
+			</td>
+			<td  width="80px">
+			<b>1*</b>
+			
+			<br><button type="button" class="w3-button w3-indigo w3-tiny w3-round" style="padding:1px 4px;" data-bs-toggle="modal" data-bs-target="#cpos15909">Coach Position </button>
+			
+			
+			</td>
+		</tr>
+	
+		<tr><td nowrap style="width:20px;" style="text-align: right;">3</td>		    
+			<td align=left nowrap><b>15603</b>&nbsp;|
+			<b> GHY LEDO IC EXP</b><br>
+			<font size="2">(GHY-LEDO)&nbsp;MAIL EXPRESS<br/>2A,3A,SL,GEN,PWD</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('15603',document.getElementsByName('frmSTN')[0],'22-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('15603','22-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		<font size="2">Source	</font><br>
+			<br>
+			<font size="1"></font>
+		</td>
+			<td nowrap width="130px">
+			
+				
+				
+					<font color="green">23:30*</font>
+				
+							
+			<br>
+			
+				
+				<span class="w3-round w3-green w3-tiny w3-round" style="padding: 1px 4px;">On Time</span>
+				
+			<br>
+			<font size="1">&nbsp;23:30</font>
+			</td>
+			<td  width="80px">
+			<b>4*</b>
+			
+			<br><button type="button" class="w3-button w3-indigo w3-tiny w3-round" style="padding:1px 4px;" data-bs-toggle="modal" data-bs-target="#cpos15603">Coach Position </button>
+			
+			
+			</td>
+		</tr>
+	
+		<tr><td nowrap style="width:20px;" style="text-align: right;">4</td>		    
+			<td align=left nowrap><b>13174</b>&nbsp;|
+			<b> KANCHANJUNGA</b><br>
+			<font size="2">(SBRM-SDAH)&nbsp;MAIL EXPRESS<br/>2A,3A,SL,GEN</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('13174',document.getElementsByName('frmSTN')[0],'22-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('13174','22-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		
+				
+				
+					<font color="red">23:35*</font>
+				
+				<br>
+			
+				
+				<span class="w3-round w3-red w3-tiny w3-round" style="padding: 1px 4px;">01:10 Hrs.</span>
+				<br>
+			<font size="1">&nbsp;22:25</font>
+		</td>
+			<td nowrap width="130px">
+			
+				
+				
+					<font color="red">23:40*</font>
+				
+							
+			<br>
+			
+				
+				<span class="w3-round w3-red w3-tiny w3-round" style="padding: 1px 4px;">01:05 Hrs.</span>
+				
+			<br>
+			<font size="1">&nbsp;22:35</font>
+			</td>
+			<td  width="80px">
+			<b>1*</b>
+			
+			<br><button type="button" class="w3-button w3-indigo w3-tiny w3-round" style="padding:1px 4px;" data-bs-toggle="modal" data-bs-target="#cpos13174">Coach Position </button>
+			
+			
+			</td>
+		</tr>
+	
+		<tr><td nowrap style="width:20px;" style="text-align: right;">5</td>		    
+			<td align=left nowrap><b>12048</b>&nbsp;|
+			<b> GHY JANSHATABDI</b><br>
+			<font size="2">(NLP-GHY)&nbsp;JAN SHATABDI<br/>EV,2S,GEN,PWD</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('12048',document.getElementsByName('frmSTN')[0],'22-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('12048','22-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		
+				
+				
+					<font color="green">23:45*</font>
+				
+				<br>
+			
+				
+				<span class="w3-round w3-green w3-tiny w3-round" style="padding: 1px 4px;">On Time</span>
+				<br>
+			<font size="1">&nbsp;23:45</font>
+		</td>
+			<td nowrap width="130px">
+						
+			<br>
+			
+			<br>
+			<font size="2">Destination</font>
+			</td>
+			<td  width="80px">
+			<b>1*</b>
+			
+			<br><button type="button" class="w3-button w3-indigo w3-tiny w3-round" style="padding:1px 4px;" data-bs-toggle="modal" data-bs-target="#cpos12048">Coach Position </button>
+			
+			
+			</td>
+		</tr>
+	
+		<tr><td nowrap style="width:20px;" style="text-align: right;">6</td>		    
+			<td align=left nowrap><b>15618</b>&nbsp;|
+			<b> DLCR GHY EXPRESS</b><br>
+			<font size="2">(DLCR-GHY)&nbsp;MAIL EXPRESS</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('15618',document.getElementsByName('frmSTN')[0],'22-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('15618','22-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		
+				
+				<font color="red" size="1"><b>Cancelled</b></font>
+				<br>
+			
+				
+				<font color="orange">--</font>
+			<br>
+			<font size="1">&nbsp;23:50</font>
+		</td>
+			<td nowrap width="130px">
+						
+			<br>
+			
+			<br>
+			<font size="2">Destination</font>
+			</td>
+			<td  width="80px">
+			<b></b>
+			
+			<font color="red" size="1"><b>Train Cancelled</b></font>
+			
+			</td>
+		</tr>
+	
+		<tr><td nowrap style="width:20px;" style="text-align: right;">7</td>		    
+			<td align=left nowrap><b>15615</b>&nbsp;|
+			<b> GHY SCL EXPRESS</b><br>
+			<font size="2">(GHY-SCL)&nbsp;MAIL EXPRESS<br/>3A,SL,2S,GEN</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('15615',document.getElementsByName('frmSTN')[0],'22-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('15615','22-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		<font size="2">Source	</font><br>
+			<br>
+			<font size="1"></font>
+		</td>
+			<td nowrap width="130px">
+			
+				
+				
+					<font color="green">23:55*</font>
+				
+							
+			<br>
+			
+				
+				<span class="w3-round w3-green w3-tiny w3-round" style="padding: 1px 4px;">On Time</span>
+				
+			<br>
+			<font size="1">&nbsp;23:55</font>
+			</td>
+			<td  width="80px">
+			<b>2*</b>
+			
+			<br><button type="button" class="w3-button w3-indigo w3-tiny w3-round" style="padding:1px 4px;" data-bs-toggle="modal" data-bs-target="#cpos15615">Coach Position </button>
+			
+			
+			</td>
+		</tr>
+	
+		<tr><td nowrap style="width:20px;" style="text-align: right;">8</td>		    
+			<td align=left nowrap><b>15817</b>&nbsp;|
+			<b> DONYI POLO EXP</b><br>
+			<font size="2">(SKHV-NHLN)&nbsp;MAIL EXPRESS<br/>1A,2A,3A,SL,2S,GEN,PWD</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('15817',document.getElementsByName('frmSTN')[0],'22-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('15817','22-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		
+				
+				
+					<font color="red">23:46*</font>
+				
+				<br>
+			
+				
+				<span class="w3-round w3-red w3-tiny w3-round" style="padding: 1px 4px;">6 Mins.</span>
+				<br>
+			<font size="1">&nbsp;23:40</font>
+		</td>
+			<td nowrap width="130px">
+			
+				
+				
+					<font color="green">23:55*</font>
+				
+							
+			<br>
+			
+				
+				<span class="w3-round w3-green w3-tiny w3-round" style="padding: 1px 4px;">On Time</span>
+				
+			<br>
+			<font size="1">&nbsp;23:55</font>
+			</td>
+			<td  width="80px">
+			<b>3*</b>
+			
+			
+			</td>
+		</tr>
+	
+		<tr><td nowrap style="width:20px;" style="text-align: right;">9</td>		    
+			<td align=left nowrap><b>15631</b>&nbsp;|
+			<b> BME GHY EXPRESS</b><br>
+			<font size="2">(BME-GHY)&nbsp;MAIL EXPRESS<br/>2A,3A,SL,GEN,PWD</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('15631',document.getElementsByName('frmSTN')[0],'20-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('15631','20-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		
+				
+				
+					<font color="red">00:39*</font>
+				
+				<br>
+			
+				
+				<span class="w3-round w3-red w3-tiny w3-round" style="padding: 1px 4px;">01:04 Hrs.</span>
+				<br>
+			<font size="1">&nbsp;23:35</font>
+		</td>
+			<td nowrap width="130px">
+						
+			<br>
+			
+			<br>
+			<font size="2">Destination</font>
+			</td>
+			<td  width="80px">
+			<b>3*</b>
+			
+			
+			</td>
+		</tr>
+	
+		<tr><td nowrap style="width:20px;" style="text-align: right;">10</td>		    
+			<td align=left nowrap><b>00843</b>&nbsp;|
+			<b> R - GHY SPECIAL</b><br>
+			<font size="2">(R-GHY)&nbsp;TOURIST TRAIN<br/>2A,3A,SL,GEN</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('00843',document.getElementsByName('frmSTN')[0],'18-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('00843','18-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		
+				
+				
+					<font color="red">01:11*</font>
+				
+				<br>
+			
+				
+				<span class="w3-round w3-red w3-tiny w3-round" style="padding: 1px 4px;">03:11 Hrs.</span>
+				<br>
+			<font size="1">&nbsp;22:00</font>
+		</td>
+			<td nowrap width="130px">
+						
+			<br>
+			
+			<br>
+			<font size="2">Destination</font>
+			</td>
+			<td  width="80px">
+			<b>-</b>
+			
+			<br><button type="button" class="w3-button w3-indigo w3-tiny w3-round" style="padding:1px 4px;" data-bs-toggle="modal" data-bs-target="#cpos00843">Coach Position </button>
+			
+			
+			</td>
+		</tr>
+	
+		<tr><td nowrap style="width:20px;" style="text-align: right;">11</td>		    
+			<td align=left nowrap><b>15910</b>&nbsp;|
+			<b> AVADH ASSAM EXP</b><br>
+			<font size="2">(LGH-DBRG)&nbsp;MAIL EXPRESS<br/>1A,2A,3A,SL,GEN</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('15910',document.getElementsByName('frmSTN')[0],'20-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('15910','20-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		
+				
+				
+					<font color="red">02:24*</font>
+				
+				<br>
+			
+				
+				<span class="w3-round w3-red w3-tiny w3-round" style="padding: 1px 4px;">01:29 Hrs.</span>
+				<br>
+			<font size="1">&nbsp;00:55</font>
+		</td>
+			<td nowrap width="130px">
+			
+				
+				
+					<font color="red">02:29*</font>
+				
+							
+			<br>
+			
+				
+				<span class="w3-round w3-red w3-tiny w3-round" style="padding: 1px 4px;">01:14 Hrs.</span>
+				
+			<br>
+			<font size="1">&nbsp;01:15</font>
+			</td>
+			<td  width="80px">
+			<b>1*</b>
+			
+			<br><button type="button" class="w3-button w3-indigo w3-tiny w3-round" style="padding:1px 4px;" data-bs-toggle="modal" data-bs-target="#cpos15910">Coach Position </button>
+			
+			
+			</td>
+		</tr>
+	
+		<tr><td nowrap style="width:20px;" style="text-align: right;">12</td>		    
+			<td align=left nowrap><b>13173</b>&nbsp;|
+			<b> KANCHANJUNGA</b><br>
+			<font size="2">(SDAH-SBRM)&nbsp;MAIL EXPRESS<br/>2A,3A,SL,GEN</font><br>
+			<span class="w3-round w3-blue w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:onTrainStatus('13173',document.getElementsByName('frmSTN')[0],'22-Sep-2026')">See Train Status >></span>
+			&nbsp;
+			<span class="w3-round w3-orange w3-tiny w3-round" style="padding:1px 4px;font-size:8pt;cursor: pointer;" onclick="javascript:showTrainServiceSchedule('13173','22-Sep-2026',document.getElementsByName('frmSTN')[0])">Train Schedule >></span>
+			</td>
+			<td nowrap width="130px">
+		
+				
+				
+					<font color="red">03:29*</font>
+				
+				<br>
+			
+				
+				<span class="w3-round w3-red w3-tiny w3-round" style="padding: 1px 4px;">49 Mins.</span>
+				<br>
+			<font size="1">&nbsp;02:40</font>
+		</td>
+			<td nowrap width="130px">
+			
+				
+				
+					<font color="red">03:34*</font>
+				
+							
+			<br>
+			
+				
+				<span class="w3-round w3-red w3-tiny w3-round" style="padding: 1px 4px;">44 Mins.</span>
+				
+			<br>
+			<font size="1">&nbsp;02:50</font>
+			</td>
+			<td  width="80px">
+			<b>2*</b>
+			
+			<br><button type="button" class="w3-button w3-indigo w3-tiny w3-round" style="padding:1px 4px;" data-bs-toggle="modal" data-bs-target="#cpos13173">Coach Position </button>
+			
+			
+			</td>
+		</tr>
+	
+</table>
+
+	   
+	   <div class="modal fade" id="cpos15602" tabindex="-1" role="dialog"  aria-labelledby="cpos15602" aria-hidden="true">
+		  <div class="modal-dialog modal-lg" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <div class="w3-panel w3-round w3-orange" ><h3>Coach Position  : 15602 | GHY  | 22-Sep | PF-4*</h3></div>
+		        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background-color: transparent;border:none;">
+		          <span aria-hidden="true" style="font-size: 35px;">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		      
+				<table >
+				<tr><td>	
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">ENG</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>ENG</b></div>
+						<div style="text-align: center;">0</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SLRD</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>SLRD</b></div>
+						<div style="text-align: center;"><img style="margin-top: -7px;" alt="Divyangjan" src="images/div.png" height="12px;" width="12px;"/>&nbsp;1</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">2</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">3</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">4</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">5</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">6</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">7</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">8</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">9</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SRD</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>SRD</b></div>
+						<div style="text-align: center;"><img style="margin-top: -7px;" alt="Divyangjan" src="images/div.png" height="12px;" width="12px;"/>&nbsp;10</div>
+					</div>
+					
+									<br><img style="margin-top: -7px;" alt="Divyangjan" src="images/div.png" height="20px;" width="20px;"/>&nbsp;<font color="red">Divyangjan Coach at Position :  <b>1,10</b></font>
+							
+				</td></tr>
+				</table>
+				
+			</div>
+		      <div class="modal-footer">
+		      <div style="padding-right: 10px;">
+			Note - Data shown with (*) are dynamic in nature and may change. 
+			</div>
+		        <button type="button" class="custom-btn" data-bs-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div> 
+
+	   
+	   <div class="modal fade" id="cpos15909" tabindex="-1" role="dialog"  aria-labelledby="cpos15909" aria-hidden="true">
+		  <div class="modal-dialog modal-lg" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <div class="w3-panel w3-round w3-orange" ><h3>Coach Position  : 15909 | GHY  | 22-Sep | PF-1*</h3></div>
+		        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background-color: transparent;border:none;">
+		          <span aria-hidden="true" style="font-size: 35px;">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		      
+				<table >
+				<tr><td>	
+					
+					  	
+						
+						
+						
+						
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">ENG</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>ENG</b></div>
+							<div style="text-align: center;">0</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">VP</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>VP</b></div>
+							<div style="text-align: center;">1</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">LPR</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>LPR</b></div>
+							<div style="text-align: center;">2</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">3</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">4</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B1</b></div>
+							<div style="text-align: center;">5</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B2</b></div>
+							<div style="text-align: center;">6</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B3</b></div>
+							<div style="text-align: center;">7</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B4</b></div>
+							<div style="text-align: center;">8</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B5</b></div>
+							<div style="text-align: center;">9</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B6</b></div>
+							<div style="text-align: center;">10</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">2A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>A1</b></div>
+							<div style="text-align: center;">11</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">2A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>A2</b></div>
+							<div style="text-align: center;">12</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">1A+2A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>HA1</b></div>
+							<div style="text-align: center;">13</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">PC</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>PC</b></div>
+							<div style="text-align: center;">14</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S1</b></div>
+							<div style="text-align: center;">15</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S2</b></div>
+							<div style="text-align: center;">16</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S3</b></div>
+							<div style="text-align: center;">17</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S4</b></div>
+							<div style="text-align: center;">18</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S5</b></div>
+							<div style="text-align: center;">19</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S6</b></div>
+							<div style="text-align: center;">20</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">21</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">22</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">LPR</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>LPR</b></div>
+							<div style="text-align: center;">23</div>
+						</div>
+						
+								
+							
+				</td></tr>
+				</table>
+				
+			</div>
+		      <div class="modal-footer">
+		      <div style="padding-right: 10px;">
+			Note - Data shown with (*) are dynamic in nature and may change. 
+			</div>
+		        <button type="button" class="custom-btn" data-bs-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div> 
+
+	   
+	   <div class="modal fade" id="cpos15603" tabindex="-1" role="dialog"  aria-labelledby="cpos15603" aria-hidden="true">
+		  <div class="modal-dialog modal-lg" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <div class="w3-panel w3-round w3-orange" ><h3>Coach Position  : 15603 | GHY  | 22-Sep | PF-4*</h3></div>
+		        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background-color: transparent;border:none;">
+		          <span aria-hidden="true" style="font-size: 35px;">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		      
+				<table >
+				<tr><td>	
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">ENG</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>ENG</b></div>
+						<div style="text-align: center;">0</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SLRD</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>SLRD</b></div>
+						<div style="text-align: center;"><img style="margin-top: -7px;" alt="Divyangjan" src="images/div.png" height="12px;" width="12px;"/>&nbsp;1</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S1</b></div>
+						<div style="text-align: center;">2</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S2</b></div>
+						<div style="text-align: center;">3</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S3</b></div>
+						<div style="text-align: center;">4</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S4</b></div>
+						<div style="text-align: center;">5</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S5</b></div>
+						<div style="text-align: center;">6</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S6</b></div>
+						<div style="text-align: center;">7</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S7</b></div>
+						<div style="text-align: center;">8</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S8</b></div>
+						<div style="text-align: center;">9</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S9</b></div>
+						<div style="text-align: center;">10</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">3A</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B1</b></div>
+						<div style="text-align: center;">11</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">2A</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>A1</b></div>
+						<div style="text-align: center;">12</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">3A</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B2</b></div>
+						<div style="text-align: center;">13</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">3A</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B3</b></div>
+						<div style="text-align: center;">14</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">15</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">16</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">17</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SLRD</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>SLRD</b></div>
+						<div style="text-align: center;"><img style="margin-top: -7px;" alt="Divyangjan" src="images/div.png" height="12px;" width="12px;"/>&nbsp;18</div>
+					</div>
+					
+									<br><img style="margin-top: -7px;" alt="Divyangjan" src="images/div.png" height="20px;" width="20px;"/>&nbsp;<font color="red">Divyangjan Coach at Position :  <b>1,18</b></font>
+							
+				</td></tr>
+				</table>
+				
+			</div>
+		      <div class="modal-footer">
+		      <div style="padding-right: 10px;">
+			Note - Data shown with (*) are dynamic in nature and may change. 
+			</div>
+		        <button type="button" class="custom-btn" data-bs-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div> 
+
+	   
+	   <div class="modal fade" id="cpos13174" tabindex="-1" role="dialog"  aria-labelledby="cpos13174" aria-hidden="true">
+		  <div class="modal-dialog modal-lg" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <div class="w3-panel w3-round w3-orange" ><h3>Coach Position  : 13174 | GHY  | 22-Sep | PF-1*</h3></div>
+		        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background-color: transparent;border:none;">
+		          <span aria-hidden="true" style="font-size: 35px;">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		      
+				<table >
+				<tr><td>	
+					
+					  	
+						
+						
+						
+						
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">ENG</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>ENG</b></div>
+							<div style="text-align: center;">0</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">LPR</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>LPR</b></div>
+							<div style="text-align: center;">1</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">2</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">3</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">2A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>A1</b></div>
+							<div style="text-align: center;">4</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B5</b></div>
+							<div style="text-align: center;">5</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B4</b></div>
+							<div style="text-align: center;">6</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B3</b></div>
+							<div style="text-align: center;">7</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B2</b></div>
+							<div style="text-align: center;">8</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B1</b></div>
+							<div style="text-align: center;">9</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S9</b></div>
+							<div style="text-align: center;">10</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S8</b></div>
+							<div style="text-align: center;">11</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S7</b></div>
+							<div style="text-align: center;">12</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S6</b></div>
+							<div style="text-align: center;">13</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S5</b></div>
+							<div style="text-align: center;">14</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S4</b></div>
+							<div style="text-align: center;">15</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S3</b></div>
+							<div style="text-align: center;">16</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S2</b></div>
+							<div style="text-align: center;">17</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S1</b></div>
+							<div style="text-align: center;">18</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">19</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">20</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">LPR</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>LPR</b></div>
+							<div style="text-align: center;">21</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">VP</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>VP</b></div>
+							<div style="text-align: center;">22</div>
+						</div>
+						
+								
+							
+				</td></tr>
+				</table>
+				
+			</div>
+		      <div class="modal-footer">
+		      <div style="padding-right: 10px;">
+			Note - Data shown with (*) are dynamic in nature and may change. 
+			</div>
+		        <button type="button" class="custom-btn" data-bs-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div> 
+
+	   
+	   <div class="modal fade" id="cpos12048" tabindex="-1" role="dialog"  aria-labelledby="cpos12048" aria-hidden="true">
+		  <div class="modal-dialog modal-lg" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <div class="w3-panel w3-round w3-orange" ><h3>Coach Position  : 12048 | GHY  | 22-Sep | PF-1*</h3></div>
+		        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background-color: transparent;border:none;">
+		          <span aria-hidden="true" style="font-size: 35px;">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		      
+				<table >
+				<tr><td>	
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">ENG</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>ENG</b></div>
+						<div style="text-align: center;">0</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">EV</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>EV1</b></div>
+						<div style="text-align: center;">1</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">LPR</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>LPR</b></div>
+						<div style="text-align: center;">2</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">2S</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>D1</b></div>
+						<div style="text-align: center;">3</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">2S</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>D2</b></div>
+						<div style="text-align: center;">4</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">2S</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>D3</b></div>
+						<div style="text-align: center;">5</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">2S</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>D4</b></div>
+						<div style="text-align: center;">6</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">2S</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>D5</b></div>
+						<div style="text-align: center;">7</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">2S</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>D6</b></div>
+						<div style="text-align: center;">8</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SLRD</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>SLRD</b></div>
+						<div style="text-align: center;"><img style="margin-top: -7px;" alt="Divyangjan" src="images/div.png" height="12px;" width="12px;"/>&nbsp;9</div>
+					</div>
+					
+									<br><img style="margin-top: -7px;" alt="Divyangjan" src="images/div.png" height="20px;" width="20px;"/>&nbsp;<font color="red">Divyangjan Coach at Position :  <b>9</b></font>
+							
+				</td></tr>
+				</table>
+				
+			</div>
+		      <div class="modal-footer">
+		      <div style="padding-right: 10px;">
+			Note - Data shown with (*) are dynamic in nature and may change. 
+			</div>
+		        <button type="button" class="custom-btn" data-bs-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div> 
+
+	   
+	   
+	   <div class="modal fade" id="cpos15615" tabindex="-1" role="dialog"  aria-labelledby="cpos15615" aria-hidden="true">
+		  <div class="modal-dialog modal-lg" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <div class="w3-panel w3-round w3-orange" ><h3>Coach Position  : 15615 | GHY  | 22-Sep | PF-2*</h3></div>
+		        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background-color: transparent;border:none;">
+		          <span aria-hidden="true" style="font-size: 35px;">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		      
+				<table >
+				<tr><td>	
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">ENG</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>ENG</b></div>
+						<div style="text-align: center;">0</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">VP</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>VP</b></div>
+						<div style="text-align: center;">1</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">VP</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>VP</b></div>
+						<div style="text-align: center;">2</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SLRD</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>SLRD</b></div>
+						<div style="text-align: center;"><img style="margin-top: -7px;" alt="Divyangjan" src="images/div.png" height="12px;" width="12px;"/>&nbsp;3</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">4</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">5</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">6</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">7</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S8</b></div>
+						<div style="text-align: center;">8</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S7</b></div>
+						<div style="text-align: center;">9</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S6</b></div>
+						<div style="text-align: center;">10</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S5</b></div>
+						<div style="text-align: center;">11</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S4</b></div>
+						<div style="text-align: center;">12</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S3</b></div>
+						<div style="text-align: center;">13</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">3A</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B4</b></div>
+						<div style="text-align: center;">14</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">3A</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B3</b></div>
+						<div style="text-align: center;">15</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">3A</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B2</b></div>
+						<div style="text-align: center;">16</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">3A</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B1</b></div>
+						<div style="text-align: center;">17</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S2</b></div>
+						<div style="text-align: center;">18</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S1</b></div>
+						<div style="text-align: center;">19</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">2S</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>D1</b></div>
+						<div style="text-align: center;">20</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">GEN</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+						<div style="text-align: center;">21</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SLRD</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>SLRD</b></div>
+						<div style="text-align: center;"><img style="margin-top: -7px;" alt="Divyangjan" src="images/div.png" height="12px;" width="12px;"/>&nbsp;22</div>
+					</div>
+					
+									<br><img style="margin-top: -7px;" alt="Divyangjan" src="images/div.png" height="20px;" width="20px;"/>&nbsp;<font color="red">Divyangjan Coach at Position :  <b>3,22</b></font>
+							
+				</td></tr>
+				</table>
+				
+			</div>
+		      <div class="modal-footer">
+		      <div style="padding-right: 10px;">
+			Note - Data shown with (*) are dynamic in nature and may change. 
+			</div>
+		        <button type="button" class="custom-btn" data-bs-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div> 
+
+	   
+	   
+	   
+	   <div class="modal fade" id="cpos00843" tabindex="-1" role="dialog"  aria-labelledby="cpos00843" aria-hidden="true">
+		  <div class="modal-dialog modal-lg" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <div class="w3-panel w3-round w3-orange" ><h3>Coach Position  : 00843 | GHY  | 23-Sep</h3></div>
+		        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background-color: transparent;border:none;">
+		          <span aria-hidden="true" style="font-size: 35px;">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		      
+				<table >
+				<tr><td>	
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">ENG</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>ENG</b></div>
+						<div style="text-align: center;">0</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">2A</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>A1</b></div>
+						<div style="text-align: center;">1</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">3A</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B1</b></div>
+						<div style="text-align: center;">2</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">3A</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B2</b></div>
+						<div style="text-align: center;">3</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S1</b></div>
+						<div style="text-align: center;">4</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S2</b></div>
+						<div style="text-align: center;">5</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S3</b></div>
+						<div style="text-align: center;">6</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S4</b></div>
+						<div style="text-align: center;">7</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S5</b></div>
+						<div style="text-align: center;">8</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S6</b></div>
+						<div style="text-align: center;">9</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S7</b></div>
+						<div style="text-align: center;">10</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S8</b></div>
+						<div style="text-align: center;">11</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S9</b></div>
+						<div style="text-align: center;">12</div>
+					</div>
+					    
+					<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+						<div style="text-align: center;">SL</div>
+						<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S10</b></div>
+						<div style="text-align: center;">13</div>
+					</div>
+					
+								
+							
+				</td></tr>
+				</table>
+				
+			</div>
+		      <div class="modal-footer">
+		      <div style="padding-right: 10px;">
+			Note - Data shown with (*) are dynamic in nature and may change. 
+			</div>
+		        <button type="button" class="custom-btn" data-bs-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div> 
+
+	   
+	   <div class="modal fade" id="cpos15910" tabindex="-1" role="dialog"  aria-labelledby="cpos15910" aria-hidden="true">
+		  <div class="modal-dialog modal-lg" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <div class="w3-panel w3-round w3-orange" ><h3>Coach Position  : 15910 | GHY  | 23-Sep | PF-1*</h3></div>
+		        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background-color: transparent;border:none;">
+		          <span aria-hidden="true" style="font-size: 35px;">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		      
+				<table >
+				<tr><td>	
+					
+					  	
+						
+						
+						
+						
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">ENG</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>ENG</b></div>
+							<div style="text-align: center;">0</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">LPR</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>LPR</b></div>
+							<div style="text-align: center;">1</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">2</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">3</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">4</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S6</b></div>
+							<div style="text-align: center;">5</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S5</b></div>
+							<div style="text-align: center;">6</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S4</b></div>
+							<div style="text-align: center;">7</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S3</b></div>
+							<div style="text-align: center;">8</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S2</b></div>
+							<div style="text-align: center;">9</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S1</b></div>
+							<div style="text-align: center;">10</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">PC</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>PC</b></div>
+							<div style="text-align: center;">11</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">1A+2A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>HA1</b></div>
+							<div style="text-align: center;">12</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">2A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>A2</b></div>
+							<div style="text-align: center;">13</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">2A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>A1</b></div>
+							<div style="text-align: center;">14</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B6</b></div>
+							<div style="text-align: center;">15</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B5</b></div>
+							<div style="text-align: center;">16</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B4</b></div>
+							<div style="text-align: center;">17</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B3</b></div>
+							<div style="text-align: center;">18</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B2</b></div>
+							<div style="text-align: center;">19</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B1</b></div>
+							<div style="text-align: center;">20</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">21</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">LPR</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>LPR</b></div>
+							<div style="text-align: center;">22</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">VP</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>VP</b></div>
+							<div style="text-align: center;">23</div>
+						</div>
+						
+								
+							
+				</td></tr>
+				</table>
+				
+			</div>
+		      <div class="modal-footer">
+		      <div style="padding-right: 10px;">
+			Note - Data shown with (*) are dynamic in nature and may change. 
+			</div>
+		        <button type="button" class="custom-btn" data-bs-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div> 
+
+	   
+	   <div class="modal fade" id="cpos13173" tabindex="-1" role="dialog"  aria-labelledby="cpos13173" aria-hidden="true">
+		  <div class="modal-dialog modal-lg" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <div class="w3-panel w3-round w3-orange" ><h3>Coach Position  : 13173 | GHY  | 23-Sep | PF-2*</h3></div>
+		        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background-color: transparent;border:none;">
+		          <span aria-hidden="true" style="font-size: 35px;">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		      
+				<table >
+				<tr><td>	
+					
+					  	
+						
+						
+						
+						
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">ENG</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>ENG</b></div>
+							<div style="text-align: center;">0</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">VP</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>VP</b></div>
+							<div style="text-align: center;">1</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">VP</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>VP</b></div>
+							<div style="text-align: center;">2</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">LPR</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>LPR</b></div>
+							<div style="text-align: center;">3</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">4</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">5</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B1</b></div>
+							<div style="text-align: center;">6</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B2</b></div>
+							<div style="text-align: center;">7</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B3</b></div>
+							<div style="text-align: center;">8</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B4</b></div>
+							<div style="text-align: center;">9</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">3A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>B5</b></div>
+							<div style="text-align: center;">10</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">2A</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>A1</b></div>
+							<div style="text-align: center;">11</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S1</b></div>
+							<div style="text-align: center;">12</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S2</b></div>
+							<div style="text-align: center;">13</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S3</b></div>
+							<div style="text-align: center;">14</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S4</b></div>
+							<div style="text-align: center;">15</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S5</b></div>
+							<div style="text-align: center;">16</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S6</b></div>
+							<div style="text-align: center;">17</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S7</b></div>
+							<div style="text-align: center;">18</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S8</b></div>
+							<div style="text-align: center;">19</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">SL</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>S9</b></div>
+							<div style="text-align: center;">20</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">21</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">GEN</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>GEN</b></div>
+							<div style="text-align: center;">22</div>
+						</div>
+						    
+						<div style="width:45px;height:60px;text-align:center;padding:2px;font-family:verdana;font-size:10px;display:inline-block;">
+							<div style="text-align: center;">LPR</div>
+							<div style="width: 40px;height:18px;border:1px solid #BEBEBE;border-radius:5px;font-size:11px;"><b>LPR</b></div>
+							<div style="text-align: center;">23</div>
+						</div>
+						
+								
+							
+				</td></tr>
+				</table>
+				
+			</div>
+		      <div class="modal-footer">
+		      <div style="padding-right: 10px;">
+			Note - Data shown with (*) are dynamic in nature and may change. 
+			</div>
+		        <button type="button" class="custom-btn" data-bs-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div> 
+
+<table style="display: none;"></table>
+<div style="padding: 10px;">
+Note - Data shown with (*) are dynamic in nature and may change. 
+</div>
+<br>
+
+<!--  
+
+-->
+
+
+<!-- /37179215/MNTES_LIVE_STATION_TOP -->
+<div id='div-gpt-ad-1614770073541-0' style="text-align: center;">
+<script>
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1614770073541-0'); });
+</script>
+</div>
+
+<!-- /37179215/MNTES_LIVE_STATION_BOTTOM -->
+<div id='div-gpt-ad-1614770217808-0' style="text-align: center;">
+<script>
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1614770217808-0'); });
+</script>
+</div>
+
+
+
+
+<!-- Footer -->
+
+
+
+
+<center>
+<table style="width: 100%;text-align: right;">
+	<tr>
+		<td align="right"><font size="2" color="#006fc4" face="verdana">22-Sep 22:44&nbsp;</font>
+			<a href="https://www.facebook.com/RailMinIndia" target="_blank"><img src="images/facebook_icon.png" border=0 width="24" height="24"></a>
+			<a href="https://twitter.com/RailMinIndia" target="_blank"><img src="images/twitter_icon.png" border=0 width="24" height="24"></a>
+			<a href="https://www.youtube.com/user/RailMinIndia" target="_blank"><img src="images/youtube.png" border=0 width="24" height="24"></a>
+		</td>
+	</tr>
+	
+</table>
+<br/>
+<table style="border-radius: 20px;font-size: 13px;">
+<tr><td align="center" colspan="2" style="padding-top: 5px;"><img src="images/ROne.png" height="65" width="65" style="margin-bottom: 5px;"><br/><img src="images/new_blink.gif" width="50px" height="30px" style="margin-top:-10px;"/><b>RailOne - Official Indian Railways Super App!</b><img src="images/new_blink.gif" width="50px" height="30px" style="margin-top:-10px;"/></td></tr>
+<tr><td colspan="2" style="padding-left: 10px;padding-right: 10px;">
+Book tickets, check train status, track PNR & order food - All in one secure app.</td></tr>
+<tr><td align="right" style="padding-right: 10px;padding-bottom: 10px;"><img alt="Android" src="images/Google_Play_logo.png" height="25" width="24" style="margin-top:-5px;"> <a onclick="showRA();" href="#" style="color: #7726A6"><b>Download Android App</b></a></td><td style="padding-left: 10px;padding-bottom: 10px;"><img alt="iOS" src="images/apple.png" height="26" width="26" style="margin-top:-8px;padding:3px;background: #121212;border-radius: 5px;"> <a onclick="showRI();" href="#" style="color: #7726A6;"><b>Download iOS App</b></a></td>
+</table>
+<br/>
+<a href="https://www.india.gov.in" target="_blank"><img src="images/india_gov_in.png" height="75" width="100"></a>
+<input type="hidden" name="appLang" value="en">
+<font size="1"	color="#e98e05" face="verdana" >	
+<br>Property of Indian Railways
+<br>Designed, Developed and Hosted by CRIS
+<br>Copyright &copy; 2013 Centre for Railway Information Systems
+<br>All Rights Reserved
+</font>
+<br>
+</center>
+
+<div id="ra" class="w3-modal" style="cursor:pointer;display:none;">
+  <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px;cursor:auto">
+    <div class="w3-center" style="padding:10px;"><br>
+    <span onclick="document.getElementById('ra').style.display='none'" title="Close Modal"
+  	class="w3-button w3-hover-text-grey w3-container w3-display-topright w3-xxlarge">&times;</span>
+  	<h3> Download RailOne Android App </h3>
+  	<div>
+	<img src="images/railone_and.png" alt="RailOne Android App" height="200" width="200">
+	<a onclick="document.getElementById('ra').style.display='none'" href="https://play.google.com/store/apps/details?id=org.cris.aikyam" target="_blank"><img src="images/google_store.png"><br>Scan QR or Download from Play Store</a>
+	<br>
+	</div>
+	</div>
+</div>
+</div>
+
+<div id="ri" class="w3-modal" style="cursor:pointer;display:none;">
+  <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px;cursor:auto">
+    <div class="w3-center" style="padding:10px;"><br>
+    <span onclick="document.getElementById('ri').style.display='none'" title="Close Modal"
+  	class="w3-button w3-hover-text-grey w3-container w3-display-topright w3-xxlarge">&times;</span>
+  	<h3>Download RailOne iOS App</h3>
+  	<div>
+	<img src="images/railone_ios.png" alt="RailOne iOS App" height="200" width="200">
+	<a onclick="document.getElementById('ri').style.display='none'" href="https://apps.apple.com/in/app/railone/id6473384334" target="_blank"><img src="images/apple_store.png"><br>Scan QR or Download from App Store</a>
+	<br>
+	</div>
+	</div>
+</div>
+</div>
+
+<!-- Footer -->
+<script type="text/javascript">
+function showRA()
+{
+document.getElementById('ra').style.display='block';
+}
+function showRI()
+{
+document.getElementById('ri').style.display='block';
+}
+</script>
+
+<script>
+    const toggleBtn = document.getElementById('accessibilityToggle');
+    const panel = document.getElementById('accessibilityPanel');
+    const themeToggle = document.getElementById('theme-toggle');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const savedTheme = localStorage.getItem('theme');
+    const savedTspace = localStorage.getItem('tspace');
+    const savedLspace = localStorage.getItem('lspace');
+    const savedCurs = localStorage.getItem('curs');
+    const savedInv = localStorage.getItem('inv');
+    const savedHlink = localStorage.getItem('hlink');
+
+    
+    // Panel toggle
+    if(toggleBtn!=null){
+    toggleBtn.addEventListener('click', () => {
+      const isOpen = panel.classList.toggle('show');
+      toggleBtn.setAttribute('aria-expanded', isOpen);
+      panel.setAttribute('aria-hidden', !isOpen);
+    });
+    }
+
+    // Outside click to close
+    document.addEventListener('click', (e) => {
+      if (!document.querySelector('.floating-accessibility').contains(e.target)) {
+        panel.classList.remove('show');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        panel.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    // Dark Mode Toggle
+    
+     if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+      document.body.classList.add('dark');
+      themeToggle.checked = true;
+    }
+
+     if(themeToggle !=null){
+    themeToggle.addEventListener('change', () => {
+     // document.body.classList.toggle('dark', themeToggle.checked);
+
+      if (themeToggle.checked) {
+          document.body.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          document.body.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+        }
+      
+    });
+     }
+
+    const sbtn = document.getElementById('sBtn');
+    if(sbtn!=null){
+    sbtn.addEventListener('click', () => {
+    	setFontSize('small');
+        });
+    }
+    const mbtn = document.getElementById('mBtn');
+    if(mbtn!=null){
+    mbtn.addEventListener('click', () => {
+    	setFontSize('medium');
+        });
+    }
+    const lbtn = document.getElementById('lBtn');
+    if(lbtn !=null){
+    lbtn.addEventListener('click', () => {
+    	setFontSize('large');
+        });
+    }
+    // Font Size Control
+    function setFontSize(size) {
+      if (size === 'small') {
+        document.body.style.fontSize = '12px';
+        sbtn.setAttribute('aria-pressed', true);
+        mbtn.setAttribute('aria-pressed', false);
+        lbtn.setAttribute('aria-pressed', false);
+        localStorage.setItem('fontSize', 'small');
+      } else if (size === 'medium') {
+        document.body.style.fontSize = '15px';
+        sbtn.setAttribute('aria-pressed', false);
+        mbtn.setAttribute('aria-pressed', true);
+        lbtn.setAttribute('aria-pressed', false);
+        localStorage.setItem('fontSize', 'medium');
+      } else if (size === 'large') {
+        document.body.style.fontSize = '18px';
+        sbtn.setAttribute('aria-pressed', false);
+        mbtn.setAttribute('aria-pressed', false);
+        lbtn.setAttribute('aria-pressed', true);
+        localStorage.setItem('fontSize', 'large');
+      }
+    }
+
+    const btn = document.getElementById('textSpacingBtn');
+	if(btn!=null){
+    btn.addEventListener('click', () => {
+      const isActive = btn.getAttribute('aria-pressed') === 'true';
+      btn.setAttribute('aria-pressed', String(!isActive));
+
+      // Toggle text spacing on the body (or target container)
+      if (!isActive) {
+        document.body.style.letterSpacing = '0.15em';
+        localStorage.setItem('tspace', '1');
+      } else {
+        document.body.style.letterSpacing = '';
+        localStorage.setItem('tspace', '0');
+      }
+    });
+	}
+
+
+    const lineHeightBtn = document.getElementById('lineHeightBtn');
+	if(lineHeightBtn !=null){
+    lineHeightBtn.addEventListener('click', () => {
+      const isActive = lineHeightBtn.getAttribute('aria-pressed') === 'true';
+      lineHeightBtn.setAttribute('aria-pressed', String(!isActive));
+
+      if (!isActive) {
+        document.body.style.lineHeight = '1.8'; // Increased line height
+        localStorage.setItem('lspace', '1');
+      } else {
+        document.body.style.lineHeight = ''; // Reset to default
+        localStorage.setItem('lspace', '0');
+      }
+    });
+	}
+
+    const invertBtn = document.getElementById('invertColorsBtn');
+	if(invertBtn!=null){
+    invertBtn.addEventListener('click', () => {
+      const isPressed = invertBtn.getAttribute('aria-pressed') === 'true';
+      invertBtn.setAttribute('aria-pressed', String(!isPressed));
+
+      if (!isPressed) {
+        document.body.style.filter = 'invert(1)';
+        localStorage.setItem('inv', '1');
+      } else {
+        document.body.style.filter = '';
+        localStorage.setItem('inv', '0');
+      }
+    });
+	}
+
+    const scrBtn = document.getElementById('sReadBtn');
+	if(scrBtn!=null){
+    scrBtn.addEventListener('click', () => {
+    	window.open("ScreenReader.html", '_blank').focus();
+    });
+	}
+
+    const crBtn = document.getElementById('curBtn');
+	if(crBtn!=null){
+	 crBtn.addEventListener('click', () => {
+	   document.body.classList.toggle('big-cursor');
+	   const isPressed = crBtn.getAttribute('aria-pressed') === 'true';
+	   crBtn.setAttribute('aria-pressed', !isPressed);
+	   localStorage.setItem('curs', !isPressed?'1':'0');
+	 });
+	}
+	const hLinkBtn = document.getElementById('hLinkBtn');
+	if(hLinkBtn!=null){
+	hLinkBtn.addEventListener('click', () => {
+		   document.body.classList.toggle('high-link');
+		   const isPressed = hLinkBtn.getAttribute('aria-pressed') === 'true';
+		   hLinkBtn.setAttribute('aria-pressed', !isPressed);
+		   localStorage.setItem('hlink', !isPressed?'1':'0');
+		 });
+	}	 
+
+	  window.onload = function() {
+	      const savedFontSize = localStorage.getItem('fontSize') || 'medium';
+	      setFontSize(savedFontSize);
+	      if(savedTspace==='1'){
+	    	  btn.setAttribute('aria-pressed',true);
+	    	  document.body.style.letterSpacing = '0.15em';
+		      }
+	      if(savedLspace==='1'){
+	    	  lineHeightBtn.setAttribute('aria-pressed', true);
+	    	  document.body.style.lineHeight = '1.8';
+		      }
+	      if(savedCurs ==='1'){
+	    	  crBtn.setAttribute('aria-pressed', true);
+	    	  document.body.classList.add('big-cursor');
+		      }
+	      if(savedInv ==='1'){
+	    	  invertBtn.setAttribute('aria-pressed', true);
+	    	  document.body.style.filter = 'invert(1)';
+		      }
+	      if(savedHlink==='1'){
+	    	  hLinkBtn.setAttribute('aria-pressed', true);
+	    	  document.body.classList.add('high-link');
+		      }
+	    };
+	 
+  </script>
+<!-- Google reCAPTCHA -->
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89952719-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-89952719-2');
+</script>
+
+<input type="hidden" name="jStnName" value="">
+<input type="hidden" name="jStation" value="">
+</form>
+</div>
+</div>
+     
+   
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="javascripts/ie.js"></script>
+  <!-- Popper.JS -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+  <!-- Bootstrap JS -->
+    <!-- ><script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>-->
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+  
+    <script type="text/javascript">
+        $(document).ready(function () {
+        	//if(screen.width<768){$('#sidebar').toggleClass('active');}
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+            $('#sidebarCollapse2').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+    </script>  
+    
+</body>
+</html>

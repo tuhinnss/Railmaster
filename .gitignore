@@ -27,3 +27,6 @@ Thumbs.db
 
 # Generated synthetic data (reproducible via app.datagen.generate)
 data/synthetic/
+
+# ntes-adapter runtime persistence (JSON-file store, rebuilt by polling)
+ntes-adapter/data/
