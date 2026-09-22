@@ -36,7 +36,13 @@ ASSET_PREFIX = {
     Department.SNT: "SIG",
 }
 
-OVERDUE_FRACTION = 0.15
+# Overdue-ness is correlated with severity, not independent of it: a
+# safety-critical (A) defect left unaddressed is realistically *more*
+# likely to be the one that slips past due date, not equally likely. This
+# also guarantees the spec's safety-critical override (A + overdue) has
+# something to fire on in the generated demo data.
+OVERDUE_FRACTION_SEVERITY_A = 0.45
+OVERDUE_FRACTION_OTHER = 0.14
 
 
 def weighted_choice(rng: random.Random, weights: dict):
@@ -74,8 +80,13 @@ def generate_tasks(
             km_marker = (task_km_start + task_km_end) / 2
 
             severity_code = SeverityCode(weighted_choice(rng, SEVERITY_WEIGHTS))
+            overdue_fraction = (
+                OVERDUE_FRACTION_SEVERITY_A
+                if severity_code == SeverityCode.A
+                else OVERDUE_FRACTION_OTHER
+            )
 
-            if rng.random() < OVERDUE_FRACTION:
+            if rng.random() < overdue_fraction:
                 days_overdue = rng.randint(1, 45)
                 due_date = reference_date - timedelta(days=days_overdue)
             else:
@@ -201,7 +212,7 @@ def write_outputs(tasks: list[MaintenanceTask], blocks: list[BlockOpportunity], 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate synthetic tasks/blocks fixture data.")
-    parser.add_argument("--seed", type=int, default=4)
+    parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--num-tasks", type=int, default=45)
     parser.add_argument("--blocks-per-section", type=int, default=20)
     parser.add_argument(

@@ -34,7 +34,9 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
 - `datagen/` — synthetic data generator (spec section 3). Reproducible via
   `--seed` (default 4, lands in the 15-20% overdue target band).
   Run: `python -m app.datagen.generate` from `backend/`.
-- `scheduling/` — TODO: prioritizer (section 4), CP-SAT Stage A/B scheduler
+- `scheduling/` — `compatibility.py` (shared task/block compatibility check,
+  spec section 6), `config.py` (tunable `PriorityWeights`), `prioritizer.py`
+  (rule-based score, section 4 — done). TODO: CP-SAT Stage A/B scheduler
   (section 5), safety validator (section 6), explainability (section 7).
 - `api/` — FastAPI routers exposing tasks, blocks, and generated plans to
   the dashboard.
