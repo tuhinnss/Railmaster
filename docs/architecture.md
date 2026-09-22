@@ -40,7 +40,8 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
   `validator.py` (all 6 safety rules, run against solver output, section 6),
   `stage_a.py` (single-section CP-SAT, no merging, section 5), `stage_b.py`
   (merging via beta/gamma consolidation incentive, section 5 — done, worked
-  example passes, ~40ms/section). TODO: explainability (section 7).
+  example passes, ~40ms/section), `explain.py` (one-line generated reason
+  per task, section 7 — done).
 
   Known finding: on the random synthetic dataset, Stage B only saves ~5%
   of blocks vs. Stage A (2 of 43), because task durations often consume

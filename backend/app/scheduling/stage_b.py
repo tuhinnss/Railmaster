@@ -23,7 +23,7 @@ TRAFFIC_AND_POWER block safely mixing POWER- and TRAFFIC-requiring tasks
 (the worked example) is correct, not a conflict.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 
 from ortools.sat.python import cp_model
@@ -56,6 +56,7 @@ class StageBResult:
     blocks_opened: list[str]
     objective_value: int
     solver_status: str
+    compatible_blocks_by_task: dict[str, list[str]] = field(default_factory=dict)
 
 
 def solve_stage_b(
@@ -175,4 +176,7 @@ def solve_stage_b(
         blocks_opened=blocks_opened,
         objective_value=int(solver.ObjectiveValue()) if status in (cp_model.OPTIMAL, cp_model.FEASIBLE) else 0,
         solver_status=solver.StatusName(status),
+        compatible_blocks_by_task={
+            task_id: [b.block_id for b in bs] for task_id, bs in compatible_blocks_by_task.items()
+        },
     )
