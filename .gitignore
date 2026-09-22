@@ -24,3 +24,6 @@ Thumbs.db
 # Local run artifacts
 *.pid
 *.log
+
+# Generated synthetic data (reproducible via app.datagen.generate)
+data/synthetic/
