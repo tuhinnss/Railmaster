@@ -69,10 +69,30 @@ def test_capacity_overrun_flagged():
     assert any(v.rule == "capacity" for v in violations)
 
 
-def test_power_isolation_violation_when_traffic_task_rides_with_power_task():
+def test_traffic_and_power_block_allows_mixed_task_types():
+    """The worked example scenario (spec section 5): a TRAFFIC-requiring
+    task, a POWER-requiring task, and another TRAFFIC-requiring task all
+    sharing one TRAFFIC_AND_POWER block. That block stops both traffic and
+    isolates power, so this mix is safe and must NOT be flagged -- it's
+    the exact outcome Stage B is supposed to produce."""
     power_task = make_task(task_id="power", block_type_required="power", km_range=(10.0, 10.5))
     traffic_task = make_task(task_id="traffic", block_type_required="traffic", km_range=(10.1, 10.4))
     block = make_block(block_type_possible="traffic_and_power", duration_min=300)
+    violations = validate_plan(
+        [power_task, traffic_task], [block],
+        {"power": block.block_id, "traffic": block.block_id},
+    )
+    assert violations == []
+
+
+def test_power_isolation_violation_for_non_power_task_in_pure_power_block():
+    """Defense in depth: task_fits_block would never let a TRAFFIC-only
+    task be individually assigned to a pure POWER block in real solver
+    output, but the validator should independently catch it if a solver
+    bug (or a hand-built assignment) ever produced this."""
+    power_task = make_task(task_id="power", block_type_required="power", km_range=(10.0, 10.5))
+    traffic_task = make_task(task_id="traffic", block_type_required="traffic", km_range=(10.1, 10.4))
+    block = make_block(block_type_possible="power", duration_min=300)
     violations = validate_plan(
         [power_task, traffic_task], [block],
         {"power": block.block_id, "traffic": block.block_id},

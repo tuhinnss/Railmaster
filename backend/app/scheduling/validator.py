@@ -8,6 +8,16 @@ they become load-bearing once Stage B introduces merging. Block-type
 match, capacity, and dependency order matter from Stage A onward.
 No-double-booking isn't checked here: `assignments` is `task_id -> one
 block_id`, so the data structure itself makes double-booking unrepresentable.
+
+Power isolation is scoped to blocks whose block_type_possible is exactly
+POWER (isolated power, traffic still running): no non-power task should
+ride along there. A TRAFFIC_AND_POWER block stops both traffic and power,
+so mixing POWER- and TRAFFIC-requiring tasks there is safe and expected --
+it's exactly the worked example's correct outcome (spec section 5), not a
+violation. task_fits_block already prevents a non-power task from ever
+being individually assigned to a pure-POWER block, so this check is
+defense-in-depth against a solver bug, not something normal output
+should ever trigger.
 """
 
 from dataclasses import dataclass
@@ -15,7 +25,7 @@ from dataclasses import dataclass
 from app.models.block import BlockOpportunity
 from app.models.enums import BlockType
 from app.models.task import MaintenanceTask
-from app.scheduling.compatibility import block_type_compatible
+from app.scheduling.compatibility import block_type_compatible, ranges_overlap, requires_power
 
 
 @dataclass
@@ -24,14 +34,6 @@ class SafetyViolation:
     message: str
     block_id: str | None
     task_ids: list[str]
-
-
-def _requires_power(task: MaintenanceTask) -> bool:
-    return task.block_type_required in (BlockType.POWER, BlockType.TRAFFIC_AND_POWER)
-
-
-def _ranges_overlap(a: tuple[float, float], b: tuple[float, float]) -> bool:
-    return a[0] < b[1] and b[0] < a[1]
 
 
 def validate_plan(
@@ -91,26 +93,25 @@ def validate_plan(
             )
 
         if len(block_tasks) > 1:
-            power_tasks = [t for t in block_tasks if _requires_power(t)]
-            non_power_tasks = [t for t in block_tasks if not _requires_power(t)]
-            if power_tasks and non_power_tasks:
-                violations.append(
-                    SafetyViolation(
-                        rule="power_isolation",
-                        message=(
-                            f"{block_id} mixes power-isolation tasks "
-                            f"({[t.task_id for t in power_tasks]}) with non-power tasks "
-                            f"({[t.task_id for t in non_power_tasks]})"
-                        ),
-                        block_id=block_id,
-                        task_ids=[t.task_id for t in block_tasks],
+            if block.block_type_possible == BlockType.POWER:
+                non_power_tasks = [t for t in block_tasks if not requires_power(t)]
+                if non_power_tasks:
+                    violations.append(
+                        SafetyViolation(
+                            rule="power_isolation",
+                            message=(
+                                f"{block_id} is a pure power-isolation block but hosts "
+                                f"non-power task(s) {[t.task_id for t in non_power_tasks]}"
+                            ),
+                            block_id=block_id,
+                            task_ids=[t.task_id for t in non_power_tasks],
+                        )
                     )
-                )
 
             for i in range(len(block_tasks)):
                 for j in range(i + 1, len(block_tasks)):
                     a, b = block_tasks[i], block_tasks[j]
-                    if not _ranges_overlap(a.km_range, b.km_range):
+                    if not ranges_overlap(a.km_range, b.km_range):
                         violations.append(
                             SafetyViolation(
                                 rule="compatibility",

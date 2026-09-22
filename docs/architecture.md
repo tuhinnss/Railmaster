@@ -34,12 +34,22 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
 - `datagen/` — synthetic data generator (spec section 3). Reproducible via
   `--seed` (default 4, lands in the 15-20% overdue target band).
   Run: `python -m app.datagen.generate` from `backend/`.
-- `scheduling/` — `compatibility.py` (shared task/block compatibility check,
-  spec section 6), `config.py` (tunable `PriorityWeights`), `prioritizer.py`
-  (rule-based score, section 4), `validator.py` (all 6 safety rules, run
-  against solver output, section 6), `stage_a.py` (single-section CP-SAT,
-  no merging, section 5 — done, ~20ms/section on the demo dataset). TODO:
-  Stage B (merging, section 5), explainability (section 7).
+- `scheduling/` — `common.py` (shared constants/delay calc), `compatibility.py`
+  (task/block + task/task compatibility, section 6), `config.py` (tunable
+  `PriorityWeights`), `prioritizer.py` (rule-based score, section 4),
+  `validator.py` (all 6 safety rules, run against solver output, section 6),
+  `stage_a.py` (single-section CP-SAT, no merging, section 5), `stage_b.py`
+  (merging via beta/gamma consolidation incentive, section 5 — done, worked
+  example passes, ~40ms/section). TODO: explainability (section 7).
+
+  Known finding: on the random synthetic dataset, Stage B only saves ~5%
+  of blocks vs. Stage A (2 of 43), because task durations often consume
+  most of a block's capacity and km ranges are narrow, so few combinations
+  are actually mergeable outside the deliberate overlap fixture. The
+  worked example and a dedicated preference test both confirm the merge
+  logic itself is correct. Getting a bigger "blocks saved" headline number
+  is a data-tuning / demo-scenario-curation task for spec step 10, not an
+  algorithm fix.
 - `api/` — FastAPI routers exposing tasks, blocks, and generated plans to
   the dashboard.
 

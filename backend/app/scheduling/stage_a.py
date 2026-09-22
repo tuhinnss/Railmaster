@@ -25,15 +25,10 @@ from ortools.sat.python import cp_model
 
 from app.models.block import BlockOpportunity
 from app.models.task import MaintenanceTask
+from app.scheduling.common import PRIORITY_SCALE, SOLVE_TIME_BUDGET_SECONDS, UNSCHEDULED_PENALTY_DAYS, delay_days
 from app.scheduling.compatibility import task_fits_block
 from app.scheduling.config import DEFAULT_PRIORITY_WEIGHTS, PriorityWeights
 from app.scheduling.prioritizer import score_task
-
-PRIORITY_SCALE = 1000
-# Must exceed the largest realistic delay_days for a weekly horizon (~7),
-# so "scheduled anywhere in-horizon" always beats "unscheduled."
-UNSCHEDULED_PENALTY_DAYS = 30
-SOLVE_TIME_BUDGET_SECONDS = 5.0
 
 
 @dataclass
@@ -43,10 +38,6 @@ class StageAResult:
     objective_value: int
     solver_status: str
     compatible_blocks_by_task: dict[str, list[str]] = field(default_factory=dict)
-
-
-def _delay_days(block: BlockOpportunity, reference_date: date) -> int:
-    return max(0, (block.start_time.date() - reference_date).days)
 
 
 def solve_stage_a(
@@ -112,7 +103,7 @@ def solve_stage_a(
     objective_terms = []
     for (task_id, block_id), var in x.items():
         block = next(b for b in blocks if b.block_id == block_id)
-        delay = _delay_days(block, reference_date)
+        delay = delay_days(block, reference_date)
         priority_int = round(priority_by_task[task_id] * PRIORITY_SCALE)
         benefit = priority_int * (UNSCHEDULED_PENALTY_DAYS - delay)
         objective_terms.append(benefit * var)
