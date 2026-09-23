@@ -1,4 +1,5 @@
 import { useState } from "react";
+import MagnifiedPlan, { planTimeRange } from "../components/MagnifiedPlan";
 import RealDataBadge from "../components/RealDataBadge";
 import TaskDetailPanel from "../components/TaskDetailPanel";
 import { DEPARTMENT_COLORS, REAL_DATA_COLOR } from "../constants/colors";
@@ -6,23 +7,24 @@ import { usePlan } from "../context/PlanContext";
 import type { ScheduledBlockSummary, SectionPlanResult, TaskSummary } from "../types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const WEEK_MS = 7 * DAY_MS;
 
 function BlockBar({
   block,
   section,
-  weekStart,
+  rangeStart,
+  rangeMs,
   onSelectTask,
 }: {
   block: ScheduledBlockSummary;
   section: SectionPlanResult;
-  weekStart: Date;
+  rangeStart: number;
+  rangeMs: number;
   onSelectTask: (task: TaskSummary) => void;
 }) {
   const start = new Date(block.start_time).getTime();
   const end = new Date(block.end_time).getTime();
-  const leftPct = Math.max(0, ((start - weekStart.getTime()) / WEEK_MS) * 100);
-  const widthPct = Math.max(0.6, ((end - start) / WEEK_MS) * 100);
+  const leftPct = Math.max(0, ((start - rangeStart) / rangeMs) * 100);
+  const widthPct = Math.max(0.6, ((end - start) / rangeMs) * 100);
 
   const tasks = block.task_ids
     .map((id) => section.tasks.find((t) => t.task_id === id))
@@ -71,9 +73,16 @@ export default function WeeklyPlan() {
   if (error) return <p style={{ color: "#dc2626" }}>Failed to load: {error}</p>;
   if (!plan) return null;
 
-  const weekStart = new Date(plan.start_date + "T00:00:00");
-  const dayLabels = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(weekStart.getTime() + i * DAY_MS);
+  // Blocks are generated for the next operating week, which does not start on
+  // plan.start_date -- deriving the axis from the blocks themselves stops the
+  // later days being positioned past 100% and rendered off-screen.
+  const range = planTimeRange(plan.sections);
+  const rangeStart = range ? range.start : new Date(plan.start_date + "T00:00:00").getTime();
+  const rangeEnd = range ? range.end : rangeStart + 7 * DAY_MS;
+  const rangeMs = rangeEnd - rangeStart;
+  const dayCount = Math.round(rangeMs / DAY_MS);
+  const dayLabels = Array.from({ length: dayCount }, (_, i) => {
+    const d = new Date(rangeStart + i * DAY_MS);
     return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
   });
 
@@ -99,7 +108,7 @@ export default function WeeklyPlan() {
 
       <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", fontSize: 11, color: "#94a3b8" }}>
         <div />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: `repeat(${dayCount}, 1fr)` }}>
           {dayLabels.map((label) => (
             <div key={label} style={{ borderLeft: "1px solid #f1f5f9", paddingLeft: 4 }}>
               {label}
@@ -115,7 +124,7 @@ export default function WeeklyPlan() {
             style={{
               position: "relative",
               height: 36,
-              background: "repeating-linear-gradient(90deg, #f8fafc, #f8fafc calc(100%/7 - 1px), #f1f5f9 calc(100%/7))",
+              background: `repeating-linear-gradient(90deg, #f8fafc, #f8fafc calc(100%/${dayCount} - 1px), #f1f5f9 calc(100%/${dayCount}))`,
               borderRadius: 4,
             }}
           >
@@ -124,13 +133,24 @@ export default function WeeklyPlan() {
                 key={block.block_id}
                 block={block}
                 section={section}
-                weekStart={weekStart}
+                rangeStart={rangeStart}
+                rangeMs={rangeMs}
                 onSelectTask={(task) => setSelected({ task, section })}
               />
             ))}
           </div>
         </div>
       ))}
+
+      <h2 style={{ fontSize: 15, marginTop: 28 }}>Detailed schedule</h2>
+      <p style={{ fontSize: 12, color: "#64748b", margin: "2px 0 10px" }}>
+        Every block to scale, with its time, date and department. Scroll sideways for the full plan;
+        shaded bands are the 00:00–05:00 night window.
+      </p>
+      <MagnifiedPlan
+        sections={plan.sections}
+        onSelectTask={(task, section) => setSelected({ task, section })}
+      />
 
       {selected && (
         <TaskDetailPanel task={selected.task} section={selected.section} onClose={() => setSelected(null)} />
