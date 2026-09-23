@@ -14,7 +14,7 @@ def make_task(**overrides) -> MaintenanceTask:
         task_id="ENG-2026-00001",
         department="Engineering",
         asset_id="TRK-SEC-001-KM0100",
-        section="NDLS-GZB",
+        section="GHY-LMG",
         km_range=(10.0, 10.5),
         defect_type="rail_fracture_risk",
         severity_code="B",
@@ -32,8 +32,8 @@ def make_task(**overrides) -> MaintenanceTask:
 
 def make_block(**overrides) -> BlockOpportunity:
     defaults = dict(
-        block_id="BLK-NDLS-GZB-0001",
-        section="NDLS-GZB",
+        block_id="BLK-GHY-LMG-0001",
+        section="GHY-LMG",
         start_time=datetime(2026, 9, 8, 1, 0),
         end_time=datetime(2026, 9, 8, 4, 0),
         duration_min=180,
@@ -46,8 +46,8 @@ def make_block(**overrides) -> BlockOpportunity:
 
 
 def test_rejects_multi_section_input():
-    task = make_task(section="NDLS-GZB")
-    other_section_block = make_block(section="GZB-SRE")
+    task = make_task(section="GHY-LMG")
+    other_section_block = make_block(section="LMG-RNY")
     try:
         solve_stage_b([task], [other_section_block], REFERENCE_DATE)
         assert False, "expected ValueError"

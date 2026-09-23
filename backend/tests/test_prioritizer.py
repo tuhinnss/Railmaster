@@ -11,7 +11,7 @@ def make_task(**overrides) -> MaintenanceTask:
         task_id="ENG-2026-00001",
         department="Engineering",
         asset_id="TRK-SEC-001-KM0100",
-        section="NDLS-GZB",
+        section="GHY-LMG",
         km_range=(10.0, 10.5),
         defect_type="rail_fracture_risk",
         severity_code="B",
@@ -29,8 +29,8 @@ def make_task(**overrides) -> MaintenanceTask:
 
 def make_block(**overrides) -> BlockOpportunity:
     defaults = dict(
-        block_id="BLK-NDLS-GZB-0001",
-        section="NDLS-GZB",
+        block_id="BLK-GHY-LMG-0001",
+        section="GHY-LMG",
         start_time=datetime(2026, 9, 8, 1, 0),
         end_time=datetime(2026, 9, 8, 4, 0),
         duration_min=180,
@@ -61,7 +61,7 @@ def test_urgency_scales_linearly_before_clip():
 
 
 def test_availability_impact_uses_best_compatible_block_only():
-    task = make_task(section="NDLS-GZB", block_type_required="traffic")
+    task = make_task(section="GHY-LMG", block_type_required="traffic")
     blocks = [
         make_block(block_id="incompatible", block_type_possible="power", expected_train_impact=0.9),
         make_block(block_id="compatible-low", block_type_possible="traffic", expected_train_impact=0.2),
@@ -100,10 +100,10 @@ def test_safety_override_not_flagged_for_severity_a_not_overdue():
 
 def test_rank_tasks_puts_overdue_severity_a_first_regardless_of_score():
     low_score_critical = make_task(
-        task_id="A-1", severity_code="A", days_overdue=1, section="NDLS-GZB"
+        task_id="A-1", severity_code="A", days_overdue=1, section="GHY-LMG"
     )
     high_score_non_critical = make_task(
-        task_id="B-1", severity_code="B", days_overdue=90, section="NDLS-GZB"
+        task_id="B-1", severity_code="B", days_overdue=90, section="GHY-LMG"
     )
     ranked = rank_tasks([high_score_non_critical, low_score_critical], blocks=[])
     assert ranked[0].task_id == "A-1"

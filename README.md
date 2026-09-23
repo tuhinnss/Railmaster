@@ -4,10 +4,12 @@ Automatic Block Planning prototype for Indian Railways fixed infrastructure
 maintenance (Engineering / TRD / S&T). Turns synthetic-but-realistic
 defect/maintenance data and corridor block opportunities into a
 CP-SAT-optimized weekly block schedule that merges cross-department work
-into shared blocks instead of separate ones, with a real (if partial)
-data connection: two of the six configured sections pull real
-predicted-availability data from a separate NTES-derived service instead
-of pure synthetic numbers.
+into shared blocks instead of separate ones.
+
+Scope is limited to the two corridors the NTES adapter actually covers
+(GHY-LMG, LMG-RNY), so every planned section has a real data source
+behind its corridor availability rather than being wholly invented. The
+defect/maintenance data itself is still synthetic.
 
 Scope is deliberately narrow for this build — see `docs/architecture.md`
 and the build spec for what's in/out.
@@ -21,8 +23,8 @@ and the build spec for what's in/out.
   Task/block detail panel, Corridor traffic (real NTES train boards) —
   wired to real scheduler output.
 - `ntes-adapter/` — separate service; see its own README. Provides real,
-  self-collected train-movement-derived predicted-availability data for
-  two corridors (GHY-LMG, LMG-RNY).
+  self-collected train-movement-derived predicted-availability data, plus
+  real captured NTES train boards, for the two corridors.
 - `docs/` — architecture notes.
 - `data/synthetic/` — generated fixture data (gitignored, reproducible via
   `python -m app.datagen.generate` from `backend/`).
@@ -57,12 +59,20 @@ falls back to synthetic values silently if it's unreachable.
 ## Status
 
 Backend engine (schema, synthetic data, priority score, CP-SAT Stage A/B,
-safety validator, explainability) and the dashboard (all 4 required
-pages) are done and wired end to end — 56 backend tests passing. The
-NTES connection covers 2 of 6 sections; the rest remain synthetic, and
-every block carries a `data_source` field (`"ntes_live"` vs
-`"synthetic"`) so the dashboard can show a "REAL NTES DATA" badge on the
-Weekly Plan Gantt, the task/block detail panel, and an Overview KPI
-count, instead of presenting real and synthetic numbers identically.
-Not yet built: the what-if scenario view (spec step 8), explicitly
-lower priority than a working core.
+safety validator, explainability) and the dashboard (Overview, Task
+queue, Weekly plan, detail panel, Corridor traffic) are done and wired
+end to end — 57 backend + 41 adapter tests passing.
+
+Every block carries a `data_source` field (`"ntes_live"` vs
+`"synthetic"`), surfaced as a badge on the Weekly Plan Gantt, the detail
+panel and an Overview KPI, so real and synthetic numbers are never
+presented identically. A block only counts as real when it falls in a
+window the adapter has observations for.
+
+Known gaps, in rough priority order:
+
+- `crew_required` is generated and stored but enforced nowhere — no
+  resource constraint exists.
+- No department-conflict rule: any two departments may share a block
+  provided their km ranges overlap.
+- What-if scenario view (spec step 8) not built.

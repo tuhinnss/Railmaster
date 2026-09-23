@@ -11,7 +11,7 @@ def make_task(**overrides) -> MaintenanceTask:
         task_id="ENG-2026-00001",
         department="Engineering",
         asset_id="TRK-SEC-001-KM0100",
-        section="NDLS-GZB",
+        section="GHY-LMG",
         km_range=(10.0, 10.5),
         defect_type="rail_fracture_risk",
         severity_code="B",
@@ -29,8 +29,8 @@ def make_task(**overrides) -> MaintenanceTask:
 
 def make_block(**overrides) -> BlockOpportunity:
     defaults = dict(
-        block_id="BLK-NDLS-GZB-0001",
-        section="NDLS-GZB",
+        block_id="BLK-GHY-LMG-0001",
+        section="GHY-LMG",
         start_time=datetime(2026, 9, 8, 1, 0),
         end_time=datetime(2026, 9, 8, 4, 0),
         duration_min=180,
@@ -54,9 +54,9 @@ def test_block_type_compatible_traffic_and_power_covers_both():
 
 
 def test_compatible_blocks_filters_by_section_type_and_duration():
-    task = make_task(section="NDLS-GZB", block_type_required="power", est_duration_min=150)
+    task = make_task(section="GHY-LMG", block_type_required="power", est_duration_min=150)
     blocks = [
-        make_block(block_id="wrong-section", section="GZB-SRE", block_type_possible="power"),
+        make_block(block_id="wrong-section", section="LMG-RNY", block_type_possible="power"),
         make_block(block_id="wrong-type", block_type_possible="traffic"),
         make_block(block_id="too-short", block_type_possible="power", duration_min=100),
         make_block(block_id="good", block_type_possible="power", duration_min=180),

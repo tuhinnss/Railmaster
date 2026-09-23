@@ -1,31 +1,29 @@
-"""Reference tables the generator samples from. Real-sounding but made up:
-section names follow Northern Railway station-code conventions, km ranges
-are contiguous and non-overlapping per section.
+"""Reference tables the generator samples from.
 
-GHY-LMG and LMG-RNY are the exception: these reuse the exact corridor
-identifiers the ntes-adapter service is configured for (its station
-codes GHY/LMG/RNY are verified real -- see ntes-adapter/README.md --
-though real-world section adjacency still isn't). They're included here
-so app/ntes_bridge.py has matching sections to enrich with real NTES
-predicted-availability data; their km ranges are just as illustrative
-as every other section's.
+Sections are limited to the corridors ntes-adapter actually covers, so
+every section planned here has a real data source behind it rather than
+being purely invented. The station codes GHY/LMG/RNY are verified real
+(see ntes-adapter/README.md), though real-world section adjacency is
+not, and the km ranges are illustrative.
+
+Defect and block data for these sections is still synthetic -- only
+corridor availability comes from real NTES-derived data, and only for
+blocks falling in a window the adapter has observations for (see
+app/ntes_bridge.py).
 """
 
 from app.models.enums import Department, BlockType
 
 # (section_name, km_start, km_end)
 SECTIONS = [
-    ("NDLS-GZB", 0.0, 25.0),
-    ("GZB-SRE", 25.0, 160.0),
-    ("SRE-MTC", 160.0, 200.0),
-    ("MTC-PNP", 200.0, 250.0),
-    ("GHY-LMG", 0.0, 180.0),  # NTES-integrated (see app/ntes_bridge.py)
-    ("LMG-RNY", 180.0, 300.0),  # NTES-integrated (see app/ntes_bridge.py)
+    ("GHY-LMG", 0.0, 180.0),
+    ("LMG-RNY", 180.0, 300.0),
 ]
 
-# Subset of SECTIONS that app/ntes_bridge.py enriches with real NTES
-# predicted-availability data. Everything else stays purely synthetic --
-# there's no real data for them.
+# Sections app/ntes_bridge.py enriches with real NTES predicted-availability
+# data. Currently every configured section, but the bridge stays written
+# against this list rather than SECTIONS so adding a section without a real
+# data source doesn't silently claim one.
 NTES_INTEGRATED_SECTIONS = ["GHY-LMG", "LMG-RNY"]
 
 DEPARTMENT_TASK_ID_PREFIX = {

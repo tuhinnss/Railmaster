@@ -32,8 +32,11 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
   every data source converts into, per spec section 2. Nothing downstream
   reads anything else.
 - `datagen/` — synthetic data generator (spec section 3). Reproducible via
-  `--seed` (default 4, lands in the 15-20% overdue target band).
-  Run: `python -m app.datagen.generate` from `backend/`.
+  `--seed` (default 1, chosen so the overdue share lands in the 15-20%
+  target band *and* at least one severity-A overdue task exists, so the
+  safety override visibly fires). Sections are limited to the two
+  corridors ntes-adapter covers. Run: `python -m app.datagen.generate`
+  from `backend/`.
 - `scheduling/` — `common.py` (shared constants/delay calc), `compatibility.py`
   (task/block + task/task compatibility, section 6), `config.py` (tunable
   `PriorityWeights`), `prioritizer.py` (rule-based score, section 4),
@@ -43,20 +46,28 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
   example passes, ~40ms/section), `explain.py` (one-line generated reason
   per task, section 7 — done).
 
-  Known finding: on the random synthetic dataset, Stage B only saves ~5%
-  of blocks vs. Stage A (2 of 43), because task durations often consume
-  most of a block's capacity and km ranges are narrow, so few combinations
-  are actually mergeable outside the deliberate overlap fixture. The
-  worked example and a dedicated preference test both confirm the merge
-  logic itself is correct. Getting a bigger "blocks saved" headline number
-  is a data-tuning / demo-scenario-curation task for spec step 10, not an
-  algorithm fix.
+  Known finding: raw "blocks saved" understates what merging does once
+  block supply is scarce. On the current two-section dataset (45 tasks,
+  40 blocks) GHY-LMG runs Stage A at 17 tasks in 17 blocks and Stage B at
+  19 tasks in 16 blocks — merging fits *more work into fewer blocks*,
+  which the blocks-saved delta alone (1) doesn't convey. LMG-RNY finds no
+  mergeable pair at all (17 in 17 both ways), because task durations often
+  consume most of a block's capacity and km ranges are narrow. The worked
+  example and a dedicated preference test both confirm the merge logic
+  itself is correct.
+
+  Note also that 9 of 45 tasks now go unscheduled, so the priority score
+  genuinely decides which work loses — under the earlier six-section
+  dataset everything fitted and the ranking never bound.
 - `api/` — FastAPI routers exposing tasks, blocks, and generated plans to
   the dashboard.
 - `ntes_bridge.py` — optional enrichment layer connecting to the separate
-  `ntes-adapter/` service (real NTES-derived predicted-availability data,
-  see its own README). For the two NTES-integrated sections
-  (`GHY-LMG`, `LMG-RNY`, per `datagen/reference_data.NTES_INTEGRATED_SECTIONS`),
+  `ntes-adapter/` service (real NTES-derived predicted-availability data
+  and real captured train boards, see its own README). For the
+  NTES-integrated sections
+  (`GHY-LMG`, `LMG-RNY`, per `datagen/reference_data.NTES_INTEGRATED_SECTIONS`
+  — currently every configured section, but kept as a separate list so a
+  future section without a real source can't silently claim one),
   a block's `expected_train_impact` is overwritten with
   `1 - predicted_availability` when the block's start time falls in a
   window ntes-adapter has real data for; every other section stays

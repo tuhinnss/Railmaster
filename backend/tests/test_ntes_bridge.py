@@ -65,13 +65,17 @@ def test_apply_ntes_predictions_overwrites_impact_for_integrated_section(monkeyp
 
 
 def test_apply_ntes_predictions_leaves_non_integrated_sections_untouched(monkeypatch):
+    """Every currently-configured section happens to be NTES-integrated, so
+    this uses a deliberately unconfigured one: adding a section without a
+    real data source must not silently get real numbers attached to it."""
+
     def fake_fetch(corridor, base_url):
         return [{"corridor": corridor, "window": "01:00-05:00", "observed_nights": 10,
                   "clear_nights": 10, "predicted_availability": 1.0, "last_updated": str(date.today())}]
 
     monkeypatch.setattr("app.ntes_bridge.fetch_predicted_windows", fake_fetch)
 
-    block = make_block(section="NDLS-GZB", start_time=datetime(2026, 9, 28, 2, 0), expected_train_impact=0.42)
+    block = make_block(section="UNCONFIGURED-SEC", start_time=datetime(2026, 9, 28, 2, 0), expected_train_impact=0.42)
     result = apply_ntes_predictions([block])
 
     assert result[0].expected_train_impact == 0.42  # untouched -- not an NTES-integrated section
