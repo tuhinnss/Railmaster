@@ -10,6 +10,7 @@ from datetime import date, datetime
 from fastapi import APIRouter, HTTPException
 
 from app.data_access import load_blocks, load_tasks
+from app.datagen.reference_data import NTES_INTEGRATED_SECTIONS, SECTIONS
 from app.models.enums import Horizon
 from app.scheduling.explain import explain_plan
 from app.scheduling.prioritizer import score_task
@@ -19,6 +20,8 @@ from app.scheduling.validator import validate_plan
 from app.schemas.plan import PlanResponse, ScheduledBlockSummary, SectionPlanResult, TaskSummary
 
 router = APIRouter(prefix="/plans", tags=["plans"])
+
+_SECTION_KM = {name: (km_start, km_end) for name, km_start, km_end in SECTIONS}
 
 
 @router.get("/{horizon}", response_model=PlanResponse)
@@ -66,6 +69,7 @@ def get_plan(horizon: Horizon):
                 task_id=task.task_id,
                 department=task.department,
                 section=task.section,
+                km_range=task.km_range,
                 defect_type=task.defect_type,
                 severity_code=task.severity_code,
                 days_overdue=task.days_overdue,
@@ -99,9 +103,13 @@ def get_plan(horizon: Horizon):
         blocks_used_a = len({b for b in result_a.assignments.values() if b is not None})
         blocks_opened_b = len(result_b.blocks_opened)
 
+        km_start, km_end = _SECTION_KM.get(section, (0.0, 0.0))
         section_results.append(
             SectionPlanResult(
                 section=section,
+                km_start=km_start,
+                km_end=km_end,
+                ntes_integrated=section in NTES_INTEGRATED_SECTIONS,
                 task_count=len(tasks),
                 scheduled_count=sum(1 for v in result_b.assignments.values() if v is not None),
                 blocks_opened=blocks_opened_b,

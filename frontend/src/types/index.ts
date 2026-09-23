@@ -15,6 +15,7 @@ export interface TaskSummary {
   task_id: string;
   department: Department;
   section: string;
+  km_range: [number, number];
   defect_type: string;
   severity_code: SeverityCode;
   days_overdue: number;
@@ -42,6 +43,9 @@ export interface ScheduledBlockSummary {
 
 export interface SectionPlanResult {
   section: string;
+  km_start: number;
+  km_end: number;
+  ntes_integrated: boolean;
   task_count: number;
   scheduled_count: number;
   blocks_opened: number;

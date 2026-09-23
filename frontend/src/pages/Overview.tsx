@@ -1,3 +1,4 @@
+import CorridorMap from "../components/CorridorMap";
 import { usePlan } from "../context/PlanContext";
 
 function KpiCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -78,6 +79,13 @@ export default function Overview() {
           sub="from ntes-adapter (GHY-LMG, LMG-RNY)"
         />
       </div>
+
+      <h2 style={{ fontSize: 15, marginTop: 28 }}>Where the work lands</h2>
+      <p style={{ fontSize: 12, color: "#64748b", margin: "2px 0 12px" }}>
+        Each marker is a scheduled block, positioned along the corridor by the km range of the work
+        assigned to it.
+      </p>
+      <CorridorMap sections={plan.sections} />
 
       <h2 style={{ fontSize: 15, marginTop: 28 }}>By section</h2>
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>

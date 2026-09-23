@@ -15,6 +15,7 @@ class TaskSummary(BaseModel):
     task_id: str
     department: Department
     section: str
+    km_range: tuple[float, float]
     defect_type: str
     severity_code: SeverityCode
     days_overdue: int
@@ -42,6 +43,9 @@ class ScheduledBlockSummary(BaseModel):
 
 class SectionPlanResult(BaseModel):
     section: str
+    km_start: float
+    km_end: float
+    ntes_integrated: bool
     task_count: int
     scheduled_count: int
     blocks_opened: int
