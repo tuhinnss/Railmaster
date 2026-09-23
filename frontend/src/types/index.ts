@@ -9,6 +9,8 @@ export type BlockType = "traffic" | "power" | "traffic_and_power";
 
 export type Horizon = "WEEKLY";
 
+export type DataSource = "synthetic" | "ntes_live";
+
 export interface TaskSummary {
   task_id: string;
   department: Department;
@@ -35,6 +37,7 @@ export interface ScheduledBlockSummary {
   end_time: string;
   block_type_possible: BlockType;
   task_ids: string[];
+  data_source: DataSource;
 }
 
 export interface SectionPlanResult {
@@ -64,4 +67,5 @@ export interface CorridorBlock {
   block_type_possible: BlockType;
   expected_train_impact: number;
   goods_traffic_load: number;
+  data_source: DataSource;
 }

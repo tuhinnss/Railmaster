@@ -45,6 +45,10 @@ export default function Overview() {
     );
   }, 0);
   const availabilityPct = totalTasks > 0 ? Math.round((totalScheduled / totalTasks) * 100) : 0;
+  const realDataBlocks = plan.sections.reduce(
+    (sum, s) => sum + s.blocks.filter((b) => b.data_source === "ntes_live").length,
+    0
+  );
 
   return (
     <div>
@@ -68,6 +72,11 @@ export default function Overview() {
         />
         <KpiCard label="Blocks this week" value={String(totalBlocksOpened)} sub={`${totalBlocksSaved} saved via merging`} />
         <KpiCard label="Overdue tasks" value={String(totalOverdue)} sub="across all sections" />
+        <KpiCard
+          label="Blocks using real data"
+          value={String(realDataBlocks)}
+          sub="from ntes-adapter (GHY-LMG, LMG-RNY)"
+        />
       </div>
 
       <h2 style={{ fontSize: 15, marginTop: 28 }}>By section</h2>

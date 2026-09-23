@@ -1,6 +1,7 @@
 import { useState } from "react";
+import RealDataBadge from "../components/RealDataBadge";
 import TaskDetailPanel from "../components/TaskDetailPanel";
-import { DEPARTMENT_COLORS } from "../constants/colors";
+import { DEPARTMENT_COLORS, REAL_DATA_COLOR } from "../constants/colors";
 import { usePlan } from "../context/PlanContext";
 import type { ScheduledBlockSummary, SectionPlanResult, TaskSummary } from "../types";
 
@@ -28,10 +29,13 @@ function BlockBar({
     .filter((t): t is TaskSummary => Boolean(t));
   const departments = Array.from(new Set(tasks.map((t) => t.department)));
   const isMerged = tasks.length > 1;
+  const isRealData = block.data_source === "ntes_live";
 
   return (
     <div
-      title={`${block.block_id} — ${tasks.length} task(s)\n${new Date(block.start_time).toLocaleString()}`}
+      title={`${block.block_id} — ${tasks.length} task(s)\n${new Date(block.start_time).toLocaleString()}${
+        isRealData ? "\nUses real NTES-derived data" : ""
+      }`}
       onClick={() => tasks[0] && onSelectTask(tasks[0])}
       style={{
         position: "absolute",
@@ -43,13 +47,18 @@ function BlockBar({
         borderRadius: 4,
         overflow: "hidden",
         cursor: "pointer",
-        boxShadow: isMerged ? "0 0 0 2px #0f172a" : "none",
+        boxShadow: isMerged ? "0 0 0 2px #0f172a" : isRealData ? `0 0 0 2px ${REAL_DATA_COLOR}` : "none",
         minWidth: 6,
       }}
     >
       {departments.map((dept) => (
         <div key={dept} style={{ flex: 1, background: DEPARTMENT_COLORS[dept] }} />
       ))}
+      {isRealData && (
+        <div style={{ position: "absolute", top: 2, right: 2 }}>
+          <RealDataBadge compact />
+        </div>
+      )}
     </div>
   );
 }
@@ -81,6 +90,10 @@ export default function WeeklyPlan() {
         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <span style={{ width: 10, height: 10, border: "2px solid #0f172a", display: "inline-block", borderRadius: 2 }} />
           merged block (multiple tasks)
+        </span>
+        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <RealDataBadge compact />
+          real NTES data (GHY-LMG, LMG-RNY)
         </span>
       </div>
 

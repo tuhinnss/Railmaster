@@ -1,4 +1,5 @@
 import DepartmentBadge from "./DepartmentBadge";
+import RealDataBadge from "./RealDataBadge";
 import SeverityBadge from "./SeverityBadge";
 import { DEPARTMENT_COLORS } from "../constants/colors";
 import type { SectionPlanResult, TaskSummary } from "../types";
@@ -93,9 +94,12 @@ export default function TaskDetailPanel({ task, section, onClose }: Props) {
 
       {block && (
         <>
-          <h3 style={{ fontSize: 13, textTransform: "uppercase", color: "#64748b", marginBottom: 8 }}>
-            Block {block.block_id}
-          </h3>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <h3 style={{ fontSize: 13, textTransform: "uppercase", color: "#64748b", margin: 0 }}>
+              Block {block.block_id}
+            </h3>
+            {block.data_source === "ntes_live" && <RealDataBadge />}
+          </div>
           <div style={{ fontSize: 13, marginBottom: 8 }}>
             {new Date(block.start_time).toLocaleString()} → {new Date(block.end_time).toLocaleTimeString()}
             <br />

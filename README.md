@@ -56,6 +56,10 @@ falls back to synthetic values silently if it's unreachable.
 Backend engine (schema, synthetic data, priority score, CP-SAT Stage A/B,
 safety validator, explainability) and the dashboard (all 4 required
 pages) are done and wired end to end — 56 backend tests passing. The
-NTES connection covers 2 of 6 sections; the rest remain synthetic. Not
-yet built: the what-if scenario view and the differentiator view (spec
-steps 8-9), both explicitly lower priority than a working core.
+NTES connection covers 2 of 6 sections; the rest remain synthetic, and
+every block carries a `data_source` field (`"ntes_live"` vs
+`"synthetic"`) so the dashboard can show a "REAL NTES DATA" badge on the
+Weekly Plan Gantt, the task/block detail panel, and an Overview KPI
+count, instead of presenting real and synthetic numbers identically.
+Not yet built: the what-if scenario view (spec step 8), explicitly
+lower priority than a working core.

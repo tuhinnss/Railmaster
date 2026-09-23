@@ -62,13 +62,19 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
   window ntes-adapter has real data for; every other section stays
   purely synthetic. Falls back silently to synthetic values if the
   adapter is unreachable or has no data yet — this is enrichment, not a
-  hard dependency. Wired into `data_access.load_blocks()`.
+  hard dependency. Wired into `data_access.load_blocks()`. Also tags
+  the block's `data_source` field (`"ntes_live"` vs the default
+  `"synthetic"`) so downstream consumers can distinguish real from
+  synthetic numbers instead of presenting them identically.
 
 ## Frontend (`frontend/src/`)
 
 Four must-build pages (spec section 8): Overview, Task queue, Weekly plan
 (Gantt), Task/block detail panel — done, wired to real `/api/plans/WEEKLY`
-output via a shared `PlanContext`.
+output via a shared `PlanContext`. `RealDataBadge.tsx` surfaces each
+block's `data_source` (dot marker on Gantt bars, full badge in the detail
+panel, a count KPI on Overview) so the real-vs-synthetic distinction from
+`ntes_bridge.py` is visible, not just internal.
 
 ## Explicitly out of scope for this build
 

@@ -22,3 +22,8 @@ export const SEVERITY_LABELS: Record<SeverityCode, string> = {
   B: "B — Major",
   C: "C — Minor",
 };
+
+// Data-provenance indicator (real NTES data vs. synthetic). Cyan is not
+// used by either the department or severity palettes above, so a block
+// carrying both a department color and this marker stays unambiguous.
+export const REAL_DATA_COLOR = "#0891b2";

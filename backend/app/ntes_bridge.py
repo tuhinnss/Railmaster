@@ -81,6 +81,7 @@ def apply_ntes_predictions(
         for prediction in predictions:
             if _block_falls_in_window(block, prediction["window"]):
                 block.expected_train_impact = round(1 - prediction["predicted_availability"], 3)
+                block.data_source = "ntes_live"
                 break
 
     return blocks

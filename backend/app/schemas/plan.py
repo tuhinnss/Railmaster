@@ -4,6 +4,7 @@ without touching what the scheduler itself operates on.
 """
 
 from datetime import date, datetime
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -36,6 +37,7 @@ class ScheduledBlockSummary(BaseModel):
     end_time: datetime
     block_type_possible: BlockType
     task_ids: list[str]
+    data_source: Literal["synthetic", "ntes_live"]
 
 
 class SectionPlanResult(BaseModel):
@@ -65,3 +67,4 @@ class CorridorBlockSummary(BaseModel):
     block_type_possible: BlockType
     expected_train_impact: float
     goods_traffic_load: float
+    data_source: Literal["synthetic", "ntes_live"]

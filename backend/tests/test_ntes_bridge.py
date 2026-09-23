@@ -52,6 +52,7 @@ def test_apply_ntes_predictions_overwrites_impact_for_integrated_section(monkeyp
     result = apply_ntes_predictions([block])
 
     assert result[0].expected_train_impact == 0.08  # round(1 - 0.92, 3)
+    assert result[0].data_source == "ntes_live"
 
 
 def test_apply_ntes_predictions_leaves_non_integrated_sections_untouched(monkeypatch):
@@ -65,6 +66,7 @@ def test_apply_ntes_predictions_leaves_non_integrated_sections_untouched(monkeyp
     result = apply_ntes_predictions([block])
 
     assert result[0].expected_train_impact == 0.42  # untouched -- not an NTES-integrated section
+    assert result[0].data_source == "synthetic"
 
 
 def test_apply_ntes_predictions_falls_back_when_no_predictions_available(monkeypatch):
@@ -74,6 +76,7 @@ def test_apply_ntes_predictions_falls_back_when_no_predictions_available(monkeyp
     result = apply_ntes_predictions([block])
 
     assert result[0].expected_train_impact == 0.33  # untouched -- adapter had nothing to offer
+    assert result[0].data_source == "synthetic"
 
 
 def test_apply_ntes_predictions_leaves_block_untouched_outside_any_predicted_window(monkeypatch):
@@ -87,3 +90,4 @@ def test_apply_ntes_predictions_leaves_block_untouched_outside_any_predicted_win
     result = apply_ntes_predictions([block])
 
     assert result[0].expected_train_impact == 0.5  # noon isn't in the 01:00-05:00 window
+    assert result[0].data_source == "synthetic"

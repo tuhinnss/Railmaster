@@ -91,6 +91,7 @@ def get_plan(horizon: Horizon):
                 end_time=blocks_by_id[block_id].end_time,
                 block_type_possible=blocks_by_id[block_id].block_type_possible,
                 task_ids=task_ids,
+                data_source=blocks_by_id[block_id].data_source,
             )
             for block_id, task_ids in tasks_by_block.items()
         ]

@@ -26,6 +26,7 @@ def list_corridors(section: str | None = Query(default=None)):
                 "block_type_possible": b.block_type_possible,
                 "expected_train_impact": b.expected_train_impact,
                 "goods_traffic_load": b.goods_traffic_load,
+                "data_source": b.data_source,
             }
             for b in blocks
         ],
