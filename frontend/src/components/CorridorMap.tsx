@@ -33,7 +33,7 @@ function groupIntoCorridors(sections: SectionPlanResult[]): SectionPlanResult[][
   return chains;
 }
 
-interface PositionedBlock {
+export interface PositionedBlock {
   blockId: string;
   kmFrom: number;
   kmTo: number;
@@ -41,11 +41,12 @@ interface PositionedBlock {
   taskCount: number;
   isRealData: boolean;
   startTime: string;
+  endTime: string;
 }
 
 // A block has no km range of its own -- it inherits the span of the work
 // actually assigned to it, which is what "where is this block" means.
-function positionBlocks(section: SectionPlanResult): PositionedBlock[] {
+export function positionBlocks(section: SectionPlanResult): PositionedBlock[] {
   return section.blocks.flatMap((block) => {
     const tasks = block.task_ids
       .map((id) => section.tasks.find((t) => t.task_id === id))
@@ -61,6 +62,7 @@ function positionBlocks(section: SectionPlanResult): PositionedBlock[] {
         taskCount: tasks.length,
         isRealData: block.data_source === "ntes_live",
         startTime: block.start_time,
+        endTime: block.end_time,
       },
     ];
   });
@@ -105,7 +107,7 @@ function CorridorLine({ chain }: { chain: SectionPlanResult[] }) {
               overflow: "hidden",
             }}
           >
-            {s.section}
+            {s.section} · km {s.km_start}–{s.km_end}
           </div>
         ))}
       </div>
@@ -162,26 +164,49 @@ function CorridorLine({ chain }: { chain: SectionPlanResult[] }) {
   );
 }
 
+export function DepartmentLegend() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 16,
+        fontSize: 12,
+        color: "#475569",
+        flexWrap: "wrap",
+        alignItems: "center",
+        padding: "8px 12px",
+        background: "#f8fafc",
+        border: "1px solid #e2e8f0",
+        borderRadius: 6,
+        marginBottom: 14,
+      }}
+    >
+      <span style={{ fontWeight: 700, fontSize: 11, textTransform: "uppercase", color: "#64748b" }}>
+        Departments
+      </span>
+      {Object.entries(DEPARTMENT_COLORS).map(([dept, color]) => (
+        <span key={dept} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <span style={{ width: 12, height: 12, background: color, borderRadius: 3 }} />
+          {dept}
+        </span>
+      ))}
+      <span style={{ display: "flex", alignItems: "center", gap: 5, marginLeft: "auto" }}>
+        <span style={{ width: 12, height: 12, background: "#cffafe", borderRadius: 3, border: `1px solid ${REAL_DATA_COLOR}` }} />
+        real NTES data
+      </span>
+    </div>
+  );
+}
+
 export default function CorridorMap({ sections }: { sections: SectionPlanResult[] }) {
   const chains = groupIntoCorridors(sections);
 
   return (
     <div>
+      <DepartmentLegend />
       {chains.map((chain) => (
         <CorridorLine key={chain[0].section} chain={chain} />
       ))}
-      <div style={{ display: "flex", gap: 14, fontSize: 11, color: "#475569", flexWrap: "wrap" }}>
-        {Object.entries(DEPARTMENT_COLORS).map(([dept, color]) => (
-          <span key={dept} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span style={{ width: 10, height: 10, background: color, borderRadius: 2 }} />
-            {dept}
-          </span>
-        ))}
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ width: 10, height: 10, background: "#cffafe", borderRadius: 2 }} />
-          section with real NTES data
-        </span>
-      </div>
     </div>
   );
 }

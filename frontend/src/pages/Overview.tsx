@@ -1,3 +1,4 @@
+import BlockAllocation from "../components/BlockAllocation";
 import CorridorMap from "../components/CorridorMap";
 import { usePlan } from "../context/PlanContext";
 
@@ -86,6 +87,13 @@ export default function Overview() {
         assigned to it.
       </p>
       <CorridorMap sections={plan.sections} />
+
+      <h2 style={{ fontSize: 15, marginTop: 28 }}>Block allocation by day</h2>
+      <p style={{ fontSize: 12, color: "#64748b", margin: "2px 0 12px" }}>
+        Every scheduled block, grouped by the day it runs — km block, time allocated, and which
+        department has it.
+      </p>
+      <BlockAllocation sections={plan.sections} />
 
       <h2 style={{ fontSize: 15, marginTop: 28 }}>By section</h2>
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>
