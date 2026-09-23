@@ -14,6 +14,7 @@ from app.datagen.generate import DEFAULT_OUT_DIR, generate_blocks, generate_task
 from app.datagen.reference_data import SECTIONS
 from app.models.block import BlockOpportunity
 from app.models.task import MaintenanceTask
+from app.ntes_bridge import apply_ntes_predictions
 
 DEFAULT_SEED = 1
 DEFAULT_NUM_TASKS = 45
@@ -39,7 +40,10 @@ def load_tasks(out_dir: Path = DEFAULT_OUT_DIR) -> list[MaintenanceTask]:
     return [MaintenanceTask(**t) for t in raw]
 
 
-def load_blocks(out_dir: Path = DEFAULT_OUT_DIR) -> list[BlockOpportunity]:
+def load_blocks(out_dir: Path = DEFAULT_OUT_DIR, enrich_with_ntes: bool = True) -> list[BlockOpportunity]:
     _ensure_data_exists(out_dir)
     raw = json.loads((out_dir / "blocks.json").read_text())
-    return [BlockOpportunity(**b) for b in raw]
+    blocks = [BlockOpportunity(**b) for b in raw]
+    if enrich_with_ntes:
+        blocks = apply_ntes_predictions(blocks)
+    return blocks

@@ -147,6 +147,34 @@ Environment variables (all optional):
 | `NTES_ADAPTER_POLL_INTERVAL` | `60` | Seconds between poll cycles. |
 | `NTES_ADAPTER_DATA_DIR` | `ntes-adapter/data/` | Where the JSON-file store persists between restarts. |
 
+## Demo seeding
+
+A freshly started instance reports `observed_nights: 0` until the poller
+has actually run for a while (see investigation findings above — there's
+no historical backfill). To get illustrative numbers immediately for a
+demo, run before starting the service:
+
+```bash
+.venv/Scripts/python.exe -m scripts.seed_demo_predictions
+```
+
+This seeds `FREQUENCY_LOOKBACK_NIGHTS` worth of *past-night* poll-coverage
+and occupancy history (not the predictions cache directly — the poller
+recomputes that from the logs on every cycle, including at startup, so a
+directly-seeded cache entry gets overwritten within seconds). The seeded
+availability figures (`ILLUSTRATIVE_AVAILABILITY` in the script) are
+made up, not measured — labeled as such everywhere they surface.
+
+## Consumers
+
+Rail Master's main scheduler (`../backend/app/ntes_bridge.py`) treats
+this service as an optional enrichment layer: for its two NTES-integrated
+sections, it overwrites a block opportunity's `expected_train_impact`
+with `1 - predicted_availability` for blocks whose time falls in a window
+this service has data for. It degrades silently to synthetic data if
+this service is unreachable — there's no hard dependency in either
+direction.
+
 ## Configured corridors (placeholders — confirm before real use)
 
 | Corridor | Station A | Station B |

@@ -53,13 +53,22 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
   algorithm fix.
 - `api/` — FastAPI routers exposing tasks, blocks, and generated plans to
   the dashboard.
+- `ntes_bridge.py` — optional enrichment layer connecting to the separate
+  `ntes-adapter/` service (real NTES-derived predicted-availability data,
+  see its own README). For the two NTES-integrated sections
+  (`GHY-LMG`, `LMG-RNY`, per `datagen/reference_data.NTES_INTEGRATED_SECTIONS`),
+  a block's `expected_train_impact` is overwritten with
+  `1 - predicted_availability` when the block's start time falls in a
+  window ntes-adapter has real data for; every other section stays
+  purely synthetic. Falls back silently to synthetic values if the
+  adapter is unreachable or has no data yet — this is enrichment, not a
+  hard dependency. Wired into `data_access.load_blocks()`.
 
 ## Frontend (`frontend/src/`)
 
 Four must-build pages (spec section 8): Overview, Task queue, Weekly plan
-(Gantt), Task/block detail panel. Build these end to end against real
-scheduler output before touching the what-if view or the differentiator
-view.
+(Gantt), Task/block detail panel — done, wired to real `/api/plans/WEEKLY`
+output via a shared `PlanContext`.
 
 ## Explicitly out of scope for this build
 

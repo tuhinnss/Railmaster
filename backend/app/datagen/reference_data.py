@@ -1,6 +1,15 @@
 """Reference tables the generator samples from. Real-sounding but made up:
 section names follow Northern Railway station-code conventions, km ranges
-are contiguous and non-overlapping per section."""
+are contiguous and non-overlapping per section.
+
+GHY-LMG and LMG-RNY are the exception: these reuse the exact corridor
+identifiers the ntes-adapter service is configured for (its station
+codes GHY/LMG/RNY are verified real -- see ntes-adapter/README.md --
+though real-world section adjacency still isn't). They're included here
+so app/ntes_bridge.py has matching sections to enrich with real NTES
+predicted-availability data; their km ranges are just as illustrative
+as every other section's.
+"""
 
 from app.models.enums import Department, BlockType
 
@@ -10,7 +19,14 @@ SECTIONS = [
     ("GZB-SRE", 25.0, 160.0),
     ("SRE-MTC", 160.0, 200.0),
     ("MTC-PNP", 200.0, 250.0),
+    ("GHY-LMG", 0.0, 180.0),  # NTES-integrated (see app/ntes_bridge.py)
+    ("LMG-RNY", 180.0, 300.0),  # NTES-integrated (see app/ntes_bridge.py)
 ]
+
+# Subset of SECTIONS that app/ntes_bridge.py enriches with real NTES
+# predicted-availability data. Everything else stays purely synthetic --
+# there's no real data for them.
+NTES_INTEGRATED_SECTIONS = ["GHY-LMG", "LMG-RNY"]
 
 DEPARTMENT_TASK_ID_PREFIX = {
     Department.ENGINEERING: "ENG",
