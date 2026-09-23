@@ -19,9 +19,11 @@ and the build spec for what's in/out.
 - `backend/` — FastAPI service: typed data models (`app/models`), synthetic
   data generator (`app/datagen`), scheduling engine (`app/scheduling`),
   the NTES enrichment bridge (`app/ntes_bridge.py`), REST API (`app/api`).
-- `frontend/` — React dashboard: Overview, Task queue, Weekly plan (Gantt),
+- `frontend/` — React dashboard: Overview (KPIs + corridor map), Task queue,
   Task/block detail panel, Corridor traffic (real NTES train boards) —
-  wired to real scheduler output.
+  wired to real scheduler output. The Weekly plan (Gantt) page was removed
+  pending a rebuild; the backend still produces the full plan, and the
+  removed page is recoverable from git history (see `de3be0c`).
 - `ntes-adapter/` — separate service; see its own README. Provides real,
   self-collected train-movement-derived predicted-availability data, plus
   real captured NTES train boards, for the two corridors.
@@ -59,18 +61,20 @@ falls back to synthetic values silently if it's unreachable.
 ## Status
 
 Backend engine (schema, synthetic data, priority score, CP-SAT Stage A/B,
-safety validator, explainability) and the dashboard (Overview, Task
-queue, Weekly plan, detail panel, Corridor traffic) are done and wired
-end to end — 57 backend + 41 adapter tests passing.
+safety validator, explainability) is done and wired end to end — 57
+backend + 41 adapter tests passing. Dashboard currently ships Overview,
+Task queue, detail panel and Corridor traffic.
 
 Every block carries a `data_source` field (`"ntes_live"` vs
-`"synthetic"`), surfaced as a badge on the Weekly Plan Gantt, the detail
-panel and an Overview KPI, so real and synthetic numbers are never
-presented identically. A block only counts as real when it falls in a
-window the adapter has observations for.
+`"synthetic"`), surfaced as a badge in the detail panel and an Overview
+KPI, so real and synthetic numbers are never presented identically. A
+block only counts as real when it falls in a window the adapter has
+observations for.
 
 Known gaps, in rough priority order:
 
+- Weekly plan (Gantt) page removed pending a rebuild — the scheduler
+  still produces the plan, it just isn't visualised on a timeline.
 - `crew_required` is generated and stored but enforced nowhere — no
   resource constraint exists.
 - No department-conflict rule: any two departments may share a block

@@ -80,12 +80,16 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
 
 ## Frontend (`frontend/src/`)
 
-Four must-build pages (spec section 8): Overview, Task queue, Weekly plan
-(Gantt), Task/block detail panel — done, wired to real `/api/plans/WEEKLY`
-output via a shared `PlanContext`. `RealDataBadge.tsx` surfaces each
-block's `data_source` (dot marker on Gantt bars, full badge in the detail
-panel, a count KPI on Overview) so the real-vs-synthetic distinction from
-`ntes_bridge.py` is visible, not just internal.
+Of the four must-build pages (spec section 8), Overview, Task queue and
+the Task/block detail panel are live, wired to real `/api/plans/WEEKLY`
+output via a shared `PlanContext`. The Weekly plan (Gantt) page was
+removed pending a rebuild — the API still returns everything it needs.
+
+`RealDataBadge.tsx` surfaces each block's `data_source` (full badge in
+the detail panel, a count KPI on Overview) so the real-vs-synthetic
+distinction from `ntes_bridge.py` is visible, not just internal.
+`CorridorMap.tsx` on Overview shows where blocks land along the corridor
+by km; `CorridorTraffic.tsx` shows real captured NTES train boards.
 
 ## Explicitly out of scope for this build
 
