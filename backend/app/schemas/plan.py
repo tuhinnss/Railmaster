@@ -19,6 +19,10 @@ class TaskSummary(BaseModel):
     days_overdue: int
     block_type_required: BlockType
     priority_score: float
+    criticality: float
+    urgency: float
+    availability_impact: float
+    dominant_component: str
     safety_override: bool
     scheduled: bool
     block_id: str | None

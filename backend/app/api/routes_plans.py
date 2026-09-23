@@ -53,12 +53,7 @@ def get_plan(horizon: Horizon):
             e.task_id: e
             for e in explain_plan(tasks, blocks, result_b.assignments, result_b.compatible_blocks_by_task)
         }
-        priority_scores = {}
-        safety_overrides = {}
-        for task in tasks:
-            breakdown = score_task(task, blocks)
-            priority_scores[task.task_id] = breakdown.score
-            safety_overrides[task.task_id] = breakdown.safety_override
+        breakdowns = {task.task_id: score_task(task, blocks) for task in tasks}
 
         blocks_by_id = {b.block_id: b for b in blocks}
         tasks_by_block: dict[str, list[str]] = defaultdict(list)
@@ -75,8 +70,12 @@ def get_plan(horizon: Horizon):
                 severity_code=task.severity_code,
                 days_overdue=task.days_overdue,
                 block_type_required=task.block_type_required,
-                priority_score=priority_scores[task.task_id],
-                safety_override=safety_overrides[task.task_id],
+                priority_score=breakdowns[task.task_id].score,
+                criticality=breakdowns[task.task_id].criticality,
+                urgency=breakdowns[task.task_id].urgency,
+                availability_impact=breakdowns[task.task_id].availability_impact,
+                dominant_component=breakdowns[task.task_id].dominant_component,
+                safety_override=breakdowns[task.task_id].safety_override,
                 scheduled=result_b.assignments[task.task_id] is not None,
                 block_id=result_b.assignments[task.task_id],
                 reason=explanations[task.task_id].reason,
