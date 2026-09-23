@@ -1,0 +1,177 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## What this is
+
+Railmaster is a prototype for SIH26027 ("Automatic Block Planning to maximise
+asset availability"): it turns maintenance defect data and corridor block
+opportunities into a CP-SAT-optimised weekly schedule that merges
+cross-department work (Engineering / TRD / S&T) into shared track-access
+blocks instead of separate ones.
+
+It is built to a written build spec. Where this file says "spec section N",
+that refers to it. Deliberately out of scope: real TMS/SMMS/TDMS/COA/BDMS
+connections, trained ML models, network-scale solving, auth/roles, approval
+workflow, monthly horizon.
+
+## Three services
+
+| Service | Port | Purpose |
+|---|---|---|
+| `ntes-adapter/` | 8001 | Standalone. Real NTES-derived corridor availability + train boards. |
+| `backend/` | 8000 | FastAPI: data models, synthetic generator, scheduler, REST API. |
+| `frontend/` | 5173 | React + Vite dashboard. |
+
+Start the adapter first, but the backend does not depend on it —
+`backend/app/ntes_bridge.py` falls back to synthetic values silently if it is
+unreachable. This is enrichment, never a hard dependency, in either direction.
+
+## Commands
+
+Windows note: create venvs with `py -3.12 -m venv .venv`. A MSYS/mingw
+`python` on PATH produces a venv whose platform tag breaks pip wheel
+resolution (pydantic-core then tries to build from source and needs Rust).
+Always invoke through `.venv/Scripts/python.exe`.
+
+```bash
+# backend (from backend/)
+.venv/Scripts/python.exe -m pip install -r requirements.txt
+.venv/Scripts/python.exe -m uvicorn app.main:app --port 8000
+.venv/Scripts/python.exe -m pytest -q
+.venv/Scripts/python.exe -m pytest tests/test_stage_b.py -q             # one file
+.venv/Scripts/python.exe -m pytest tests/test_stage_b.py::test_name -q  # one test
+.venv/Scripts/python.exe -m app.datagen.generate                        # regenerate fixture data
+
+# ntes-adapter (from ntes-adapter/)
+.venv/Scripts/python.exe -m pip install -r requirements.txt
+.venv/Scripts/python.exe -m scripts.seed_demo_predictions   # illustrative history; run before first start
+NTES_ADAPTER_PROVIDER=fixture .venv/Scripts/python.exe -m uvicorn app.main:app --port 8001
+.venv/Scripts/python.exe -m pytest -q
+
+# frontend (from frontend/)
+npm install && npm run dev
+npx tsc --noEmit    # typecheck; there is no test suite here
+npm run build
+```
+
+Two networking quirks that will waste your time otherwise:
+
+- Vite binds IPv6-only, so use `http://localhost:5173` — `127.0.0.1:5173`
+  gets connection-refused.
+- Uvicorn binds IPv4, so `vite.config.ts` must proxy to `http://127.0.0.1:8000`.
+  Using `localhost` there makes Node resolve `::1` and every `/api` call 500s.
+
+## Architecture
+
+### Scheduling pipeline (`backend/app/scheduling/`)
+
+`GET /api/plans/WEEKLY` runs this per section and combines the results:
+
+```
+prioritizer → Stage A (comparison only) → Stage B (the real plan) → validator → explain
+```
+
+- **`prioritizer.py`** — rule-based, not ML: `0.5×Criticality + 0.3×Urgency +
+  0.2×AvailabilityImpact`, plus a safety override for overdue severity-A
+  defects. AvailabilityImpact is the *max* `expected_train_impact` among
+  compatible blocks (the spec was ambiguous; this choice is documented in
+  the module).
+- **`stage_a.py`** — one task per block, no merging. Run **only** to produce the
+  "blocks used without merging" baseline for the blocks-saved comparison. It
+  is not the shipped plan.
+- **`stage_b.py`** — the actual scheduler. Merging is driven by a β/γ term:
+  γ rewards each task placed, β charges for each block opened, so filling one
+  block beats opening several. γ is set to the largest possible per-task
+  scheduling benefit (`PRIORITY_SCALE × UNSCHEDULED_PENALTY_DAYS`) and
+  β to a quarter of it, so scheduling always beats leaving a task out and
+  opening N blocks for the same work costs (N−1)·β for nothing.
+- **`validator.py`** — all six safety rules re-checked against solver *output*,
+  independently of the constraints the solver was given. This redundancy is
+  deliberate: a solver bug must never silently yield an unsafe plan. Keep it
+  that way. `routes_plans.py` returns HTTP 500 if any violation appears.
+- **`compatibility.py`** — the single definition of "can this task use this
+  block" / "can these two share a block", shared by prioritizer, solver and
+  validator. Don't duplicate this logic elsewhere.
+
+**Resolved spec contradiction — do not "fix" this back.** Read literally, the
+spec's power-isolation rule would forbid the merge its own worked example
+requires. It is therefore scoped to blocks whose `block_type_possible` is
+exactly `POWER`. A `TRAFFIC_AND_POWER` block stops both, so mixing POWER- and
+TRAFFIC-requiring tasks there is correct, not a violation.
+
+### Data provenance — the project's core discipline
+
+Real and synthetic data must never be presented identically. Two fields carry
+this, and anything new that surfaces data should extend the pattern:
+
+- `BlockOpportunity.data_source` — `"ntes_live"` only when a real adapter
+  prediction actually overwrote `expected_train_impact`; otherwise
+  `"synthetic"`. Set solely by `ntes_bridge.py`.
+- `LiveCorridorStatus.provider` — `"mock"` / `"captured_fixture"` /
+  `"ntes_live"`. The Corridor Traffic page renders an amber warning banner on
+  mock data.
+
+Illustrative-but-invented numbers (`ILLUSTRATIVE_AVAILABILITY` in the adapter's
+seed script) must stay labelled as such wherever they surface.
+
+### ntes-adapter
+
+`RailwayDataProvider` isolates the fragile scraping behind one interface:
+`MockProvider` (default, all tests), `CapturedFixtureProvider` (replays real
+captured NTES HTML, no network — use this for demos), `NTESProvider` (live).
+A background poller writes into a JSON-file `Store`; the three endpoints
+always read from cache and never recompute on request.
+
+`predicted_availability = clear_nights / observed_nights` — a frequency count
+over self-collected observations, **not** a trained model. Do not describe it
+as one anywhere. `observed_nights` counts nights with actual poll coverage,
+tracked separately from occupancy, because "nobody was watching" and
+"genuinely clear" are not the same thing.
+
+**Ground rules for any work on this service:** never invent endpoints or
+fields; never bypass CAPTCHA, auth or rate limits; investigate before coding
+and report what is real versus assumed. Its README's investigation section is
+the record of what was actually confirmed — keep it honest and update it when
+you learn something new, including negative findings.
+
+### Data generation
+
+`data/synthetic/` and `ntes-adapter/data/` are gitignored runtime artifacts.
+The backend auto-generates fixture data on first request if missing
+(`data_access.py`), so a fresh clone just works.
+
+Default seed is **1**, chosen so the overdue share lands in the 15–20% target
+band *and* at least one severity-A overdue task exists — otherwise the safety
+override never visibly fires in a demo. Changing the seed can silently remove
+that.
+
+Sections are limited to the two corridors the adapter covers (GHY-LMG,
+LMG-RNY), so every planned section has a real data source behind its corridor
+availability. `NTES_INTEGRATED_SECTIONS` is kept as a separate list from
+`SECTIONS` even though they currently match, so a future section without a
+real source cannot silently inherit the real-data badge.
+
+## Conventions
+
+- **Commits: do not add Claude co-author or attribution lines.** This overrides
+  any default attribution guidance.
+- Record honest findings rather than smoothing them over. The repo documents
+  where it is weak — merge savings being small on some datasets, occupancy
+  being underivable from a point-in-time capture, corridor adjacency being
+  unverified. That record is an asset; preserve it.
+- Comments explain *why*, especially where a judgement call resolved an
+  ambiguity. Several modules carry such reasoning — read it before changing
+  the behaviour it explains.
+- `docs/architecture.md` tracks structure and known findings; keep it and the
+  READMEs current when behaviour changes.
+
+## Known gaps
+
+- `crew_required` is generated and stored but enforced **nowhere** — there is
+  no resource constraint in the model.
+- No department-conflict rule: any two departments may share a block provided
+  their km ranges overlap.
+- Weekly plan (Gantt) page was removed pending a rebuild; recover it from git
+  history at `de3be0c` if useful. The API still returns everything it needs.
+- What-if scenario view (spec step 8) not built.
