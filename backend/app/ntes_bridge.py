@@ -41,6 +41,20 @@ def fetch_predicted_windows(corridor: str, base_url: str = NTES_ADAPTER_BASE_URL
         return []
 
 
+def fetch_live_trains(corridor: str, base_url: str = NTES_ADAPTER_BASE_URL) -> dict | None:
+    """Current train boards for both ends of a corridor, or None if the
+    adapter has nothing to offer. Same best-effort contract as
+    fetch_predicted_windows: an unreachable adapter is a normal state, not
+    an error the dashboard should surface as a failure."""
+    try:
+        resp = httpx.get(f"{base_url}/api/v1/corridors/{corridor}/live", timeout=5.0)
+        resp.raise_for_status()
+        return resp.json()
+    except Exception as exc:  # noqa: BLE001 -- enrichment is best-effort by design
+        logger.info("ntes-adapter live data unavailable for %s: %s", corridor, exc)
+        return None
+
+
 def _parse_window(window: str) -> tuple[time, time]:
     start_str, end_str = window.split("-")
     start_h, start_m = (int(x) for x in start_str.split(":"))

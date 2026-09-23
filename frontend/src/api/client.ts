@@ -1,4 +1,4 @@
-import type { CorridorBlock, Horizon, PlanResponse, TaskSummary } from "../types";
+import type { CorridorBlock, Horizon, LiveCorridorStatus, PlanResponse, TaskSummary } from "../types";
 
 const BASE_URL = "/api";
 
@@ -19,4 +19,8 @@ export function fetchDefects(): Promise<TaskSummary[]> {
 export function fetchCorridorBlocks(section?: string): Promise<CorridorBlock[]> {
   const qs = section ? `?section=${encodeURIComponent(section)}` : "";
   return apiGet<CorridorBlock[]>(`/corridors/${qs}`);
+}
+
+export function fetchCorridorTrains(section: string): Promise<LiveCorridorStatus> {
+  return apiGet<LiveCorridorStatus>(`/corridors/${encodeURIComponent(section)}/trains`);
 }

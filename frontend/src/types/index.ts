@@ -58,6 +58,39 @@ export interface PlanResponse {
   sections: SectionPlanResult[];
 }
 
+// Mirrors ntes-adapter's models.py, proxied through /api/corridors/{section}/trains.
+export type TrainEventType = "arrival" | "departure";
+
+export type TrainEventStatus = "on_time" | "delayed" | "source" | "terminating" | "unknown";
+
+export interface TrainEvent {
+  train_no: string;
+  train_name: string;
+  station_code: string;
+  event_type: TrainEventType;
+  status: TrainEventStatus;
+  scheduled_time: string | null;
+  actual_or_expected_time: string | null;
+  delay_minutes: number | null;
+  platform: string | null;
+}
+
+export interface StationLiveBoard {
+  station_code: string;
+  fetched_at: string;
+  window_hours: number;
+  events: TrainEvent[];
+}
+
+export interface LiveCorridorStatus {
+  corridor: string;
+  station_a: StationLiveBoard | null;
+  station_b: StationLiveBoard | null;
+  stale: boolean;
+  last_successful_fetch: string | null;
+  provider: string;
+}
+
 export interface CorridorBlock {
   block_id: string;
   section: string;

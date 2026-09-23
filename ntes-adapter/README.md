@@ -103,8 +103,9 @@ it.
 
 ```
 RailwayDataProvider (interface)
-├── MockProvider   — canned, deterministic. Default everywhere, incl. all tests.
-└── NTESProvider   — best-effort real scraper. Opt-in only.
+├── MockProvider             — canned, deterministic. Default everywhere, incl. all tests.
+├── CapturedFixtureProvider  — replays real captured NTES responses. No network.
+└── NTESProvider             — best-effort real scraper. Opt-in only.
         │
         ▼
    Poller (background, on an interval)
@@ -143,9 +144,28 @@ Environment variables (all optional):
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `NTES_ADAPTER_USE_REAL_NTES` | `false` | Set `true` to opt into the real `NTESProvider`. Read the investigation section above first. |
+| `NTES_ADAPTER_PROVIDER` | `mock` | `mock`, `fixture`, or `ntes` — see below. |
 | `NTES_ADAPTER_POLL_INTERVAL` | `60` | Seconds between poll cycles. |
 | `NTES_ADAPTER_DATA_DIR` | `ntes-adapter/data/` | Where the JSON-file store persists between restarts. |
+
+### Providers
+
+- **`mock`** (default) — canned, deterministic trains (`MOCK EXPRESS`).
+  Used by every test. Never present this as real data.
+- **`fixture`** — replays the two real NTES responses captured during
+  investigation (`tests/fixtures/`), parsed by the same parser used for
+  live responses. Real train numbers, names, delays and platforms; no
+  network access. The captured HTML carries only `HH:MM` times with no
+  date, so times are anchored to today — the train identities and timings
+  are real, the calendar date they're shown against is not the date they
+  were observed. Only `GHY` and `LMG` were captured; `RNY` raises, so
+  `LMG-RNY` honestly reports no data for that end rather than silently
+  substituting mock trains.
+- **`ntes`** — best-effort live scrape. Read the investigation section
+  above first; sustained polling behavior was never tested.
+
+`/live` reports which of these produced the boards in its `provider`
+field, so a consumer can never accidentally present canned data as real.
 
 ## Demo seeding
 
@@ -190,7 +210,9 @@ adjacency is not.
 
 - `GET /api/v1/corridors` — the configured corridors.
 - `GET /api/v1/corridors/{corridor}/live` — current NTES-derived status
-  for both stations of that corridor, with a `stale` boolean and
+  for both stations of that corridor, with a `stale` boolean, a
+  `provider` field naming the data's origin (`mock` /
+  `captured_fixture` / `ntes_live`), and a
   `last_successful_fetch` timestamp. `stale=true` whenever the last
   successful fetch is older than `STALE_THRESHOLD_SECONDS` (default 300s
   — roughly 5 poll intervals) — including if the corridor has never been
@@ -239,6 +261,16 @@ such anywhere downstream.
 ## Known limitations
 
 - No real historical data on day one (see investigation findings).
+- **A single simultaneous capture of both stations yields zero section
+  occupancy.** The two captured fixtures (GHY and LMG, taken at the same
+  moment) share no train numbers at all, so `derive_corridor_occupancy`
+  returns nothing for them. This is structural, not a parsing bug: each
+  board is a ~4-hour *forward* look, and a train crossing the ~180km
+  section appears in one board's window but not the other's. Occupancy
+  pairing therefore only produces intervals from data accumulated by
+  polling over time — it cannot be reconstructed from a point-in-time
+  snapshot of both ends, which is why the `fixture` provider is useful
+  for showing real train boards but not for deriving real availability.
 - Terminating-train HTML cell format unconfirmed against live data.
 - Corridor real-world adjacency unconfirmed.
 - Behavior under sustained/high-frequency polling unverified — only one

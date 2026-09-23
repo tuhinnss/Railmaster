@@ -49,6 +49,8 @@ for _corridor in CORRIDORS:
 
 
 class NTESProvider(RailwayDataProvider):
+    name = "ntes_live"
+
     def __init__(self, timeout_seconds: float = 15.0):
         self._client = httpx.Client(
             base_url=BASE_URL,

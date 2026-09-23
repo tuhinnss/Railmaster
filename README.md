@@ -18,7 +18,8 @@ and the build spec for what's in/out.
   data generator (`app/datagen`), scheduling engine (`app/scheduling`),
   the NTES enrichment bridge (`app/ntes_bridge.py`), REST API (`app/api`).
 - `frontend/` — React dashboard: Overview, Task queue, Weekly plan (Gantt),
-  Task/block detail panel — wired to real scheduler output.
+  Task/block detail panel, Corridor traffic (real NTES train boards) —
+  wired to real scheduler output.
 - `ntes-adapter/` — separate service; see its own README. Provides real,
   self-collected train-movement-derived predicted-availability data for
   two corridors (GHY-LMG, LMG-RNY).
@@ -34,7 +35,9 @@ and the build spec for what's in/out.
 cd ntes-adapter
 python -m venv .venv && .venv/Scripts/python.exe -m pip install -r requirements.txt
 .venv/Scripts/python.exe -m scripts.seed_demo_predictions   # illustrative history, see its README
-.venv/Scripts/python.exe -m uvicorn app.main:app --port 8001
+# NTES_ADAPTER_PROVIDER=fixture serves the real captured NTES train boards
+# (Corridor Traffic page). Omit it for canned mock trains.
+NTES_ADAPTER_PROVIDER=fixture .venv/Scripts/python.exe -m uvicorn app.main:app --port 8001
 
 # 2. backend
 cd backend

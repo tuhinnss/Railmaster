@@ -47,6 +47,11 @@ class LiveCorridorStatus(BaseModel):
     station_b: StationLiveBoard | None
     stale: bool
     last_successful_fetch: datetime | None
+    # Which provider produced these boards: "mock" (canned), "captured_fixture"
+    # (real NTES responses captured during investigation, replayed against
+    # today's date), or "ntes_live" (fetched from NTES now). Consumers must
+    # not present canned data as real -- see README.
+    provider: str = "unknown"
 
 
 class SectionOccupancyInterval(BaseModel):

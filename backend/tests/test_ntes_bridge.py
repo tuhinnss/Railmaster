@@ -1,7 +1,12 @@
 from datetime import date, datetime
 
 from app.models.block import BlockOpportunity
-from app.ntes_bridge import _block_falls_in_window, apply_ntes_predictions, fetch_predicted_windows
+from app.ntes_bridge import (
+    _block_falls_in_window,
+    apply_ntes_predictions,
+    fetch_live_trains,
+    fetch_predicted_windows,
+)
 
 
 def make_block(**overrides) -> BlockOpportunity:
@@ -24,6 +29,10 @@ def test_fetch_predicted_windows_returns_empty_list_when_adapter_unreachable():
     # fall back to [] rather than raising or hanging the caller.
     result = fetch_predicted_windows("GHY-LMG", base_url="http://127.0.0.1:1")
     assert result == []
+
+
+def test_fetch_live_trains_returns_none_when_adapter_unreachable():
+    assert fetch_live_trains("GHY-LMG", base_url="http://127.0.0.1:1") is None
 
 
 def test_block_falls_in_window_simple_range():

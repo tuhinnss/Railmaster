@@ -3,9 +3,11 @@ backing data. Sourced from the synthetic generator for this build (real
 COA integration is out of scope, see docs/architecture.md).
 """
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
 from app.data_access import load_blocks
+from app.datagen.reference_data import NTES_INTEGRATED_SECTIONS
+from app.ntes_bridge import fetch_live_trains
 
 router = APIRouter(prefix="/corridors", tags=["corridors"])
 
@@ -32,3 +34,20 @@ def list_corridors(section: str | None = Query(default=None)):
         ],
         key=lambda b: (b["section"], b["start_time"]),
     )
+
+
+@router.get("/{section}/trains")
+def get_corridor_trains(section: str):
+    """Train movements at both ends of an NTES-integrated section, proxied
+    from ntes-adapter. Only the integrated sections have any real data
+    source at all; the rest are synthetic and have no trains to show."""
+    if section not in NTES_INTEGRATED_SECTIONS:
+        raise HTTPException(
+            status_code=404,
+            detail=f"{section} has no NTES data source (integrated: {NTES_INTEGRATED_SECTIONS})",
+        )
+
+    live = fetch_live_trains(section)
+    if live is None:
+        raise HTTPException(status_code=503, detail="ntes-adapter is unreachable")
+    return live

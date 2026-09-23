@@ -11,6 +11,10 @@ from app.models import StationLiveBoard
 
 
 class RailwayDataProvider(ABC):
+    # Surfaced on the API so a consumer can tell real data from canned --
+    # see LiveCorridorStatus.provider.
+    name: str = "unknown"
+
     @abstractmethod
     def get_live_station(self, station_code: str, window_hours: int = 4) -> StationLiveBoard:
         """Current/near-term train movements at one station. Raises on

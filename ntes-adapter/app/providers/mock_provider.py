@@ -45,6 +45,8 @@ def _default_events(station_code: str, query_time: datetime) -> list[TrainEvent]
 
 
 class MockProvider(RailwayDataProvider):
+    name = "mock"
+
     def __init__(
         self,
         events: dict[str, list[TrainEvent]] | None = None,

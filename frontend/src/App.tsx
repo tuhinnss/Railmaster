@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import { PlanProvider } from "./context/PlanContext";
+import CorridorTraffic from "./pages/CorridorTraffic";
 import Overview from "./pages/Overview";
 import TaskQueue from "./pages/TaskQueue";
 import WeeklyPlan from "./pages/WeeklyPlan";
@@ -26,11 +27,15 @@ export default function App() {
             <NavLink to="/plan" style={navLinkStyle}>
               Weekly Plan
             </NavLink>
+            <NavLink to="/traffic" style={navLinkStyle}>
+              Corridor Traffic
+            </NavLink>
           </nav>
           <Routes>
             <Route path="/" element={<Overview />} />
             <Route path="/tasks" element={<TaskQueue />} />
             <Route path="/plan" element={<WeeklyPlan />} />
+            <Route path="/traffic" element={<CorridorTraffic />} />
           </Routes>
         </div>
       </PlanProvider>

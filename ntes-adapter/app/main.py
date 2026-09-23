@@ -1,8 +1,14 @@
 """FastAPI service exposing configured corridors, live NTES-derived
 status (with a staleness flag), and cached historical frequency
-predictions. Defaults to MockProvider; set NTES_ADAPTER_USE_REAL_NTES=true
-to opt into the best-effort real NTESProvider (see README before doing
-this in anything resembling production use).
+predictions.
+
+Provider is chosen by NTES_ADAPTER_PROVIDER (default "mock"):
+  mock     -- canned, deterministic. Default everywhere, including tests.
+  fixture  -- replays the real NTES responses captured during
+              investigation (real trains, today's date -- see
+              fixture_provider.py). No network access.
+  ntes     -- best-effort live scrape. Read the README's investigation
+              section before using this for anything real.
 
 Run: uvicorn app.main:app --reload
 """
@@ -19,6 +25,7 @@ from fastapi import FastAPI, HTTPException
 from app.config import CORRIDORS, STALE_THRESHOLD_SECONDS
 from app.models import LiveCorridorStatus, PredictedWindow
 from app.poller import Poller
+from app.providers.fixture_provider import CapturedFixtureProvider
 from app.providers.mock_provider import MockProvider
 from app.providers.ntes_provider import NTESProvider
 from app.store import Store
@@ -26,11 +33,19 @@ from app.store import Store
 logging.basicConfig(level=logging.INFO)
 
 DATA_DIR = Path(os.environ.get("NTES_ADAPTER_DATA_DIR", Path(__file__).resolve().parent.parent / "data"))
-USE_REAL_NTES = os.environ.get("NTES_ADAPTER_USE_REAL_NTES", "false").lower() == "true"
+PROVIDER_NAME = os.environ.get("NTES_ADAPTER_PROVIDER", "mock").lower()
 POLL_INTERVAL_SECONDS = int(os.environ.get("NTES_ADAPTER_POLL_INTERVAL", "60"))
 
+_PROVIDERS = {
+    "mock": MockProvider,
+    "fixture": CapturedFixtureProvider,
+    "ntes": NTESProvider,
+}
+if PROVIDER_NAME not in _PROVIDERS:
+    raise ValueError(f"NTES_ADAPTER_PROVIDER must be one of {sorted(_PROVIDERS)}, got {PROVIDER_NAME!r}")
+
 store = Store(data_dir=DATA_DIR)
-provider = NTESProvider() if USE_REAL_NTES else MockProvider()
+provider = _PROVIDERS[PROVIDER_NAME]()
 poller = Poller(provider, store, interval_seconds=POLL_INTERVAL_SECONDS)
 _stop_event = threading.Event()
 
@@ -95,6 +110,7 @@ def get_live(corridor: str):
         station_b=board_b,
         stale=stale,
         last_successful_fetch=last_successful_fetch,
+        provider=provider.name,
     )
 
 
