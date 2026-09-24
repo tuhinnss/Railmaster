@@ -2,12 +2,18 @@ import { useMemo, useState } from "react";
 import { DEPARTMENT_COLORS, REAL_DATA_COLOR } from "../constants/colors";
 import type { Department, SectionPlanResult, TaskSummary } from "../types";
 
-const ZOOM_LEVELS = [8, 20, 50]; // px per km
-const ZOOM_LABELS: Record<number, string> = { 8: "Whole corridor", 20: "Closer", 50: "Detail" };
-const MIN_BLOCK_PX = 12;
-const LANE_HEIGHT = 18;
-const LANE_GAP = 3;
-const BAND_HEIGHT = 26;
+// Blocks occupy a few hundred metres each on a 300 km corridor, so a true-to-
+// scale axis is ~99% empty and renders every block as a sliver. This view
+// breaks the axis instead: stretches of corridor that carry work are drawn at a
+// readable scale, and the empty stretches between them collapse into a marked
+// break showing how much distance was skipped.
+const ZOOM_LEVELS = [120, 260, 520]; // px per km *within* a worked stretch
+const ZOOM_LABELS: Record<number, string> = { 120: "Compact", 260: "Normal", 520: "Wide" };
+const GAP_PX = 56;
+const MIN_GROUP_PX = 132;
+const GAP_MIN_KM = 0.75; // shorter than this and it isn't worth breaking the axis
+const LANE_HEIGHT = 22;
+const LANE_GAP = 4;
 
 export interface PositionedBlock {
   blockId: string;
@@ -48,10 +54,6 @@ export function positionBlocks(section: SectionPlanResult): PositionedBlock[] {
   });
 }
 
-// Sections are contiguous by km within a corridor, but the dataset may hold
-// several corridors that each restart their own km numbering. Grouping by
-// overlapping km ranges would merge them into one nonsensical line, so they're
-// chained on the station code the section name ends/starts with.
 function groupIntoCorridors(sections: SectionPlanResult[]): SectionPlanResult[][] {
   const remaining = [...sections].sort((a, b) => a.km_start - b.km_start);
   const chains: SectionPlanResult[][] = [];
@@ -80,39 +82,68 @@ function groupIntoCorridors(sections: SectionPlanResult[]): SectionPlanResult[][
   return chains;
 }
 
-interface LaidOutBlock extends PositionedBlock {
-  left: number;
-  width: number;
-  lane: number;
-}
+type Run =
+  | { kind: "work"; kmFrom: number; kmTo: number; blocks: PositionedBlock[]; section: string; width: number }
+  | { kind: "gap"; kmFrom: number; kmTo: number; section: string; width: number };
 
-/** Blocks are tiny next to a 300 km corridor and several can sit at nearly the
- *  same km on different nights, so drawing them in one row buries them on top
- *  of each other. Pack them into stacked lanes instead: each block keeps a
- *  minimum clickable width and drops to the first lane where it doesn't
- *  collide. */
-function layOutBlocks(blocks: PositionedBlock[], kmStart: number, pxPerKm: number): LaidOutBlock[] {
-  const sorted = [...blocks].sort((a, b) => a.kmFrom - b.kmFrom);
-  const laneEnds: number[] = [];
-  const out: LaidOutBlock[] = [];
+/** Cluster blocks into worked stretches, then fill the space between them with
+ *  explicit gap runs. Gaps are split at section boundaries so every run belongs
+ *  to exactly one section and the section band above stays accurate. */
+function buildRuns(chain: SectionPlanResult[], pxPerKm: number): Run[] {
+  const kmStart = Math.min(...chain.map((s) => s.km_start));
+  const kmEnd = Math.max(...chain.map((s) => s.km_end));
+  const blocks = chain.flatMap(positionBlocks).sort((a, b) => a.kmFrom - b.kmFrom);
 
-  for (const block of sorted) {
-    const left = (block.kmFrom - kmStart) * pxPerKm;
-    const width = Math.max((block.kmTo - block.kmFrom) * pxPerKm, MIN_BLOCK_PX);
-
-    let lane = laneEnds.findIndex((end) => left >= end + 2);
-    if (lane === -1) lane = laneEnds.length;
-    laneEnds[lane] = left + width;
-
-    out.push({ ...block, left, width, lane });
+  const clusters: { kmFrom: number; kmTo: number; blocks: PositionedBlock[] }[] = [];
+  for (const block of blocks) {
+    const last = clusters[clusters.length - 1];
+    if (last && block.kmFrom <= last.kmTo + GAP_MIN_KM) {
+      last.kmTo = Math.max(last.kmTo, block.kmTo);
+      last.blocks.push(block);
+    } else {
+      clusters.push({ kmFrom: block.kmFrom, kmTo: block.kmTo, blocks: [block] });
+    }
   }
-  return out;
+
+  const sectionAt = (km: number) =>
+    chain.find((s) => km >= s.km_start && km < s.km_end)?.section ?? chain[chain.length - 1].section;
+
+  // Boundaries that a gap must be split on, so no run straddles two sections.
+  const boundaries = chain.map((s) => s.km_end).filter((km) => km > kmStart && km < kmEnd);
+
+  const runs: Run[] = [];
+  const pushGap = (from: number, to: number) => {
+    if (to - from < GAP_MIN_KM) return;
+    let cursor = from;
+    for (const b of [...boundaries, to].sort((x, y) => x - y)) {
+      if (b <= cursor || b > to) continue;
+      runs.push({ kind: "gap", kmFrom: cursor, kmTo: b, section: sectionAt(cursor), width: GAP_PX });
+      cursor = b;
+    }
+    if (cursor < to) runs.push({ kind: "gap", kmFrom: cursor, kmTo: to, section: sectionAt(cursor), width: GAP_PX });
+  };
+
+  let cursor = kmStart;
+  for (const c of clusters) {
+    pushGap(cursor, c.kmFrom);
+    runs.push({
+      kind: "work",
+      kmFrom: c.kmFrom,
+      kmTo: c.kmTo,
+      blocks: c.blocks,
+      section: sectionAt(c.kmFrom),
+      width: Math.max((c.kmTo - c.kmFrom) * pxPerKm, MIN_GROUP_PX),
+    });
+    cursor = Math.max(cursor, c.kmTo);
+  }
+  pushGap(cursor, kmEnd);
+
+  return runs;
 }
 
-function tickInterval(pxPerKm: number): number {
-  if (pxPerKm >= 50) return 2;
-  if (pxPerKm >= 20) return 5;
-  return 20;
+function metres(kmFrom: number, kmTo: number): string {
+  const m = (kmTo - kmFrom) * 1000;
+  return m >= 1000 ? `${(m / 1000).toFixed(2)} km` : `${Math.round(m)} m`;
 }
 
 function CorridorLine({
@@ -126,43 +157,45 @@ function CorridorLine({
   onHover: (block: PositionedBlock, e: React.MouseEvent) => void;
   onLeave: () => void;
 }) {
-  const kmStart = Math.min(...chain.map((s) => s.km_start));
-  const kmEnd = Math.max(...chain.map((s) => s.km_end));
-  const width = (kmEnd - kmStart) * pxPerKm;
+  const runs = useMemo(() => buildRuns(chain, pxPerKm), [chain, pxPerKm]);
+  const totalBlocks = chain.reduce((n, s) => n + s.blocks.length, 0);
+  const maxLanes = Math.max(1, ...runs.map((r) => (r.kind === "work" ? r.blocks.length : 1)));
+  const lanesHeight = maxLanes * (LANE_HEIGHT + LANE_GAP);
+  const skipped = runs.filter((r) => r.kind === "gap").reduce((sum, r) => sum + (r.kmTo - r.kmFrom), 0);
 
-  const blocks = chain.flatMap(positionBlocks);
-  const laidOut = layOutBlocks(blocks, kmStart, pxPerKm);
-  const laneCount = Math.max(1, ...laidOut.map((b) => b.lane + 1));
-  const lanesHeight = laneCount * (LANE_HEIGHT + LANE_GAP);
-
-  const step = tickInterval(pxPerKm);
-  const firstTick = Math.ceil(kmStart / step) * step;
-  const ticks: number[] = [];
-  for (let km = firstTick; km <= kmEnd; km += step) ticks.push(km);
+  // Merge consecutive runs of the same section into one band cell.
+  const bands: { section: string; width: number; ntes: boolean }[] = [];
+  for (const run of runs) {
+    const last = bands[bands.length - 1];
+    const ntes = chain.find((s) => s.section === run.section)?.ntes_integrated ?? false;
+    if (last && last.section === run.section) last.width += run.width;
+    else bands.push({ section: run.section, width: run.width, ntes });
+  }
 
   const label = `${chain[0].section.split("-")[0]} → ${chain[chain.length - 1].section.split("-")[1]}`;
 
   return (
-    <div style={{ marginBottom: 20 }}>
+    <div style={{ marginBottom: 22 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
         <div style={{ fontSize: 13, fontWeight: 700 }}>{label}</div>
         <div style={{ fontSize: 11, color: "#94a3b8" }}>
-          {kmStart}–{kmEnd} km · {blocks.length} blocks
+          {totalBlocks} blocks · {skipped.toFixed(0)} km of empty corridor skipped
         </div>
       </div>
 
-      <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 0 6px" }}>
-        <div style={{ width, minWidth: "100%", position: "relative", paddingLeft: 1 }}>
+      <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 0 8px" }}>
+        <div style={{ display: "inline-flex", flexDirection: "column", minWidth: "100%" }}>
           {/* Section bands */}
-          <div style={{ display: "flex", height: BAND_HEIGHT }}>
-            {chain.map((s) => (
+          <div style={{ display: "flex", height: 24 }}>
+            {bands.map((b, i) => (
               <div
-                key={s.section}
+                key={`${b.section}-${i}`}
                 style={{
-                  width: (s.km_end - s.km_start) * pxPerKm,
-                  background: s.ntes_integrated ? "#cffafe" : "#f1f5f9",
+                  width: b.width,
+                  flex: "0 0 auto",
+                  background: b.ntes ? "#cffafe" : "#f1f5f9",
                   border: "1px solid",
-                  borderColor: s.ntes_integrated ? REAL_DATA_COLOR : "#cbd5e1",
+                  borderColor: b.ntes ? REAL_DATA_COLOR : "#cbd5e1",
                   boxSizing: "border-box",
                   fontSize: 11,
                   fontWeight: 600,
@@ -174,72 +207,119 @@ function CorridorLine({
                   overflow: "hidden",
                 }}
               >
-                {s.section} · km {s.km_start}–{s.km_end}
-                {s.ntes_integrated ? " · real NTES data" : ""}
+                {b.section}
               </div>
             ))}
           </div>
 
-          {/* Block lanes */}
-          <div style={{ position: "relative", height: lanesHeight, marginTop: 6 }}>
-            {ticks.map((km) => (
-              <div
-                key={`grid-${km}`}
-                style={{
-                  position: "absolute",
-                  left: (km - kmStart) * pxPerKm,
-                  top: 0,
-                  bottom: 0,
-                  borderLeft: "1px dashed #f1f5f9",
-                }}
-              />
-            ))}
+          {/* Blocks + gap breaks */}
+          <div style={{ display: "flex", marginTop: 8, alignItems: "flex-start" }}>
+            {runs.map((run, i) => {
+              if (run.kind === "gap") {
+                return (
+                  <div
+                    key={`gap-${i}`}
+                    title={`${(run.kmTo - run.kmFrom).toFixed(2)} km with no scheduled work — skipped`}
+                    style={{
+                      width: run.width,
+                      flex: "0 0 auto",
+                      height: lanesHeight,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#cbd5e1",
+                      fontSize: 10,
+                      borderLeft: "2px dotted #e2e8f0",
+                      borderRight: "2px dotted #e2e8f0",
+                    }}
+                  >
+                    <span style={{ fontSize: 13, lineHeight: 1 }}>⋯</span>
+                    <span style={{ color: "#94a3b8", marginTop: 2 }}>
+                      {(run.kmTo - run.kmFrom).toFixed(1)} km
+                    </span>
+                  </div>
+                );
+              }
 
-            {laidOut.map((b) => (
-              <div
-                key={b.blockId}
-                onMouseEnter={(e) => onHover(b, e)}
-                onMouseMove={(e) => onHover(b, e)}
-                onMouseLeave={onLeave}
-                style={{
-                  position: "absolute",
-                  left: b.left,
-                  width: b.width,
-                  top: b.lane * (LANE_HEIGHT + LANE_GAP),
-                  height: LANE_HEIGHT,
-                  display: "flex",
-                  borderRadius: 3,
-                  overflow: "hidden",
-                  cursor: "pointer",
-                  border: "1px solid #0f172a",
-                  boxShadow: b.isRealData ? `0 0 0 2px ${REAL_DATA_COLOR}` : "none",
-                  boxSizing: "border-box",
-                }}
-              >
-                {b.departments.map((d) => (
-                  <div key={d} style={{ flex: 1, background: DEPARTMENT_COLORS[d] }} />
-                ))}
-              </div>
-            ))}
-          </div>
+              return (
+                <div key={`work-${i}`} style={{ width: run.width, flex: "0 0 auto", padding: "0 3px", boxSizing: "border-box" }}>
+                  <div style={{ height: lanesHeight }}>
+                    {run.blocks.map((b) => (
+                      <div
+                        key={b.blockId}
+                        onMouseEnter={(e) => onHover(b, e)}
+                        onMouseMove={(e) => onHover(b, e)}
+                        onMouseLeave={onLeave}
+                        style={{
+                          display: "flex",
+                          height: LANE_HEIGHT,
+                          marginBottom: LANE_GAP,
+                          borderRadius: 3,
+                          overflow: "hidden",
+                          cursor: "pointer",
+                          border: "1px solid #0f172a",
+                          boxShadow: b.isRealData ? `0 0 0 2px ${REAL_DATA_COLOR}` : "none",
+                          boxSizing: "border-box",
+                        }}
+                      >
+                        {b.departments.map((d) => (
+                          <div
+                            key={d}
+                            style={{
+                              flex: 1,
+                              background: DEPARTMENT_COLORS[d],
+                              color: "white",
+                              fontSize: 10,
+                              fontWeight: 700,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {run.width > 110 ? d.slice(0, 3).toUpperCase() : ""}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
 
-          {/* km axis */}
-          <div style={{ position: "relative", height: 16, borderTop: "1px solid #e2e8f0", marginTop: 4 }}>
-            {ticks.map((km) => (
-              <span
-                key={km}
-                style={{
-                  position: "absolute",
-                  left: (km - kmStart) * pxPerKm,
-                  fontSize: 9,
-                  color: "#94a3b8",
-                  transform: "translateX(-50%)",
-                  paddingTop: 2,
-                }}
-              >
-                {km}
-              </span>
-            ))}
+                  {/* Marked endpoints + length */}
+                  <div
+                    style={{
+                      borderTop: "2px solid #334155",
+                      position: "relative",
+                      height: 30,
+                      marginTop: 2,
+                    }}
+                  >
+                    <span style={{ position: "absolute", left: 0, top: 0, width: 1, height: 5, background: "#334155" }} />
+                    <span style={{ position: "absolute", right: 0, top: 0, width: 1, height: 5, background: "#334155" }} />
+                    <span style={{ position: "absolute", left: 0, top: 6, fontSize: 9.5, color: "#334155", fontWeight: 600 }}>
+                      {run.kmFrom.toFixed(2)}
+                    </span>
+                    <span style={{ position: "absolute", right: 0, top: 6, fontSize: 9.5, color: "#334155", fontWeight: 600 }}>
+                      {run.kmTo.toFixed(2)}
+                    </span>
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: 17,
+                        left: 0,
+                        right: 0,
+                        textAlign: "center",
+                        fontSize: 9.5,
+                        color: "#94a3b8",
+                      }}
+                    >
+                      {metres(run.kmFrom, run.kmTo)}
+                      {run.blocks.length > 1 ? ` · ${run.blocks.length} blocks` : ""}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -252,8 +332,6 @@ function HoverCard({ block, x, y }: { block: PositionedBlock; x: number; y: numb
   const end = new Date(block.endTime);
   const durationMin = Math.round((end.getTime() - start.getTime()) / 60000);
   const hhmm = (d: Date) => d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-  // Keep the card on screen near the right edge.
   const flip = x > window.innerWidth - 300;
 
   return (
@@ -287,7 +365,7 @@ function HoverCard({ block, x, y }: { block: PositionedBlock; x: number; y: numb
           {[
             ["Date", start.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "short", year: "numeric" })],
             ["Time", `${hhmm(start)} – ${hhmm(end)} (${durationMin} min)`],
-            ["Km block", `${block.kmFrom.toFixed(2)} – ${block.kmTo.toFixed(2)} (${((block.kmTo - block.kmFrom) * 1000).toFixed(0)} m)`],
+            ["Km block", `${block.kmFrom.toFixed(2)} – ${block.kmTo.toFixed(2)} (${metres(block.kmFrom, block.kmTo)})`],
             ["Section", block.section],
           ].map(([k, v]) => (
             <tr key={k}>
@@ -341,6 +419,10 @@ export function DepartmentLegend() {
           {dept}
         </span>
       ))}
+      <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <span style={{ color: "#cbd5e1", fontSize: 13 }}>⋯</span>
+        empty corridor, skipped
+      </span>
       <span style={{ display: "flex", alignItems: "center", gap: 5, marginLeft: "auto" }}>
         <span style={{ width: 12, height: 12, background: "#cffafe", borderRadius: 3, border: `1px solid ${REAL_DATA_COLOR}` }} />
         real NTES data
@@ -350,14 +432,14 @@ export function DepartmentLegend() {
 }
 
 export default function CorridorMap({ sections }: { sections: SectionPlanResult[] }) {
-  const [pxPerKm, setPxPerKm] = useState(20);
+  const [pxPerKm, setPxPerKm] = useState(260);
   const [hovered, setHovered] = useState<{ block: PositionedBlock; x: number; y: number } | null>(null);
   const chains = useMemo(() => groupIntoCorridors(sections), [sections]);
 
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-        <span style={{ fontSize: 12, color: "#64748b" }}>Zoom</span>
+        <span style={{ fontSize: 12, color: "#64748b" }}>Block width</span>
         {ZOOM_LEVELS.map((z) => (
           <button
             key={z}
@@ -375,7 +457,7 @@ export default function CorridorMap({ sections }: { sections: SectionPlanResult[
             {ZOOM_LABELS[z]}
           </button>
         ))}
-        <span style={{ fontSize: 11, color: "#94a3b8" }}>scroll sideways · hover a block for its timetable</span>
+        <span style={{ fontSize: 11, color: "#94a3b8" }}>hover a block for its timetable</span>
       </div>
 
       <div style={{ marginBottom: 14 }}>
