@@ -56,9 +56,12 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
   example and a dedicated preference test both confirm the merge logic
   itself is correct.
 
-  Note also that 9 of 45 tasks now go unscheduled, so the priority score
-  genuinely decides which work loses — under the earlier six-section
-  dataset everything fitted and the ranking never bound.
+  Note also that tasks now go unscheduled, so the priority score genuinely
+  decides which work loses — under the earlier six-section dataset everything
+  fitted and the ranking never bound. Almost all of the shortfall lands on
+  `NDLS-GZB`, which by design offers 40% of the baseline window supply
+  (`BLOCK_SUPPLY_FACTOR`): 7 of 15 tasks scheduled there against 20 of 21 on
+  `GHY-LMG`.
 - `api/` — FastAPI routers exposing tasks, blocks, and generated plans to
   the dashboard.
 - `ntes_bridge.py` — optional enrichment layer connecting to the separate

@@ -19,6 +19,7 @@ from app.models.enums import BlockType, Department, SeverityCode
 from app.models.task import MaintenanceTask
 from app.datagen.reference_data import (
     BLOCK_OPPORTUNITY_TYPE_WEIGHTS,
+    BLOCK_SUPPLY_FACTOR,
     BLOCK_TYPE_WEIGHTS_BY_DEPT,
     DEFECT_TYPES,
     DEPARTMENT_TASK_ID_PREFIX,
@@ -159,6 +160,7 @@ def generate_blocks(
     for section_name, _, _ in sections:
         seq = 1
         section_blocks: list[BlockOpportunity] = []
+        section_supply = max(2, round(blocks_per_section * BLOCK_SUPPLY_FACTOR.get(section_name, 1.0)))
 
         def make_block(start: datetime, duration_min: int, block_type: BlockType) -> BlockOpportunity:
             nonlocal seq
@@ -177,14 +179,14 @@ def generate_blocks(
 
         # Deliberate overlap fixture: 2 nights where two departments would
         # traditionally have requested separate, overlapping blocks.
-        overlap_nights = rng.sample(range(7), k=min(2, blocks_per_section // 4 or 1))
+        overlap_nights = rng.sample(range(7), k=min(2, section_supply // 4 or 1))
         for day_offset in overlap_nights:
             day = week_start + timedelta(days=day_offset)
             base_start = datetime(day.year, day.month, day.day, 1, 0)
             section_blocks.append(make_block(base_start, 180, BlockType.TRAFFIC))
             section_blocks.append(make_block(base_start + timedelta(minutes=30), 120, BlockType.POWER))
 
-        remaining = blocks_per_section - len(section_blocks)
+        remaining = section_supply - len(section_blocks)
         for _ in range(max(remaining, 0)):
             day = week_start + timedelta(days=rng.randint(0, 6))
             start, duration_min = _random_block_time(day, rng)

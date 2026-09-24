@@ -13,10 +13,14 @@ replayed against today's date. Train identities and timings are real; the
 calendar date they're shown against is not the date they were observed.
 Anything surfacing this data should say so.
 
-Only the two captured stations are available. RNY was never captured, so
-it raises like any other fetch failure -- the poller backs off and the
-corridor honestly reports no data, rather than quietly substituting mock
-trains for real ones.
+Only captured stations are available. RNY was never captured, so it raises
+like any other fetch failure -- the poller backs off and the corridor
+honestly reports no data, rather than quietly substituting mock trains for
+real ones.
+
+Fixtures are produced by scripts/capture_fixture.py. The window each one
+was captured at is recorded here rather than taken from the caller, so a
+board never claims a 4-hour window while holding 8 hours of movements.
 """
 
 from datetime import datetime
@@ -28,10 +32,12 @@ from app.providers.ntes_parser import parse_live_station_html
 
 FIXTURE_DIR = Path(__file__).resolve().parent.parent.parent / "tests" / "fixtures"
 
-# Station code -> captured response. Only these were actually captured.
-CAPTURED_STATIONS = {
-    "GHY": "ntes_real_live_station_GHY.html",
-    "LMG": "ntes_real_live_station_LMG.html",
+# Station code -> (captured response, window_hours it was captured at).
+CAPTURED_STATIONS: dict[str, tuple[str, int]] = {
+    "GHY": ("ntes_real_live_station_GHY.html", 4),
+    "LMG": ("ntes_real_live_station_LMG.html", 4),
+    "NDLS": ("ntes_real_live_station_NDLS.html", 8),
+    "GZB": ("ntes_real_live_station_GZB.html", 8),
 }
 
 
@@ -42,12 +48,13 @@ class CapturedFixtureProvider(RailwayDataProvider):
         self._fixture_dir = fixture_dir
 
     def get_live_station(self, station_code: str, window_hours: int = 4) -> StationLiveBoard:
-        filename = CAPTURED_STATIONS.get(station_code)
-        if filename is None:
+        captured = CAPTURED_STATIONS.get(station_code)
+        if captured is None:
             raise ValueError(
                 f"No captured NTES response for station {station_code!r} "
                 f"(captured: {sorted(CAPTURED_STATIONS)})"
             )
+        filename, captured_hours = captured
 
         html = (self._fixture_dir / filename).read_text(encoding="utf-8", errors="replace")
-        return parse_live_station_html(html, station_code, datetime.now(), window_hours)
+        return parse_live_station_html(html, station_code, datetime.now(), captured_hours)

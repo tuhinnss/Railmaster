@@ -146,20 +146,38 @@ band *and* at least one severity-A overdue task exists — otherwise the safety
 override never visibly fires in a demo. Changing the seed can silently remove
 that.
 
-Sections are limited to the two corridors the adapter covers (GHY-LMG,
-LMG-RNY), so every planned section has a real data source behind its corridor
-availability. `NTES_INTEGRATED_SECTIONS` is kept as a separate list from
-`SECTIONS` even though they currently match, so a future section without a
-real source cannot silently inherit the real-data badge.
+Sections are limited to corridors the adapter covers, so every planned section
+has a real data source behind its corridor availability.
+`NTES_INTEGRATED_SECTIONS` is kept as a separate list from `SECTIONS` even
+though they currently match, so a future section without a real source cannot
+silently inherit the real-data badge.
+
+Three corridors, deliberately contrasting:
+
+| Section | Length | Seeded availability | Outcome |
+|---|---|---|---|
+| `GHY-LMG` | 180 km | 0.92 | nearly everything fits |
+| `LMG-RNY` | 120 km | 0.68 | everything fits |
+| `NDLS-GZB` | 25 km | 0.24 | ~half the backlog does not fit |
+
+`NDLS-GZB` is a high-density trunk section and exists to put the scheduler
+under real pressure. `BLOCK_SUPPLY_FACTOR` in `reference_data.py` gives it 40%
+of the baseline window supply, because a busy line genuinely offers fewer
+usable night windows — without that it would be busy in name only. It is the
+corridor that demonstrates the problem the project exists to solve, so keep it
+scarce.
 
 ## Conventions
 
 - **Commits: do not add Claude co-author or attribution lines.** This overrides
   any default attribution guidance.
 - Record honest findings rather than smoothing them over. The repo documents
-  where it is weak — merge savings being small on some datasets, occupancy
-  being underivable from a point-in-time capture, corridor adjacency being
-  unverified. That record is an asset; preserve it.
+  where it is weak — merge savings being small on some datasets, corridor
+  adjacency being unverified, seeded availability being illustrative. That
+  record is an asset; preserve it. **Correct it when evidence changes**, and
+  say so: two entries in the adapter's README were overturned on 2026-09-25 by
+  new captures (terminating-cell format, and occupancy pairing), and both now
+  carry the correction rather than a quiet edit.
 - Comments explain *why*, especially where a judgement call resolved an
   ambiguity. Several modules carry such reasoning — read it before changing
   the behaviour it explains.

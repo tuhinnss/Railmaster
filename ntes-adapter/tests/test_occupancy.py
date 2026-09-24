@@ -121,3 +121,42 @@ def test_is_window_clear_false_when_overlapping():
         [make_event("101", "LMG", EventType.ARRIVAL, datetime(2026, 9, 23, 2, 0))],
     )
     assert not is_window_clear(datetime(2026, 9, 23, 1, 0), datetime(2026, 9, 23, 5, 0), intervals)
+
+
+def test_short_corridor_yields_real_occupancy_from_a_single_capture():
+    """Both captured boards of a ~25 km section contain the same trains, because
+    a 30-50 minute transit fits inside one 8-hour capture window. So occupancy
+    pairing produces real intervals here -- unlike GHY-LMG (180 km against a
+    4-hour window), where the two boards share no trains at all. See README's
+    known-limitations entry: the limitation is window-vs-transit, not a property
+    of point-in-time captures in general.
+    """
+    from datetime import datetime
+
+    from app.occupancy import derive_corridor_occupancy
+    from app.providers.fixture_provider import CapturedFixtureProvider
+
+    provider = CapturedFixtureProvider()
+    intervals = derive_corridor_occupancy(
+        "NDLS-GZB", provider.get_live_station("NDLS"), provider.get_live_station("GZB")
+    )
+
+    assert len(intervals) >= 5, "expected several paired transits on a short, busy section"
+    for interval in intervals:
+        transit = (interval.occupied_to - interval.occupied_from).total_seconds() / 60
+        assert 0 <= transit <= 120, f"{interval.train_no} transit {transit} min is implausible for 25 km"
+    assert isinstance(intervals[0].occupied_from, datetime)
+
+
+def test_long_corridor_yields_no_occupancy_from_a_single_capture():
+    """The counterpart: GHY-LMG's boards share no train numbers, so pairing
+    correctly yields nothing rather than inventing transits."""
+    from app.occupancy import derive_corridor_occupancy
+    from app.providers.fixture_provider import CapturedFixtureProvider
+
+    provider = CapturedFixtureProvider()
+    intervals = derive_corridor_occupancy(
+        "GHY-LMG", provider.get_live_station("GHY"), provider.get_live_station("LMG")
+    )
+
+    assert intervals == []

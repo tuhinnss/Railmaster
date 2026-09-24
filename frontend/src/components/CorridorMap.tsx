@@ -54,7 +54,11 @@ export function positionBlocks(section: SectionPlanResult): PositionedBlock[] {
   });
 }
 
-function groupIntoCorridors(sections: SectionPlanResult[]): SectionPlanResult[][] {
+export function corridorLabel(chain: SectionPlanResult[]): string {
+  return `${chain[0].section.split("-")[0]} → ${chain[chain.length - 1].section.split("-")[1]}`;
+}
+
+export function groupIntoCorridors(sections: SectionPlanResult[]): SectionPlanResult[][] {
   const remaining = [...sections].sort((a, b) => a.km_start - b.km_start);
   const chains: SectionPlanResult[][] = [];
 
@@ -172,7 +176,7 @@ function CorridorLine({
     else bands.push({ section: run.section, width: run.width, ntes });
   }
 
-  const label = `${chain[0].section.split("-")[0]} → ${chain[chain.length - 1].section.split("-")[1]}`;
+  const label = corridorLabel(chain);
 
   return (
     <div style={{ marginBottom: 22 }}>

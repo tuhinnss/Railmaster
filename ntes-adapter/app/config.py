@@ -25,6 +25,12 @@ class Corridor:
 CORRIDORS: list[Corridor] = [
     Corridor("GHY-LMG", "GHY", "GUWAHATI", "LMG", "LUMDING JN"),
     Corridor("LMG-RNY", "LMG", "LUMDING JN", "RNY", "RANGIYA JN"),
+    # High-density: ~25 km on the Delhi-Howrah trunk. Real captures show 64
+    # movements at NDLS and 60 at GZB in an 8-hour window, against 23 and 18
+    # for the Assam corridors above. Because the section is short, departures
+    # from one end and arrivals at the other both land inside a single capture
+    # window, so occupancy pairing yields real intervals here -- see README.
+    Corridor("NDLS-GZB", "NDLS", "NEW DELHI", "GZB", "GHAZIABAD"),
 ]
 
 # Recurring night windows to compute frequency predictions for, as

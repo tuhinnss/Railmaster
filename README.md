@@ -6,10 +6,16 @@ defect/maintenance data and corridor block opportunities into a
 CP-SAT-optimized weekly block schedule that merges cross-department work
 into shared blocks instead of separate ones.
 
-Scope is limited to the two corridors the NTES adapter actually covers
-(GHY-LMG, LMG-RNY), so every planned section has a real data source
-behind its corridor availability rather than being wholly invented. The
-defect/maintenance data itself is still synthetic.
+Scope is limited to corridors the NTES adapter actually covers, so every
+planned section has a real data source behind its corridor availability
+rather than being wholly invented. The defect/maintenance data itself is
+still synthetic.
+
+Three corridors, chosen to contrast: the quiet Assam pair (GHY-LMG,
+LMG-RNY) where nearly all maintenance fits, and the high-density
+Delhi–Ghaziabad trunk section (NDLS-GZB) where roughly half the backlog
+cannot be accommodated — the situation the system exists to address.
+Selectable on the Overview.
 
 Scope is deliberately narrow for this build — see `docs/architecture.md`
 and the build spec for what's in/out.
@@ -26,7 +32,7 @@ and the build spec for what's in/out.
   removed page is recoverable from git history (see `de3be0c`).
 - `ntes-adapter/` — separate service; see its own README. Provides real,
   self-collected train-movement-derived predicted-availability data, plus
-  real captured NTES train boards, for the two corridors.
+  real captured NTES train boards, for the three corridors.
 - `docs/` — architecture notes.
 - `data/synthetic/` — generated fixture data (gitignored, reproducible via
   `python -m app.datagen.generate` from `backend/`).

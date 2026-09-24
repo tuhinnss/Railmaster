@@ -14,17 +14,30 @@ app/ntes_bridge.py).
 
 from app.models.enums import Department, BlockType
 
-# (section_name, km_start, km_end)
+# (section_name, km_start, km_end). NDLS-GZB is a separate corridor from the
+# Assam pair and restarts its own km numbering -- the dashboard chains sections
+# into corridors by station code, not by km adjacency, so this doesn't collide.
 SECTIONS = [
     ("GHY-LMG", 0.0, 180.0),
     ("LMG-RNY", 180.0, 300.0),
+    ("NDLS-GZB", 0.0, 25.0),  # high-density trunk section, ~25 km
 ]
 
 # Sections app/ntes_bridge.py enriches with real NTES predicted-availability
 # data. Currently every configured section, but the bridge stays written
 # against this list rather than SECTIONS so adding a section without a real
 # data source doesn't silently claim one.
-NTES_INTEGRATED_SECTIONS = ["GHY-LMG", "LMG-RNY"]
+NTES_INTEGRATED_SECTIONS = ["GHY-LMG", "LMG-RNY", "NDLS-GZB"]
+
+# Scales how many block opportunities a section offers per week, relative to
+# the generator's baseline. A high-density section genuinely yields fewer
+# usable maintenance windows, because trains occupy the line for more of the
+# night -- modelling that is the difference between a corridor that is busy in
+# name only and one the scheduler actually has to fight for. Absent from this
+# table means 1.0.
+BLOCK_SUPPLY_FACTOR = {
+    "NDLS-GZB": 0.4,
+}
 
 DEPARTMENT_TASK_ID_PREFIX = {
     Department.ENGINEERING: "ENG",

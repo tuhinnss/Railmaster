@@ -75,16 +75,14 @@ it.
   one. A freshly started instance will report `observed_nights: 0` for
   every window until it has actually been running and polling for a
   while. This is expected, not a bug (see `test_frequency.py`).
-- **The "Destination" / terminating-train cell format is unconfirmed.**
-  The two real captured responses both happened to show every departure
-  as a real timed departure — no train example that *terminates* at the
-  queried station was observed live. `ntes_parser.py` guesses the
-  terminating case mirrors the confirmed "Source" case (a text marker
-  instead of a time triplet) and handles it defensively, but this
-  specific branch has not been proven against real data. If it's wrong,
-  the parser falls back to `TrainEventStatus.UNKNOWN` and drops that one
-  event rather than emitting bad data — see `_parse_event_cell` in
-  `ntes_parser.py`.
+- ~~The "Destination" / terminating-train cell format is unconfirmed.~~
+  **Now confirmed (2026-09-25).** The original GHY/LMG captures contained
+  no terminating trains, so the parser's handling of that cell was a
+  defensive guess. The NDLS capture — New Delhi being a terminus — contains
+  28 of them, and the guess was right: a terminating train renders a text
+  marker instead of a time triplet, exactly like the "Source" case, and
+  parses to a `DEPARTURE` event with status `TERMINATING` and no time. See
+  `test_terminating_trains_parse_with_no_departure_time`.
 - **Behavior under sustained polling is unknown.** One successful query
   was made per station during investigation, deliberately not repeated,
   per the task's rate-limit instruction. Whether continuous 60-second
@@ -152,15 +150,20 @@ Environment variables (all optional):
 
 - **`mock`** (default) — canned, deterministic trains (`MOCK EXPRESS`).
   Used by every test. Never present this as real data.
-- **`fixture`** — replays the two real NTES responses captured during
+- **`fixture`** — replays the real NTES responses captured during
   investigation (`tests/fixtures/`), parsed by the same parser used for
   live responses. Real train numbers, names, delays and platforms; no
   network access. The captured HTML carries only `HH:MM` times with no
   date, so times are anchored to today — the train identities and timings
   are real, the calendar date they're shown against is not the date they
-  were observed. Only `GHY` and `LMG` were captured; `RNY` raises, so
-  `LMG-RNY` honestly reports no data for that end rather than silently
-  substituting mock trains.
+  were observed. `GHY`, `LMG`, `NDLS` and `GZB` are captured; `RNY` is not
+  and raises, so `LMG-RNY` honestly reports no data for that end rather
+  than silently substituting mock trains.
+
+  Refresh or add a fixture with
+  `.venv/Scripts/python.exe -m scripts.capture_fixture <CODE> "<NAME>" [--hours 8]`.
+  One station per run, no retries — this hits an undocumented endpoint on a
+  public site, so run it by hand when needed, never on a schedule.
 - **`ntes`** — best-effort live scrape. Read the investigation section
   above first; sustained polling behavior was never tested.
 
@@ -197,10 +200,15 @@ direction.
 
 ## Configured corridors (placeholders — confirm before real use)
 
-| Corridor | Station A | Station B |
-|---|---|---|
-| `GHY-LMG` | GHY — Guwahati | LMG — Lumding Jn |
-| `LMG-RNY` | LMG — Lumding Jn | RNY — Rangiya Jn |
+| Corridor | Station A | Station B | Length | Traffic (captured) |
+|---|---|---|---|---|
+| `GHY-LMG` | GHY — Guwahati | LMG — Lumding Jn | ~180 km | 23 / 18 movements per 4 h |
+| `LMG-RNY` | LMG — Lumding Jn | RNY — Rangiya Jn | ~120 km | LMG 18 per 4 h; RNY never captured |
+| `NDLS-GZB` | NDLS — New Delhi | GZB — Ghaziabad | ~25 km | **64 / 60 movements per 8 h** |
+
+`NDLS-GZB` is a high-density trunk section, carried deliberately as a
+contrast to the quiet Assam corridors — it is where the scheduler actually
+runs out of windows. Its station codes and both captures are real.
 
 Edit `app/config.py` to change these. Station codes are validated against
 NTES's real station list at time of writing; real-world section
@@ -261,17 +269,23 @@ such anywhere downstream.
 ## Known limitations
 
 - No real historical data on day one (see investigation findings).
-- **A single simultaneous capture of both stations yields zero section
-  occupancy.** The two captured fixtures (GHY and LMG, taken at the same
-  moment) share no train numbers at all, so `derive_corridor_occupancy`
-  returns nothing for them. This is structural, not a parsing bug: each
-  board is a ~4-hour *forward* look, and a train crossing the ~180km
-  section appears in one board's window but not the other's. Occupancy
-  pairing therefore only produces intervals from data accumulated by
-  polling over time — it cannot be reconstructed from a point-in-time
-  snapshot of both ends, which is why the `fixture` provider is useful
-  for showing real train boards but not for deriving real availability.
-- Terminating-train HTML cell format unconfirmed against live data.
+- **Whether one capture yields section occupancy depends on transit time
+  versus capture window.** This was originally recorded here as a flat
+  impossibility. That was wrong — corrected 2026-09-25.
+  - GHY-LMG: the two boards share **no** train numbers, so
+    `derive_corridor_occupancy` returns nothing. ~180 km of transit against
+    a 4-hour forward-looking window means a train shows up in one board or
+    the other, never both.
+  - NDLS-GZB: ~25 km, captured at 8 hours. The boards share 13 train
+    numbers and pairing yields **13 real occupancy intervals**, transits
+    30–52 minutes. Genuinely measured, not seeded.
+
+  The rule is therefore: pairing works when transit fits comfortably inside
+  the capture window. Both cases are pinned by tests in `test_occupancy.py`
+  so neither claim drifts back into folklore.
+- Even where pairing works, a 90-night `predicted_availability` still needs
+  accumulated polling — one capture is one night. The seeded figures remain
+  illustrative.
 - Corridor real-world adjacency unconfirmed.
 - Behavior under sustained/high-frequency polling unverified — only one
   live query per station was made during development.

@@ -25,12 +25,15 @@ from app.frequency import parse_window, window_datetimes
 from app.models import SectionOccupancyInterval
 from app.store import Store
 
-# Illustrative only -- not measured. GHY-LMG assumed reliably clear at
-# night (a quieter branch line); LMG-RNY assumed busier/less predictable,
-# so the two corridors look visibly different in a demo.
+# Illustrative only -- not measured over 90 nights. GHY-LMG assumed
+# reliably clear at night (a quieter branch line); LMG-RNY busier/less
+# predictable; NDLS-GZB low because it is a high-density trunk section --
+# real captures there show ~60 movements per 8-hour window against ~20 on
+# the Assam corridors, so night-time clearance is genuinely rare.
 ILLUSTRATIVE_AVAILABILITY = {
     "GHY-LMG": 0.92,
     "LMG-RNY": 0.68,
+    "NDLS-GZB": 0.24,
 }
 DEFAULT_AVAILABILITY = 0.75
 

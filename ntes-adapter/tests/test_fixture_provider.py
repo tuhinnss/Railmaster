@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from app.models import EventType
+from app.models import EventType, TrainEventStatus
 from app.providers.fixture_provider import CapturedFixtureProvider
 
 
@@ -43,6 +43,33 @@ def test_times_are_anchored_to_today_not_capture_date():
     # times onto the next calendar day).
     for event in timed:
         assert (event.actual_or_expected_time.date() - today).days in (0, 1)
+
+
+def test_busy_corridor_captures_are_substantially_busier():
+    """NDLS/GZB are on a high-density trunk section; the Assam corridors are
+    not. The whole point of carrying both is the contrast, so assert it rather
+    than trusting that a future fixture refresh preserves it."""
+    ndls = CapturedFixtureProvider().get_live_station("NDLS")
+    gzb = CapturedFixtureProvider().get_live_station("GZB")
+    ghy = CapturedFixtureProvider().get_live_station("GHY")
+
+    assert len(ndls.events) > 3 * len(ghy.events)
+    assert len(gzb.events) > 3 * len(ghy.events)
+    assert ndls.window_hours == 8  # captured at 8h, must not claim otherwise
+    assert ghy.window_hours == 4
+
+
+def test_terminating_trains_parse_with_no_departure_time():
+    """NDLS is a terminus, so it exercises the terminating-cell branch that no
+    earlier capture covered. A terminating train has a departure event marked
+    TERMINATING and carries no time."""
+    board = CapturedFixtureProvider().get_live_station("NDLS")
+    terminating = [e for e in board.events if e.status == TrainEventStatus.TERMINATING]
+
+    assert terminating, "expected terminating trains at a terminus station"
+    for event in terminating:
+        assert event.event_type == EventType.DEPARTURE
+        assert event.actual_or_expected_time is None
 
 
 def test_uncaptured_station_raises_rather_than_substituting_mock_data():
