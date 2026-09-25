@@ -1,7 +1,82 @@
-import { useMemo, useState } from "react";
-import BlockAllocation from "../components/BlockAllocation";
-import CorridorMap, { corridorLabel, groupIntoCorridors } from "../components/CorridorMap";
+import { useState } from "react";
+import CorridorMap from "../components/CorridorMap";
 import { usePlan } from "../context/PlanContext";
+import type { SectionPlanResult } from "../types";
+
+// Local calendar day a block starts on, as YYYY-MM-DD -- the same "day a block
+// runs" rule the Weekly Plan grid uses.
+function dayKey(time: string | Date): string {
+  const d = new Date(time);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function dayLabel(key: string): string {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+}
+
+const toggleStyle = (active: boolean) => ({
+  fontSize: 12,
+  padding: "4px 11px",
+  borderRadius: 5,
+  cursor: "pointer",
+  border: active ? "1px solid #0f172a" : "1px solid #cbd5e1",
+  background: active ? "#0f172a" : "white",
+  color: active ? "white" : "#475569",
+});
+
+// Block allocation for one section, either the whole week or a single day.
+// The day list holds only days that actually have blocks, so a day with nothing
+// scheduled can't be picked. It opens on today when the plan covers today;
+// blocks are generated for the next operating week, so often it doesn't, and
+// it opens on the first planned day instead.
+function AllocationView({ section }: { section: SectionPlanResult }) {
+  const [mode, setMode] = useState<"daily" | "weekly">("weekly");
+  const [pickedDay, setPickedDay] = useState<string | null>(null);
+
+  const counts = new Map<string, number>();
+  for (const b of section.blocks) counts.set(dayKey(b.start_time), (counts.get(dayKey(b.start_time)) ?? 0) + 1);
+  const days = Array.from(counts.keys()).sort();
+  const today = dayKey(new Date());
+  const day = pickedDay && counts.has(pickedDay) ? pickedDay : counts.has(today) ? today : days[0];
+
+  const shown =
+    mode === "weekly" ? section : { ...section, blocks: section.blocks.filter((b) => dayKey(b.start_time) === day) };
+
+  return (
+    <>
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
+        <button onClick={() => setMode("daily")} style={toggleStyle(mode === "daily")}>
+          Daily
+        </button>
+        <button onClick={() => setMode("weekly")} style={toggleStyle(mode === "weekly")}>
+          Weekly
+        </button>
+        {mode === "daily" && days.length > 0 && (
+          <select
+            value={day}
+            onChange={(e) => setPickedDay(e.target.value)}
+            style={{ fontSize: 12, padding: "4px 6px", border: "1px solid #cbd5e1", borderRadius: 5, marginLeft: 4 }}
+          >
+            {days.map((d) => (
+              <option key={d} value={d}>
+                {d === today ? "Today, " : ""}
+                {dayLabel(d)} · {counts.get(d)} block{counts.get(d) === 1 ? "" : "s"}
+              </option>
+            ))}
+          </select>
+        )}
+        {mode === "daily" && !counts.has(today) && days.length > 0 && (
+          <span style={{ fontSize: 11, color: "#94a3b8" }}>
+            No blocks today — this week's plan runs {dayLabel(days[0])} to {dayLabel(days[days.length - 1])}
+          </span>
+        )}
+      </div>
+      <CorridorMap sections={[shown]} />
+    </>
+  );
+}
 
 function KpiCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
@@ -25,23 +100,20 @@ function KpiCard({ label, value, sub }: { label: string; value: string; sub?: st
 
 export default function Overview() {
   const { plan, loading, error, refresh } = usePlan();
-  const [corridor, setCorridor] = useState<string>("ALL");
-
-  const chains = useMemo(() => (plan ? groupIntoCorridors(plan.sections) : []), [plan]);
+  const [selected, setSelected] = useState<string | null>(null);
 
   if (loading) return <p>Loading…</p>;
   if (error) return <p style={{ color: "#dc2626" }}>Failed to load plan: {error}</p>;
   if (!plan) return null;
 
-  const selectedChain = chains.find((c) => corridorLabel(c) === corridor);
-  const sections = selectedChain ?? plan.sections;
+  // One section at a time: the corridors differ too much (NDLS-GZB fits ~half
+  // its backlog, the Assam pair nearly all of it) for a combined total to mean
+  // anything. Defaults to the first section.
+  const current = plan.sections.find((s) => s.section === selected) ?? plan.sections[0];
+  const sections = current ? [current] : [];
 
   const totalTasks = sections.reduce((sum, s) => sum + s.task_count, 0);
   const totalScheduled = sections.reduce((sum, s) => sum + s.scheduled_count, 0);
-  const totalOverdue = sections.reduce(
-    (sum, s) => sum + s.tasks.filter((t) => t.days_overdue > 0).length,
-    0
-  );
   const totalBlocksOpened = sections.reduce((sum, s) => sum + s.blocks_opened, 0);
   const totalBlocksSaved = sections.reduce((sum, s) => sum + s.blocks_saved, 0);
   const downtimeHours = sections.reduce((sum, s) => {
@@ -53,11 +125,8 @@ export default function Overview() {
       }, 0)
     );
   }, 0);
-  const availabilityPct = totalTasks > 0 ? Math.round((totalScheduled / totalTasks) * 100) : 0;
-  const realDataBlocks = sections.reduce(
-    (sum, s) => sum + s.blocks.filter((b) => b.data_source === "ntes_live").length,
-    0
-  );
+  const scheduledPct = totalTasks > 0 ? Math.round((totalScheduled / totalTasks) * 100) : 0;
+  const didNotFit = totalTasks - totalScheduled;
 
   return (
     <div>
@@ -69,21 +138,22 @@ export default function Overview() {
       </div>
 
       <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 14, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 12, color: "#64748b" }}>Corridor</span>
-        {[{ key: "ALL", label: `All corridors (${plan.sections.length} sections)` }].concat(
-          chains.map((c) => ({ key: corridorLabel(c), label: corridorLabel(c) }))
-        ).map(({ key, label }) => (
+        <span style={{ fontSize: 12, color: "#64748b" }}>Section</span>
+        {plan.sections.map((s) => ({
+          key: s.section,
+          label: `${s.section} · ${s.scheduled_count}/${s.task_count}`,
+        })).map(({ key, label }) => (
           <button
             key={key}
-            onClick={() => setCorridor(key)}
+            onClick={() => setSelected(key)}
             style={{
               fontSize: 12,
               padding: "4px 11px",
               borderRadius: 5,
               cursor: "pointer",
-              border: key === corridor ? "1px solid #0f172a" : "1px solid #cbd5e1",
-              background: key === corridor ? "#0f172a" : "white",
-              color: key === corridor ? "white" : "#475569",
+              border: key === current?.section ? "1px solid #0f172a" : "1px solid #cbd5e1",
+              background: key === current?.section ? "#0f172a" : "white",
+              color: key === current?.section ? "white" : "#475569",
             }}
           >
             {label}
@@ -92,67 +162,31 @@ export default function Overview() {
       </div>
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 16 }}>
+        {/* Only what answers "how did this week's plan do": work placed, blocks it
+            took, and how long the line is closed for it. */}
         <KpiCard
-          label="Tasks addressed this week"
-          value={`${availabilityPct}%`}
-          sub={`${totalScheduled} / ${totalTasks} tasks`}
+          label="Tasks scheduled"
+          value={`${scheduledPct}%`}
+          sub={`${totalScheduled} of ${totalTasks}${didNotFit > 0 ? ` · ${didNotFit} didn't fit` : ""}`}
         />
         <KpiCard
-          label="Corridor downtime hours"
-          value={downtimeHours.toFixed(1)}
+          label="Blocks this week"
+          value={String(totalBlocksOpened)}
+          sub={`${totalBlocksSaved} saved by merging`}
+        />
+        <KpiCard
+          label="Track downtime"
+          value={`${downtimeHours.toFixed(1)} h`}
           sub={`across ${totalBlocksOpened} blocks`}
-        />
-        <KpiCard label="Blocks this week" value={String(totalBlocksOpened)} sub={`${totalBlocksSaved} saved via merging`} />
-        <KpiCard
-          label="Tasks that did not fit"
-          value={String(totalTasks - totalScheduled)}
-          sub={totalTasks - totalScheduled > 0 ? "no compatible window available" : "everything scheduled"}
-        />
-        <KpiCard label="Overdue tasks" value={String(totalOverdue)} sub={`of ${totalTasks} in scope`} />
-        <KpiCard
-          label="Blocks using real data"
-          value={String(realDataBlocks)}
-          sub={`of ${totalBlocksOpened}, from ntes-adapter`}
         />
       </div>
 
-      <h2 style={{ fontSize: 15, marginTop: 28 }}>Where the work lands</h2>
+      <h2 style={{ fontSize: 15, marginTop: 28 }}>Block allocation</h2>
       <p style={{ fontSize: 12, color: "#64748b", margin: "2px 0 12px" }}>
         Each marker is a scheduled block, positioned along the corridor by the km range of the work
-        assigned to it.
+        assigned to it. Hover a block for its timetable.
       </p>
-      <CorridorMap sections={sections} />
-
-      <h2 style={{ fontSize: 15, marginTop: 28 }}>Block allocation by day</h2>
-      <p style={{ fontSize: 12, color: "#64748b", margin: "2px 0 12px" }}>
-        Every scheduled block, grouped by the day it runs — km block, time allocated, and which
-        department has it.
-      </p>
-      <BlockAllocation sections={sections} />
-
-      <h2 style={{ fontSize: 15, marginTop: 28 }}>By section</h2>
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>
-        <thead>
-          <tr style={{ textAlign: "left", fontSize: 12, color: "#64748b" }}>
-            <th style={{ padding: "6px 8px" }}>Section</th>
-            <th style={{ padding: "6px 8px" }}>Scheduled</th>
-            <th style={{ padding: "6px 8px" }}>Blocks opened</th>
-            <th style={{ padding: "6px 8px" }}>Blocks saved</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sections.map((s) => (
-            <tr key={s.section} style={{ borderTop: "1px solid #f1f5f9", fontSize: 13 }}>
-              <td style={{ padding: "8px" }}>{s.section}</td>
-              <td style={{ padding: "8px" }}>
-                {s.scheduled_count} / {s.task_count}
-              </td>
-              <td style={{ padding: "8px" }}>{s.blocks_opened}</td>
-              <td style={{ padding: "8px" }}>{s.blocks_saved}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {current && <AllocationView section={current} />}
     </div>
   );
 }
