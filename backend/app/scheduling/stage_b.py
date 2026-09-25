@@ -30,7 +30,7 @@ from ortools.sat.python import cp_model
 
 from app.models.block import BlockOpportunity
 from app.models.task import MaintenanceTask
-from app.scheduling.common import PRIORITY_SCALE, SOLVE_TIME_BUDGET_SECONDS, UNSCHEDULED_PENALTY_DAYS, delay_days
+from app.scheduling.common import PRIORITY_SCALE, UNSCHEDULED_PENALTY_DAYS, delay_days, new_solver
 from app.scheduling.compatibility import task_fits_block, tasks_can_share_block
 from app.scheduling.config import DEFAULT_PRIORITY_WEIGHTS, PriorityWeights
 from app.scheduling.prioritizer import score_task
@@ -66,8 +66,18 @@ def solve_stage_b(
     weights: PriorityWeights = DEFAULT_PRIORITY_WEIGHTS,
     beta: int = BETA_PER_BLOCK,
     gamma: int = GAMMA_PER_TASK,
+    preferred_assignments: dict[str, str | None] | None = None,
 ) -> StageBResult:
-    """tasks and blocks must already be filtered to a single section."""
+    """tasks and blocks must already be filtered to a single section.
+
+    preferred_assignments (used by what-if replanning) is a strict
+    tie-breaker, never a trade-off: among plans with the best possible
+    score, pick the one that keeps the most of these task->block
+    assignments. A replan must be the plan the scheduler would choose
+    anyway -- it only avoids reshuffling work between equally good blocks,
+    which would otherwise show up as "moved" tasks the disruption didn't
+    cause.
+    """
     sections = {t.section for t in tasks} | {b.section for b in blocks}
     if len(sections) > 1:
         raise ValueError(f"Stage B is single-section only, got: {sorted(sections)}")
@@ -155,16 +165,28 @@ def solve_stage_b(
         objective_terms.append(benefit * var)
     for block in blocks:
         objective_terms.append(-beta * y[block.block_id])
-    if objective_terms:
-        model.Maximize(sum(objective_terms))
+    objective = sum(objective_terms)
 
-    solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = SOLVE_TIME_BUDGET_SECONDS
+    # Lexicographic tie-break: scaling the real objective by one more than
+    # the largest possible stability bonus means no amount of "keep the
+    # baseline" can ever outweigh even a 1-unit loss in real benefit.
+    kept = [
+        x[(task_id, block_id)]
+        for task_id, block_id in (preferred_assignments or {}).items()
+        if block_id is not None and (task_id, block_id) in x
+    ]
+    if kept:
+        model.Maximize((len(kept) + 1) * objective + sum(kept))
+    elif objective_terms:
+        model.Maximize(objective)
+
+    solver = new_solver()
     status = solver.Solve(model)
 
+    solved = status in (cp_model.OPTIMAL, cp_model.FEASIBLE)
     assignments: dict[str, str | None] = {t.task_id: None for t in tasks}
     blocks_opened: list[str] = []
-    if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    if solved:
         for (task_id, block_id), var in x.items():
             if solver.Value(var) == 1:
                 assignments[task_id] = block_id
@@ -174,7 +196,9 @@ def solve_stage_b(
         section=section,
         assignments=assignments,
         blocks_opened=blocks_opened,
-        objective_value=int(solver.ObjectiveValue()) if status in (cp_model.OPTIMAL, cp_model.FEASIBLE) else 0,
+        # The unscaled objective, so the value means the same thing with or
+        # without a tie-break applied.
+        objective_value=int(solver.Value(objective)) if solved and objective_terms else 0,
         solver_status=solver.StatusName(status),
         compatible_blocks_by_task={
             task_id: [b.block_id for b in bs] for task_id, bs in compatible_blocks_by_task.items()

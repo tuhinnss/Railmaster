@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from app.models.block import BlockOpportunity
 from app.models.task import MaintenanceTask
-from app.scheduling.validator import validate_plan
+from app.scheduling.validator import summarize_checks, validate_plan
 
 
 def make_task(**overrides) -> MaintenanceTask:
@@ -146,3 +146,31 @@ def test_dependency_order_satisfied_when_dependency_scheduled_earlier():
         {"dependent": late_block.block_id, "dep": early_block.block_id},
     )
     assert violations == []
+
+
+def test_summary_reports_what_each_rule_examined():
+    a = make_task(task_id="ENG-2026-00001", km_range=(10.0, 10.5), est_duration_min=60)
+    b = make_task(task_id="ENG-2026-00002", km_range=(10.2, 10.8), est_duration_min=60)
+    block = make_block(duration_min=180)
+    assignments = {a.task_id: block.block_id, b.task_id: block.block_id}
+    checks = {c.rule: c for c in summarize_checks([a, b], [block], assignments, [])}
+
+    assert set(checks) == {
+        "block_type_match", "capacity", "power_isolation",
+        "compatibility", "dependency_order", "no_double_booking",
+    }
+    assert checks["block_type_match"].items_checked == 2
+    assert checks["capacity"].items_checked == 1
+    assert checks["compatibility"].items_checked == 1  # one pair shares the block
+    assert checks["power_isolation"].items_checked == 0  # no POWER block used: vacuous
+    assert checks["no_double_booking"].method == "structural"
+    assert all(c.violations == 0 for c in checks.values())
+
+
+def test_summary_counts_violations_per_rule():
+    task = make_task(est_duration_min=240)
+    block = make_block(duration_min=180)
+    assignments = {task.task_id: block.block_id}
+    violations = validate_plan([task], [block], assignments)
+    checks = {c.rule: c for c in summarize_checks([task], [block], assignments, violations)}
+    assert checks["capacity"].violations == 1

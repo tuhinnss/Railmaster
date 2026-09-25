@@ -25,7 +25,7 @@ from ortools.sat.python import cp_model
 
 from app.models.block import BlockOpportunity
 from app.models.task import MaintenanceTask
-from app.scheduling.common import PRIORITY_SCALE, SOLVE_TIME_BUDGET_SECONDS, UNSCHEDULED_PENALTY_DAYS, delay_days
+from app.scheduling.common import PRIORITY_SCALE, UNSCHEDULED_PENALTY_DAYS, delay_days, new_solver
 from app.scheduling.compatibility import task_fits_block
 from app.scheduling.config import DEFAULT_PRIORITY_WEIGHTS, PriorityWeights
 from app.scheduling.prioritizer import score_task
@@ -110,8 +110,7 @@ def solve_stage_a(
     if objective_terms:
         model.Maximize(sum(objective_terms))
 
-    solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = SOLVE_TIME_BUDGET_SECONDS
+    solver = new_solver()
     status = solver.Solve(model)
 
     assignments: dict[str, str | None] = {t.task_id: None for t in tasks}

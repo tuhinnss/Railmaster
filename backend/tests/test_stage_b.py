@@ -184,3 +184,41 @@ def test_stage_b_schedules_at_least_as_many_tasks_and_opens_no_more_blocks_than_
         assert violations == [], f"{section_name}: {violations}"
 
     assert any_blocks_saved, "expected merging to save at least one block somewhere in the dataset"
+
+
+def test_same_input_gives_the_same_plan_every_time():
+    """CP-SAT's default parallel search returns either of two equally good
+    plans at random; new_solver() pins it so a refresh can't change the plan."""
+    tasks = [make_task(task_id=f"ENG-2026-{i:05d}", km_range=(10.0 + i, 10.5 + i)) for i in range(4)]
+    blocks = [make_block(block_id=f"BLK-GHY-LMG-{i:04d}") for i in range(4)]
+    plans = {tuple(sorted(solve_stage_b(tasks, blocks, REFERENCE_DATE).assignments.items())) for _ in range(6)}
+    assert len(plans) == 1
+
+
+def test_preferred_assignment_breaks_a_tie():
+    """Two identical blocks score the same, so either is optimal -- the
+    preference picks which one, whichever it is."""
+    task = make_task()
+    blocks = [make_block(block_id="BLK-GHY-LMG-0001"), make_block(block_id="BLK-GHY-LMG-0002")]
+    for preferred in ("BLK-GHY-LMG-0001", "BLK-GHY-LMG-0002"):
+        result = solve_stage_b([task], blocks, REFERENCE_DATE, preferred_assignments={task.task_id: preferred})
+        assert result.assignments[task.task_id] == preferred
+
+
+def test_preferred_assignment_never_costs_real_benefit():
+    """Preferring a later block must not beat the scheduler's own reason to
+    use an earlier one: the preference is a tie-break only."""
+    task = make_task()
+    early = make_block(block_id="BLK-GHY-LMG-0001")
+    late = make_block(
+        block_id="BLK-GHY-LMG-0002",
+        start_time=datetime(2026, 9, 12, 1, 0),
+        end_time=datetime(2026, 9, 12, 4, 0),
+    )
+    plain = solve_stage_b([task], [early, late], REFERENCE_DATE)
+    preferring_late = solve_stage_b(
+        [task], [early, late], REFERENCE_DATE, preferred_assignments={task.task_id: late.block_id}
+    )
+    assert plain.assignments[task.task_id] == early.block_id
+    assert preferring_late.assignments[task.task_id] == early.block_id
+    assert preferring_late.objective_value == plain.objective_value

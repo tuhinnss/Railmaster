@@ -36,6 +36,83 @@ class SafetyViolation:
     task_ids: list[str]
 
 
+# The six spec-section-6 rules, in the order the dashboard lists them. The
+# descriptions say what the check actually inspects -- a rule is reported
+# as passed only because the code above looked and found nothing.
+SAFETY_RULES: list[tuple[str, str, str]] = [
+    ("block_type_match", "Block type match", "Each task's required block type is offered by its block."),
+    ("capacity", "Capacity", "Tasks sharing a block fit within the block's duration."),
+    ("power_isolation", "Power isolation", "A pure POWER block hosts only power-requiring work."),
+    ("compatibility", "Sharing compatibility", "Tasks sharing a block have overlapping km ranges."),
+    ("dependency_order", "Dependency order", "A dependency is scheduled, and not after its dependent."),
+    ("no_double_booking", "No double-booking", "Each task is in at most one block."),
+]
+
+
+@dataclass
+class SafetyCheck:
+    rule: str
+    label: str
+    description: str
+    items_checked: int
+    violations: int
+    # "structural" -- guaranteed by the data shape rather than inspected;
+    # see the module docstring on double-booking.
+    method: str = "inspected"
+
+
+def summarize_checks(
+    tasks: list[MaintenanceTask],
+    blocks: list[BlockOpportunity],
+    assignments: dict[str, str | None],
+    violations: list[SafetyViolation],
+) -> list[SafetyCheck]:
+    """Per-rule report of what validate_plan examined. items_checked is the
+    number of things each rule actually had to look at -- a rule that
+    examined zero items passed vacuously, and the report says so rather
+    than presenting it the same as a rule that inspected twenty."""
+    blocks_by_id = {b.block_id: b for b in blocks}
+    tasks_by_id = {t.task_id: t for t in tasks}
+    scheduled = [tid for tid, bid in assignments.items() if bid is not None]
+    by_block: dict[str, list[str]] = {}
+    for tid in scheduled:
+        by_block.setdefault(assignments[tid], []).append(tid)
+
+    shared_pairs = sum(len(ids) * (len(ids) - 1) // 2 for ids in by_block.values())
+    power_blocks = sum(
+        1
+        for bid, ids in by_block.items()
+        if len(ids) > 1 and bid in blocks_by_id and blocks_by_id[bid].block_type_possible == BlockType.POWER
+    )
+    dependency_links = sum(
+        1 for tid in scheduled for dep in tasks_by_id[tid].depends_on if dep in tasks_by_id
+    )
+    items = {
+        "block_type_match": len(scheduled),
+        "capacity": len(by_block),
+        "power_isolation": power_blocks,
+        "compatibility": shared_pairs,
+        "dependency_order": dependency_links,
+        "no_double_booking": len(scheduled),
+    }
+
+    counts: dict[str, int] = {}
+    for v in violations:
+        counts[v.rule] = counts.get(v.rule, 0) + 1
+
+    return [
+        SafetyCheck(
+            rule=rule,
+            label=label,
+            description=description,
+            items_checked=items[rule],
+            violations=counts.get(rule, 0),
+            method="structural" if rule == "no_double_booking" else "inspected",
+        )
+        for rule, label, description in SAFETY_RULES
+    ]
+
+
 def validate_plan(
     tasks: list[MaintenanceTask],
     blocks: list[BlockOpportunity],
