@@ -20,6 +20,7 @@ export interface TaskSummary {
   severity_code: SeverityCode;
   days_overdue: number;
   block_type_required: BlockType;
+  est_duration_min: number;
   priority_score: number;
   criticality: number;
   urgency: number;
@@ -39,6 +40,17 @@ export interface ScheduledBlockSummary {
   block_type_possible: BlockType;
   task_ids: string[];
   data_source: DataSource;
+  duration_min: number;
+  used_min: number;
+}
+
+export interface SafetyCheck {
+  rule: string;
+  label: string;
+  description: string;
+  items_checked: number;
+  violations: number;
+  method: "inspected" | "structural";
 }
 
 export interface SectionPlanResult {
@@ -53,13 +65,49 @@ export interface SectionPlanResult {
   blocks_saved: number;
   tasks: TaskSummary[];
   blocks: ScheduledBlockSummary[];
+  safety_checks: SafetyCheck[];
 }
 
 export interface PlanResponse {
   horizon: Horizon;
   start_date: string;
   generated_at: string;
+  fingerprint: string;
   sections: SectionPlanResult[];
+}
+
+// What-if replanning: POST /api/plans/WEEKLY/what-if
+export type Disruption =
+  | { kind: "cancel_block"; block_id: string }
+  | { kind: "curtail_block"; block_id: string; minutes_lost: number }
+  | {
+      kind: "urgent_defect";
+      section: string;
+      department: Department;
+      defect_type: string;
+      km_from: number;
+      km_to: number;
+      severity_code?: SeverityCode;
+      est_duration_min: number;
+      block_type_required: BlockType;
+    };
+
+export type TaskChangeKind = "dropped" | "added" | "moved" | "new_scheduled" | "new_unscheduled";
+
+export interface TaskChange {
+  task_id: string;
+  section: string;
+  change: TaskChangeKind;
+  block_before: string | null;
+  block_after: string | null;
+  reason_after: string;
+}
+
+export interface WhatIfResponse {
+  applied: string[];
+  sections: { section: string; before: SectionPlanResult; after: SectionPlanResult }[];
+  changes: TaskChange[];
+  replan_seconds: number;
 }
 
 // Mirrors ntes-adapter's models.py, proxied through /api/corridors/{section}/trains.
@@ -105,4 +153,26 @@ export interface CorridorBlock {
   expected_train_impact: number;
   goods_traffic_load: number;
   data_source: DataSource;
+}
+
+// Mirrors ntes-adapter's CorridorTrainPaths, proxied through
+// /api/corridors/{section}/train-paths.
+export interface TrainPath {
+  corridor: string;
+  train_no: string;
+  train_name: string;
+  direction: "a_to_b" | "b_to_a";
+  departed_at: string;
+  arrived_at: string;
+}
+
+export interface CorridorTrainPaths {
+  corridor: string;
+  station_a: string;
+  station_b: string;
+  paths: TrainPath[];
+  boards_fetched_at: string | null;
+  window_hours: number | null;
+  stale: boolean;
+  provider: string;
 }

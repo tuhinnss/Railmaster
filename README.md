@@ -25,11 +25,11 @@ and the build spec for what's in/out.
 - `backend/` — FastAPI service: typed data models (`app/models`), synthetic
   data generator (`app/datagen`), scheduling engine (`app/scheduling`),
   the NTES enrichment bridge (`app/ntes_bridge.py`), REST API (`app/api`).
-- `frontend/` — React dashboard: Overview (KPIs + corridor map), Task queue,
-  Task/block detail panel, Corridor traffic (real NTES train boards) —
-  wired to real scheduler output. The Weekly plan (Gantt) page was removed
-  pending a rebuild; the backend still produces the full plan, and the
-  removed page is recoverable from git history (see `de3be0c`).
+- `frontend/` — React dashboard, all wired to real scheduler output:
+  Overview (KPIs + corridor map), Weekly plan (day × section grid, with a
+  printable version), Task queue + detail panel, Time–distance chart
+  (planned blocks against real paired train movements), What-if
+  replanning, Corridor traffic (real NTES train boards).
 - `ntes-adapter/` — separate service; see its own README. Provides real,
   self-collected train-movement-derived predicted-availability data, plus
   real captured NTES train boards, for the three corridors.
@@ -67,9 +67,24 @@ falls back to synthetic values silently if it's unreachable.
 ## Status
 
 Backend engine (schema, synthetic data, priority score, CP-SAT Stage A/B,
-safety validator, explainability) is done and wired end to end — 57
-backend + 41 adapter tests passing. Dashboard currently ships Overview,
-Task queue, detail panel and Corridor traffic.
+safety validator, explainability, what-if replanning) is done and wired
+end to end — 75 backend + 50 adapter tests passing. Dashboard ships
+Overview, Weekly plan (+ printable version), Task queue, detail panel,
+Time–distance chart, What-if and Corridor traffic.
+
+The solver is deterministic (one CP-SAT worker, fixed seed). The default
+parallel search returned different, equally optimal plans for the same
+input on two of the three sections, so the plan could change on a plain
+refresh. Each plan now carries a SHA-256 fingerprint of what it commits
+to, which is only meaningful because of that — see
+`backend/app/scheduling/common.py`.
+
+What-if (`POST /api/plans/WEEKLY/what-if`) applies block cancellations,
+late-granted blocks and injected urgent defects to an in-memory copy of
+the data, re-runs the full pipeline on the affected sections, and diffs
+the result. Among equally good replans it keeps the current plan (a
+strict tie-break in Stage B), so every listed change is one the
+disruption forced. Nothing is persisted.
 
 Every block carries a `data_source` field (`"ntes_live"` vs
 `"synthetic"`), surfaced as a badge in the detail panel and an Overview
@@ -79,10 +94,15 @@ observations for.
 
 Known gaps, in rough priority order:
 
-- Weekly plan (Gantt) page removed pending a rebuild — the scheduler
-  still produces the plan, it just isn't visualised on a timeline.
+- The safety override (overdue severity-A outranks every non-A task, spec
+  section 4) is computed but only reorders the Task queue and the
+  explanation text. Both solvers rank by the weighted score alone, so an
+  overdue severity-A task can lose a contested block to a long-overdue
+  severity-B task with a higher score.
 - `crew_required` is generated and stored but enforced nowhere — no
   resource constraint exists.
 - No department-conflict rule: any two departments may share a block
   provided their km ranges overlap.
-- What-if scenario view (spec step 8) not built.
+- The time–distance chart can draw trains only where one capture sees a
+  train at both ends: NDLS-GZB (13 paired movements). GHY-LMG's boards
+  share no trains in their 4-hour window, and RNY was never captured.

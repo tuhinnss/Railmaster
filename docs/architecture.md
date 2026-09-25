@@ -62,8 +62,13 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
   `NDLS-GZB`, which by design offers 40% of the baseline window supply
   (`BLOCK_SUPPLY_FACTOR`): 7 of 15 tasks scheduled there against 20 of 21 on
   `GHY-LMG`.
-- `api/` — FastAPI routers exposing tasks, blocks, and generated plans to
-  the dashboard.
+- `planning.py` — the per-section pipeline (Stage A for comparison, Stage B,
+  validator, explanations, safety-check summary) assembled into API shapes,
+  plus the plan fingerprint and what-if replanning. Shared by the weekly
+  plan and what-if so both run identical steps. What-if disruptions apply
+  to copies of the loaded data and are never persisted.
+- `api/` — FastAPI routers exposing tasks, blocks, generated plans and
+  what-if replans to the dashboard.
 - `ntes_bridge.py` — optional enrichment layer connecting to the separate
   `ntes-adapter/` service (real NTES-derived predicted-availability data
   and real captured train boards, see its own README). For the
@@ -83,10 +88,25 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
 
 ## Frontend (`frontend/src/`)
 
-Of the four must-build pages (spec section 8), Overview, Task queue and
-the Task/block detail panel are live, wired to real `/api/plans/WEEKLY`
-output via a shared `PlanContext`. The Weekly plan (Gantt) page was
-removed pending a rebuild — the API still returns everything it needs.
+All four must-build pages (spec section 8) are live, wired to real
+`/api/plans/WEEKLY` output via a shared `PlanContext`: Overview, Weekly
+plan (`WeeklyPlan.tsx` — day × section grid of blocks with capacity used,
+unscheduled work with reasons, per-rule safety checks), Task queue, and
+the Task/block detail panel. Beyond those:
+
+- `WhatIf.tsx` — spec step 8. Queues disruptions (block cancelled, block
+  granted late, new urgent defect), posts them to
+  `/api/plans/WEEKLY/what-if`, and shows the before/after diff with the
+  measured replan time and the replanned sections' safety checks.
+- `TimeDistance.tsx` — one section, one night: planned blocks as time × km
+  rectangles, real paired train movements from ntes-adapter's
+  `/train-paths` as lines. Train times are drawn as time of day only
+  (captured boards carry no real date), the line between the observed
+  endpoints is labelled as interpolation, and station km positions as
+  illustrative. Only NDLS-GZB has pairable trains today.
+- `PrintPlan.tsx` (`/print`) — print-first weekly programme for the
+  browser's Save as PDF, with the plan fingerprint. Marked as prototype
+  output. Deliberately not styled as an official circular.
 
 `RealDataBadge.tsx` surfaces each block's `data_source` (full badge in
 the detail panel, a count KPI on Overview) so the real-vs-synthetic
@@ -101,8 +121,11 @@ solving, auth/roles, approval workflow, monthly horizon. See spec section 1.
 
 ## Notes
 
-- OR-Tools CP-SAT is the scheduler engine (not yet added to
-  `requirements.txt` — add when Stage A starts).
+- OR-Tools CP-SAT is the scheduler engine. Every solve goes through
+  `scheduling/common.py:new_solver()` (one worker, fixed seed), because
+  the default parallel search returned different equally-optimal plans
+  for the same input — measured on GHY-LMG and NDLS-GZB — which made the
+  plan change on refresh.
 - The old TMS/SMMS/TDMS/COA adapter layer from the earlier skeleton was
   removed; it doesn't match this spec's data flow (synthetic-only, no
   external connections for this build).

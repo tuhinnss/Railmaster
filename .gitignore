@@ -30,3 +30,4 @@ data/synthetic/
 
 # ntes-adapter runtime persistence (JSON-file store, rebuilt by polling)
 ntes-adapter/data/
+*.tsbuildinfo

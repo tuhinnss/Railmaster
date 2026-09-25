@@ -1,30 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchCorridorTrains } from "../api/client";
-import { REAL_DATA_COLOR } from "../constants/colors";
+import ProvenanceBanner, { NTES_CORRIDORS } from "../components/ProvenanceBanner";
 import type { LiveCorridorStatus, StationLiveBoard, TrainEvent } from "../types";
-
-const CORRIDORS = ["GHY-LMG", "LMG-RNY"];
-
-// What each adapter provider actually means, stated plainly. A demo that
-// shows canned trains without saying so is worse than showing nothing.
-const PROVENANCE: Record<string, { label: string; detail: string; real: boolean }> = {
-  captured_fixture: {
-    label: "Real NTES capture",
-    detail:
-      "Genuine NTES Live Station responses captured during investigation — real train numbers, names, delays and platforms. Times are real; the calendar date they are shown against is today's, not the date they were observed.",
-    real: true,
-  },
-  ntes_live: {
-    label: "Live NTES",
-    detail: "Fetched from NTES now via the unofficial Live Station query.",
-    real: true,
-  },
-  mock: {
-    label: "Mock data",
-    detail: "Canned, deterministic placeholder trains. Not real — do not present these as observed traffic.",
-    real: false,
-  },
-};
 
 function StatusPill({ event }: { event: TrainEvent }) {
   const map: Record<string, { text: string; bg: string }> = {
@@ -98,7 +75,7 @@ function StationBoard({ board, stationLabel }: { board: StationLiveBoard | null;
 }
 
 export default function CorridorTraffic() {
-  const [corridor, setCorridor] = useState(CORRIDORS[0]);
+  const [corridor, setCorridor] = useState(NTES_CORRIDORS[0]);
   const [data, setData] = useState<LiveCorridorStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,8 +93,6 @@ export default function CorridorTraffic() {
     };
   }, [corridor]);
 
-  const provenance = data ? PROVENANCE[data.provider] : undefined;
-
   return (
     <div>
       <h1 style={{ fontSize: 20 }}>Corridor Traffic</h1>
@@ -127,7 +102,7 @@ export default function CorridorTraffic() {
       </p>
 
       <div style={{ display: "flex", gap: 8, margin: "14px 0" }}>
-        {CORRIDORS.map((c) => (
+        {NTES_CORRIDORS.map((c) => (
           <button
             key={c}
             onClick={() => setCorridor(c)}
@@ -146,23 +121,7 @@ export default function CorridorTraffic() {
         ))}
       </div>
 
-      {provenance && (
-        <div
-          style={{
-            border: `1px solid ${provenance.real ? REAL_DATA_COLOR : "#f59e0b"}`,
-            background: provenance.real ? "#ecfeff" : "#fffbeb",
-            borderRadius: 8,
-            padding: "10px 14px",
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ fontSize: 12, fontWeight: 700, color: provenance.real ? REAL_DATA_COLOR : "#b45309" }}>
-            {provenance.label.toUpperCase()}
-            {data?.stale && " · STALE"}
-          </div>
-          <div style={{ fontSize: 12, color: "#475569", marginTop: 3 }}>{provenance.detail}</div>
-        </div>
-      )}
+      {data && <ProvenanceBanner provider={data.provider} stale={data.stale} />}
 
       {loading && <p>Loading…</p>}
       {error && (

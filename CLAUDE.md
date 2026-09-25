@@ -93,6 +93,19 @@ prioritizer → Stage A (comparison only) → Stage B (the real plan) → valida
 - **`compatibility.py`** — the single definition of "can this task use this
   block" / "can these two share a block", shared by prioritizer, solver and
   validator. Don't duplicate this logic elsewhere.
+- **`common.py:new_solver()`** — every CP-SAT solve goes through this: one
+  worker, fixed seed. The default parallel search returned different
+  equally-optimal plans for identical input, so the plan changed on
+  refresh. The plan fingerprint and the what-if diff both depend on
+  determinism — don't construct a `CpSolver` directly.
+
+The pipeline itself lives in `backend/app/planning.py` so the weekly plan
+and what-if replanning run identical steps. What-if
+(`POST /api/plans/WEEKLY/what-if`) works on copies and never persists.
+Its replan passes the baseline to Stage B as `preferred_assignments`,
+which is a strict lexicographic tie-break (the real objective is scaled
+so stability can never outweigh one unit of real benefit). Keep it a
+tie-break: a replan must be the plan the scheduler would choose anyway.
 
 **Resolved spec contradiction — do not "fix" this back.** Read literally, the
 spec's power-isolation rule would forbid the merge its own worked example
@@ -114,6 +127,13 @@ this, and anything new that surfaces data should extend the pattern:
 
 Illustrative-but-invented numbers (`ILLUSTRATIVE_AVAILABILITY` in the adapter's
 seed script) must stay labelled as such wherever they surface.
+
+The same discipline covers claims, not just numbers. A safety check is shown
+as passed only if code inspected something (`validator.summarize_checks`
+reports how many items each rule examined, and says "nothing to check" when
+that's zero). Timings shown are measured, never padded. The printable plan is
+a plain working document marked as prototype output: no railway letterhead,
+circular number, sign-off block or compliance certificate.
 
 ### ntes-adapter
 
@@ -190,6 +210,10 @@ scarce.
   no resource constraint in the model.
 - No department-conflict rule: any two departments may share a block provided
   their km ranges overlap.
-- Weekly plan (Gantt) page was removed pending a rebuild; recover it from git
-  history at `de3be0c` if useful. The API still returns everything it needs.
-- What-if scenario view (spec step 8) not built.
+- The safety override is computed by the prioritizer but never reaches the
+  solvers, which rank by `.score` alone. It only reorders the Task Queue
+  and changes explanation wording, so an overdue severity-A task can lose
+  a contested block to a higher-scoring severity-B task. Contradicts spec
+  section 4; not yet fixed.
+- The time–distance chart can only draw trains on NDLS-GZB: pairing needs
+  a train on both boards within one capture (see the adapter README).

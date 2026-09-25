@@ -3,7 +3,7 @@
 // that itself might carry a severity-driven task), so the two scales
 // use entirely separate hue families.
 
-import type { Department, SeverityCode } from "../types";
+import type { BlockType, Department, SeverityCode } from "../types";
 
 export const DEPARTMENT_COLORS: Record<Department, string> = {
   Engineering: "#2563eb", // blue
@@ -15,6 +15,12 @@ export const SEVERITY_COLORS: Record<SeverityCode, string> = {
   A: "#dc2626", // red
   B: "#7c3aed", // violet
   C: "#64748b", // slate
+};
+
+export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
+  traffic: "Traffic",
+  power: "Power",
+  traffic_and_power: "Traffic + power",
 };
 
 export const SEVERITY_LABELS: Record<SeverityCode, string> = {
