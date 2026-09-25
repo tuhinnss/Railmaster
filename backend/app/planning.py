@@ -149,6 +149,7 @@ def plan_section(
         blocks=sorted(block_summaries, key=lambda b: b.start_time),
         safety_checks=safety_checks,
     )
+    result.fingerprint = plan_fingerprint(reference_date, [result])
     return SectionRun(result=result, assignments=result_b.assignments)
 
 

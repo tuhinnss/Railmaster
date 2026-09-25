@@ -212,7 +212,11 @@ export default function WeeklyPlan() {
             </span>
           )}
         </h1>
-        <Link to="/print" target="_blank" style={{ fontSize: 12 }}>
+        <Link
+          to={sectionFilter === "ALL" ? "/print" : `/print?section=${encodeURIComponent(sectionFilter)}`}
+          target="_blank"
+          style={{ fontSize: 12 }}
+        >
           Printable version ↗
         </Link>
       </div>

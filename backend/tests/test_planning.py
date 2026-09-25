@@ -39,6 +39,9 @@ def test_fingerprint_is_stable_and_tracks_the_plan():
     fewer_blocks = [r.result for r in plan_all(tasks, blocks[:1], REFERENCE_DATE).values()]
     assert plan_fingerprint(REFERENCE_DATE, fewer_blocks) != plan_fingerprint(REFERENCE_DATE, first)
 
+    # Each section also carries its own fingerprint, covering only itself.
+    assert first[0].fingerprint == plan_fingerprint(REFERENCE_DATE, [first[0]])
+
 
 def test_disruptions_never_mutate_the_loaded_data():
     tasks, blocks = small_world()

@@ -66,6 +66,7 @@ export interface SectionPlanResult {
   tasks: TaskSummary[];
   blocks: ScheduledBlockSummary[];
   safety_checks: SafetyCheck[];
+  fingerprint: string; // this section alone
 }
 
 export interface PlanResponse {

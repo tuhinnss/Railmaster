@@ -104,9 +104,11 @@ the Task/block detail panel. Beyond those:
   (captured boards carry no real date), the line between the observed
   endpoints is labelled as interpolation, and station km positions as
   illustrative. Only NDLS-GZB has pairable trains today.
-- `PrintPlan.tsx` (`/print`) — print-first weekly programme for the
-  browser's Save as PDF, with the plan fingerprint. Marked as prototype
-  output. Deliberately not styled as an official circular.
+- `PrintPlan.tsx` (`/print?section=…`) — print-first weekly programme for
+  the browser's Save as PDF, one section per printout, carrying that
+  section's own fingerprint (`SectionPlanResult.fingerprint`). The page
+  title includes the section so each saves as its own file. Marked as
+  prototype output. Deliberately not styled as an official circular.
 
 `RealDataBadge.tsx` surfaces each block's `data_source` (full badge in
 the detail panel, a count KPI on Overview) so the real-vs-synthetic

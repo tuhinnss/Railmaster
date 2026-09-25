@@ -66,6 +66,9 @@ class SectionPlanResult(BaseModel):
     tasks: list[TaskSummary]
     blocks: list[ScheduledBlockSummary]
     safety_checks: list[SafetyCheckSummary]
+    # Same fingerprint as PlanResponse's, over this section alone, so a
+    # single-section printout identifies exactly what it shows.
+    fingerprint: str = ""
 
 
 class PlanResponse(BaseModel):
