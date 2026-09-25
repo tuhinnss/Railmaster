@@ -14,6 +14,13 @@ class RailwayDataProvider(ABC):
     # Surfaced on the API so a consumer can tell real data from canned --
     # see LiveCorridorStatus.provider.
     name: str = "unknown"
+    # Whether this provider's boards are observations of what happened
+    # tonight, and so may enter the occupancy log and poll coverage that
+    # predicted_availability is counted from. Only a live fetch qualifies.
+    # A replayed capture re-dated to today, or canned mock trains, would
+    # otherwise be logged as "observed tonight" on every poll -- found
+    # 2026-09-25, when fixture-mode runs had been doing exactly that.
+    records_observations: bool = False
 
     @abstractmethod
     def get_live_station(self, station_code: str, window_hours: int = 4) -> StationLiveBoard:

@@ -50,6 +50,7 @@ for _corridor in CORRIDORS:
 
 class NTESProvider(RailwayDataProvider):
     name = "ntes_live"
+    records_observations = True
 
     def __init__(self, timeout_seconds: float = 15.0):
         self._client = httpx.Client(

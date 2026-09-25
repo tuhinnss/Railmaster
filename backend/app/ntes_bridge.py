@@ -27,6 +27,15 @@ from app.models.block import BlockOpportunity
 
 logger = logging.getLogger("railmaster.ntes_bridge")
 
+# A prediction built from fewer nights than this is not used. A fresh
+# adapter reports observed_nights=0 with predicted_availability=0.0, which
+# read literally means "never clear" and would stamp impact 1.0 -- labelled
+# as real NTES data -- on every block in the window. One or two nights are
+# no better: availability can only be 0 or 1, so a single busy night would
+# swing the whole week's plan. A week of observed nights is a judgement
+# call, not a derived threshold; below it the synthetic value stands.
+MIN_OBSERVED_NIGHTS = 7
+
 
 def fetch_predicted_windows(corridor: str, base_url: str = NTES_ADAPTER_BASE_URL) -> list[dict]:
     """[] on any failure (adapter down, corridor unknown to it, no cached
@@ -104,6 +113,8 @@ def apply_ntes_predictions(
         if not predictions:
             continue
         for prediction in predictions:
+            if prediction["observed_nights"] < MIN_OBSERVED_NIGHTS:
+                continue
             if _block_falls_in_window(block, prediction["window"]):
                 block.expected_train_impact = round(1 - prediction["predicted_availability"], 3)
                 block.data_source = "ntes_live"

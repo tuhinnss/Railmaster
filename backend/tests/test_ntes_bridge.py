@@ -117,3 +117,21 @@ def test_train_paths_route_refuses_sections_without_a_real_source():
     from app.main import app
 
     assert TestClient(app).get("/api/corridors/NOPE-NOPE/train-paths").status_code == 404
+
+
+def test_apply_ntes_predictions_ignores_too_few_observed_nights(monkeypatch):
+    """A fresh live adapter reports observed_nights=0, availability 0.0. Taken
+    at face value that is "never clear" -- impact 1.0, badged as real data.
+    Until enough nights are observed the synthetic value must stand."""
+    def fake_fetch(corridor, base_url):
+        return [{"corridor": corridor, "window": "01:00-05:00", "observed_nights": 0,
+                 "clear_nights": 0, "predicted_availability": 0.0, "last_updated": str(date.today())}]
+
+    monkeypatch.setattr("app.ntes_bridge.fetch_predicted_windows", fake_fetch)
+
+    block = make_block(section="GHY-LMG", start_time=datetime(2026, 9, 28, 2, 0))
+    original_impact = block.expected_train_impact
+    result = apply_ntes_predictions([block])
+
+    assert result[0].expected_train_impact == original_impact
+    assert result[0].data_source == "synthetic"

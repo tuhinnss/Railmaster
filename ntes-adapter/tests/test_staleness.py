@@ -67,3 +67,31 @@ def test_poller_failure_does_not_wipe_previous_good_cache():
 
     board_after_failure = store.get_live_board("GHY")
     assert board_after_failure == board_after_success  # untouched, not cleared
+
+
+def test_replayed_or_canned_boards_never_count_as_observations():
+    """Mock and captured-fixture boards are cached for /live but must not
+    enter the history predicted_availability is counted from -- a replayed
+    capture re-dated to today is not an observation of tonight."""
+    from app.poller import Poller
+    from app.providers.fixture_provider import CapturedFixtureProvider
+    from app.providers.mock_provider import MockProvider
+
+    for provider in (MockProvider(), CapturedFixtureProvider()):
+        store = Store(data_dir=None)
+        Poller(provider, store, interval_seconds=60).poll_once()
+        assert store.get_live_board("NDLS" if provider.name == "captured_fixture" else "GHY") is not None
+        assert store.get_poll_timestamps("NDLS-GZB") == []
+        assert store.get_occupancy("NDLS-GZB") == []
+
+
+def test_live_boards_count_as_observations():
+    from app.poller import Poller
+    from app.providers.mock_provider import MockProvider
+
+    class LiveLike(MockProvider):
+        records_observations = True
+
+    store = Store(data_dir=None)
+    Poller(LiveLike(), store, interval_seconds=60).poll_once()
+    assert store.get_poll_timestamps("GHY-LMG") != []

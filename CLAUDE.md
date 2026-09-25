@@ -47,6 +47,8 @@ Always invoke through `.venv/Scripts/python.exe`.
 .venv/Scripts/python.exe -m pip install -r requirements.txt
 .venv/Scripts/python.exe -m scripts.seed_demo_predictions   # illustrative history; run before first start
 NTES_ADAPTER_PROVIDER=fixture .venv/Scripts/python.exe -m uvicorn app.main:app --port 8001
+# live: real NTES boards, polled every 3 min (don't seed this data dir -- see below)
+NTES_ADAPTER_PROVIDER=ntes NTES_ADAPTER_POLL_INTERVAL=180 .venv/Scripts/python.exe -m uvicorn app.main:app --port 8001
 .venv/Scripts/python.exe -m pytest -q
 
 # frontend (from frontend/)
@@ -148,6 +150,15 @@ over self-collected observations, **not** a trained model. Do not describe it
 as one anywhere. `observed_nights` counts nights with actual poll coverage,
 tracked separately from occupancy, because "nobody was watching" and
 "genuinely clear" are not the same thing.
+
+Only a provider with `records_observations = True` (just `NTESProvider`) may
+write that history. Replayed fixtures and mock trains are cached for display
+but are not observations. Before 2026-09-25 they were logged as observations
+on every poll. Never run `seed_demo_predictions` against a data directory that
+live polling writes to: seeded and real nights become indistinguishable. On
+the backend side, `ntes_bridge.MIN_OBSERVED_NIGHTS` (7) keeps predictions
+built from too few nights out of the plan, so a fresh live instance leaves
+blocks on synthetic values rather than badging a 0-or-1 guess as real.
 
 **Ground rules for any work on this service:** never invent endpoints or
 fields; never bypass CAPTCHA, auth or rate limits; investigate before coding

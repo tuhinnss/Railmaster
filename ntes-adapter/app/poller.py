@@ -52,7 +52,9 @@ class Poller:
         board_a, backoff_a = self._safe_fetch(corridor.corridor_id, corridor.station_a)
         board_b, backoff_b = self._safe_fetch(corridor.corridor_id, corridor.station_b)
 
-        if board_a is not None and board_b is not None:
+        # Boards are always cached for /live, but only a live provider's
+        # boards count as observed nights -- see RailwayDataProvider.
+        if board_a is not None and board_b is not None and self._provider.records_observations:
             self._store.append_poll_success(corridor.corridor_id, datetime.now())
             intervals = derive_corridor_occupancy(corridor.corridor_id, board_a, board_b)
             self._store.append_occupancy(intervals)

@@ -90,6 +90,27 @@ it.
   over time was **not tested** and should not be assumed safe. Treat
   `POLL_INTERVAL_SECONDS` as something to tune conservatively in
   practice, and watch the poller's logs for repeated failures.
+  **Update 2026-09-25 (~22:00):** the service was switched to live polling
+  at a 180-second interval (`NTES_ADAPTER_POLL_INTERVAL=180`). The first
+  cycle made all six station queries (GHY, LMG ×2, RNY, NDLS, GZB) in about
+  2 seconds, every request `200 OK`, no CAPTCHA. That is one cycle, not
+  sustained behavior — how NTES responds over hours or days is still
+  untested.
+- **RNY's live board parses (2026-09-25).** RNY was never captured as a
+  fixture, so it had never been parsed at all. Its first live fetch
+  returned 22 movements in a 4-hour window and parsed without error, so
+  `LMG-RNY` now has real data at both ends when running live. It is still
+  not available as a fixture.
+- **Fixture-mode runs were recording replayed boards as observations
+  (found and fixed 2026-09-25).** The poller logged poll coverage and
+  occupancy for every provider, so a `fixture` run recorded the replayed,
+  re-dated capture as "observed tonight" on every poll, and `mock` runs
+  recorded canned trains the same way. Only a provider with
+  `records_observations = True` (currently just `NTESProvider`) now feeds
+  the history. The polluted pre-fix history, together with the seeded
+  history it was mixed into, was moved to
+  `data/replayed-and-seeded-backup-2026-09-25/` when live polling started,
+  so the live history begins clean.
 - **This is not, and is never claimed to be, an authorized integration.**
   These are undocumented, internal endpoints of a public information
   website, reverse-engineered from its own client-side code. There is no
@@ -188,6 +209,18 @@ directly-seeded cache entry gets overwritten within seconds). The seeded
 availability figures (`ILLUSTRATIVE_AVAILABILITY` in the script) are
 made up, not measured — labeled as such everywhere they surface.
 
+**Never seed a data directory that live polling writes to.** The seeded
+nights and real nights land in the same logs and become indistinguishable,
+so the resulting `predicted_availability` would be part invented yet served
+as real. For a demo with illustrative numbers, point
+`NTES_ADAPTER_DATA_DIR` at a separate directory.
+
+Separately, Rail Master's `ntes_bridge.py` ignores any prediction built
+from fewer than 7 observed nights (`MIN_OBSERVED_NIGHTS`), so a fresh live
+instance leaves the scheduler on synthetic values until about a week of
+nights has been observed, rather than letting one night's 0-or-1 swing
+the plan.
+
 ## Consumers
 
 Rail Master's main scheduler (`../backend/app/ntes_bridge.py`) treats
@@ -203,7 +236,7 @@ direction.
 | Corridor | Station A | Station B | Length | Traffic (captured) |
 |---|---|---|---|---|
 | `GHY-LMG` | GHY — Guwahati | LMG — Lumding Jn | ~180 km | 23 / 18 movements per 4 h |
-| `LMG-RNY` | LMG — Lumding Jn | RNY — Rangiya Jn | ~120 km | LMG 18 per 4 h; RNY never captured |
+| `LMG-RNY` | LMG — Lumding Jn | RNY — Rangiya Jn | ~120 km | LMG 18 per 4 h; RNY 22 per 4 h (live only, 2026-09-25 — no fixture) |
 | `NDLS-GZB` | NDLS — New Delhi | GZB — Ghaziabad | ~25 km | **64 / 60 movements per 8 h** |
 
 `NDLS-GZB` is a high-density trunk section, carried deliberately as a

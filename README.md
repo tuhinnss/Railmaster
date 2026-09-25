@@ -48,6 +48,10 @@ python -m venv .venv && .venv/Scripts/python.exe -m pip install -r requirements.
 # NTES_ADAPTER_PROVIDER=fixture serves the real captured NTES train boards
 # (Corridor Traffic page). Omit it for canned mock trains.
 NTES_ADAPTER_PROVIDER=fixture .venv/Scripts/python.exe -m uvicorn app.main:app --port 8001
+# Or live: polls NTES's unofficial Live Station page every 3 minutes and
+# builds real availability history night by night. Skip the seeding step
+# above for a live data directory -- see ntes-adapter/README.md.
+# NTES_ADAPTER_PROVIDER=ntes NTES_ADAPTER_POLL_INTERVAL=180 .venv/Scripts/python.exe -m uvicorn app.main:app --port 8001
 
 # 2. backend
 cd backend
