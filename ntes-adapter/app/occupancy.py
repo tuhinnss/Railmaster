@@ -9,14 +9,7 @@ service.
 from datetime import datetime, timedelta
 
 from app.config import MAX_SECTION_TRANSIT_MINUTES
-from app.models import (
-    EventType,
-    PathDirection,
-    SectionOccupancyInterval,
-    StationLiveBoard,
-    TrainEvent,
-    TrainPath,
-)
+from app.models import EventType, SectionOccupancyInterval, StationLiveBoard, TrainEvent
 
 
 def pair_section_occupancy(
@@ -79,40 +72,6 @@ def derive_corridor_occupancy(
     return pair_section_occupancy(
         corridor, a_departures, b_arrivals, max_transit_minutes
     ) + pair_section_occupancy(corridor, b_departures, a_arrivals, max_transit_minutes)
-
-
-def derive_train_paths(
-    corridor: str,
-    board_a: StationLiveBoard,
-    board_b: StationLiveBoard,
-    max_transit_minutes: int = MAX_SECTION_TRANSIT_MINUTES,
-) -> list[TrainPath]:
-    """The same pairing as derive_corridor_occupancy, keeping the direction
-    (which it discards) and the train's name, for drawing a time-distance
-    chart. Reuses pair_section_occupancy rather than re-deriving pairs, so
-    the chart can never show a movement the occupancy log wouldn't count."""
-    names = {e.train_no: e.train_name for e in board_a.events + board_b.events}
-    directions = [
-        (PathDirection.A_TO_B, board_a, board_b),
-        (PathDirection.B_TO_A, board_b, board_a),
-    ]
-
-    paths: list[TrainPath] = []
-    for direction, origin, destination in directions:
-        departures = [e for e in origin.events if e.event_type == EventType.DEPARTURE]
-        arrivals = [e for e in destination.events if e.event_type == EventType.ARRIVAL]
-        for iv in pair_section_occupancy(corridor, departures, arrivals, max_transit_minutes):
-            paths.append(
-                TrainPath(
-                    corridor=corridor,
-                    train_no=iv.train_no,
-                    train_name=names.get(iv.train_no, ""),
-                    direction=direction,
-                    departed_at=iv.occupied_from,
-                    arrived_at=iv.occupied_to,
-                )
-            )
-    return sorted(paths, key=lambda p: p.departed_at)
 
 
 def is_window_clear(

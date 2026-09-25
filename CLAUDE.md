@@ -226,5 +226,3 @@ scarce.
   and changes explanation wording, so an overdue severity-A task can lose
   a contested block to a higher-scoring severity-B task. Contradicts spec
   section 4; not yet fixed.
-- The time–distance chart can only draw trains on NDLS-GZB: pairing needs
-  a train on both boards within one capture (see the adapter README).

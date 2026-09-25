@@ -155,25 +155,3 @@ export interface CorridorBlock {
   goods_traffic_load: number;
   data_source: DataSource;
 }
-
-// Mirrors ntes-adapter's CorridorTrainPaths, proxied through
-// /api/corridors/{section}/train-paths.
-export interface TrainPath {
-  corridor: string;
-  train_no: string;
-  train_name: string;
-  direction: "a_to_b" | "b_to_a";
-  departed_at: string;
-  arrived_at: string;
-}
-
-export interface CorridorTrainPaths {
-  corridor: string;
-  station_a: string;
-  station_b: string;
-  paths: TrainPath[];
-  boards_fetched_at: string | null;
-  window_hours: number | null;
-  stale: boolean;
-  provider: string;
-}

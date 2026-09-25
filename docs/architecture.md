@@ -98,12 +98,10 @@ the Task/block detail panel. Beyond those:
   granted late, new urgent defect), posts them to
   `/api/plans/WEEKLY/what-if`, and shows the before/after diff with the
   measured replan time and the replanned sections' safety checks.
-- `TimeDistance.tsx` — one section, one night: planned blocks as time × km
-  rectangles, real paired train movements from ntes-adapter's
-  `/train-paths` as lines. Train times are drawn as time of day only
-  (captured boards carry no real date), the line between the observed
-  endpoints is labelled as interpolation, and station km positions as
-  illustrative. Only NDLS-GZB has pairable trains today.
+- A time–distance (string) chart of blocks against paired NTES train
+  movements was built and then removed on 2026-09-25 as unnecessary, along
+  with the adapter's `/train-paths` endpoint that fed it. Recoverable from
+  commits `36b18f1` (adapter) and `40cb357` (page, `TimeDistance.tsx`).
 - `PrintPlan.tsx` (`/print?section=…`) — print-first weekly programme for
   the browser's Save as PDF, one section per printout, carrying that
   section's own fingerprint (`SectionPlanResult.fingerprint`). The page

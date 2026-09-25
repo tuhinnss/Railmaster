@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from app.data_access import load_blocks
 from app.datagen.reference_data import NTES_INTEGRATED_SECTIONS
-from app.ntes_bridge import fetch_live_trains, fetch_train_paths
+from app.ntes_bridge import fetch_live_trains
 
 router = APIRouter(prefix="/corridors", tags=["corridors"])
 
@@ -45,18 +45,6 @@ def get_corridor_trains(section: str):
     if live is None:
         raise HTTPException(status_code=503, detail="ntes-adapter is unreachable")
     return live
-
-
-@router.get("/{section}/train-paths")
-def get_corridor_train_paths(section: str):
-    """Paired train traversals of an NTES-integrated section, proxied from
-    ntes-adapter, for the time-distance chart. Carries the adapter's
-    provider field through untouched so the page can label mock data."""
-    _require_integrated(section)
-    paths = fetch_train_paths(section)
-    if paths is None:
-        raise HTTPException(status_code=503, detail="ntes-adapter is unreachable")
-    return paths
 
 
 def _require_integrated(section: str) -> None:

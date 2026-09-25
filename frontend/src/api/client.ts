@@ -1,6 +1,5 @@
 import type {
   CorridorBlock,
-  CorridorTrainPaths,
   Disruption,
   Horizon,
   LiveCorridorStatus,
@@ -59,8 +58,4 @@ export function fetchCorridorBlocks(section?: string): Promise<CorridorBlock[]> 
 
 export function fetchCorridorTrains(section: string): Promise<LiveCorridorStatus> {
   return apiGet<LiveCorridorStatus>(`/corridors/${encodeURIComponent(section)}/trains`);
-}
-
-export function fetchTrainPaths(section: string): Promise<CorridorTrainPaths> {
-  return apiGet<CorridorTrainPaths>(`/corridors/${encodeURIComponent(section)}/train-paths`);
 }

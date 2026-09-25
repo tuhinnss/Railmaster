@@ -27,8 +27,7 @@ and the build spec for what's in/out.
   the NTES enrichment bridge (`app/ntes_bridge.py`), REST API (`app/api`).
 - `frontend/` — React dashboard, all wired to real scheduler output:
   Overview (KPIs + corridor map), Weekly plan (day × section grid, with a
-  printable version), Task queue + detail panel, Time–distance chart
-  (planned blocks against real paired train movements), What-if
+  per-section printable version), Task queue + detail panel, What-if
   replanning, Corridor traffic (real NTES train boards).
 - `ntes-adapter/` — separate service; see its own README. Provides real,
   self-collected train-movement-derived predicted-availability data, plus
@@ -72,9 +71,9 @@ falls back to synthetic values silently if it's unreachable.
 
 Backend engine (schema, synthetic data, priority score, CP-SAT Stage A/B,
 safety validator, explainability, what-if replanning) is done and wired
-end to end — 75 backend + 50 adapter tests passing. Dashboard ships
-Overview, Weekly plan (+ printable version), Task queue, detail panel,
-Time–distance chart, What-if and Corridor traffic.
+end to end — 74 backend + 47 adapter tests passing. Dashboard ships
+Overview, Weekly plan (+ per-section printable version), Task queue,
+detail panel, What-if and Corridor traffic.
 
 The solver is deterministic (one CP-SAT worker, fixed seed). The default
 parallel search returned different, equally optimal plans for the same
@@ -107,6 +106,3 @@ Known gaps, in rough priority order:
   resource constraint exists.
 - No department-conflict rule: any two departments may share a block
   provided their km ranges overlap.
-- The time–distance chart can draw trains only where one capture sees a
-  train at both ends: NDLS-GZB (13 paired movements). GHY-LMG's boards
-  share no trains in their 4-hour window, and RNY was never captured.

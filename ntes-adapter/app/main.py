@@ -23,8 +23,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 
 from app.config import CORRIDORS, STALE_THRESHOLD_SECONDS
-from app.models import CorridorTrainPaths, LiveCorridorStatus, PredictedWindow
-from app.occupancy import derive_train_paths
+from app.models import LiveCorridorStatus, PredictedWindow
 from app.poller import Poller
 from app.providers.fixture_provider import CapturedFixtureProvider
 from app.providers.mock_provider import MockProvider
@@ -118,33 +117,6 @@ def get_live(corridor: str):
         station_b=board_b,
         stale=stale,
         last_successful_fetch=last_successful_fetch,
-        provider=provider.name,
-    )
-
-
-@app.get("/api/v1/corridors/{corridor}/train-paths", response_model=CorridorTrainPaths)
-def get_train_paths(corridor: str):
-    """Paired section traversals from the cached boards, with direction --
-    what a time-distance chart draws. Empty whenever the two boards share
-    no trains in their window, which on a long corridor is the normal case
-    (see README "Known limitations"), and when either board is missing."""
-    cfg = _find_corridor(corridor)
-    if cfg is None:
-        raise HTTPException(status_code=404, detail=f"Unknown corridor {corridor!r}")
-
-    board_a = store.get_live_board(cfg.station_a)
-    board_b = store.get_live_board(cfg.station_b)
-    _, stale = _freshness(cfg)
-
-    both = board_a is not None and board_b is not None
-    return CorridorTrainPaths(
-        corridor=corridor,
-        station_a=cfg.station_a,
-        station_b=cfg.station_b,
-        paths=derive_train_paths(corridor, board_a, board_b) if both else [],
-        boards_fetched_at=min(board_a.fetched_at, board_b.fetched_at) if both else None,
-        window_hours=min(board_a.window_hours, board_b.window_hours) if both else None,
-        stale=stale,
         provider=provider.name,
     )
 

@@ -4,7 +4,6 @@ import CorridorTraffic from "./pages/CorridorTraffic";
 import Overview from "./pages/Overview";
 import PrintPlan from "./pages/PrintPlan";
 import TaskQueue from "./pages/TaskQueue";
-import TimeDistance from "./pages/TimeDistance";
 import WeeklyPlan from "./pages/WeeklyPlan";
 import WhatIf from "./pages/WhatIf";
 
@@ -35,9 +34,6 @@ export default function App() {
             <NavLink to="/tasks" style={navLinkStyle}>
               Task Queue
             </NavLink>
-            <NavLink to="/time-distance" style={navLinkStyle}>
-              Time–Distance
-            </NavLink>
             <NavLink to="/what-if" style={navLinkStyle}>
               What-if
             </NavLink>
@@ -49,7 +45,6 @@ export default function App() {
             <Route path="/" element={<Overview />} />
             <Route path="/plan" element={<WeeklyPlan />} />
             <Route path="/tasks" element={<TaskQueue />} />
-            <Route path="/time-distance" element={<TimeDistance />} />
             <Route path="/what-if" element={<WhatIf />} />
             <Route path="/traffic" element={<CorridorTraffic />} />
             <Route path="/print" element={<PrintPlan />} />

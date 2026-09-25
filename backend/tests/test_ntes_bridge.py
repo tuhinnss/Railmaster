@@ -6,7 +6,6 @@ from app.ntes_bridge import (
     apply_ntes_predictions,
     fetch_live_trains,
     fetch_predicted_windows,
-    fetch_train_paths,
 )
 
 
@@ -105,18 +104,6 @@ def test_apply_ntes_predictions_leaves_block_untouched_outside_any_predicted_win
 
     assert result[0].expected_train_impact == 0.5  # noon isn't in the 01:00-05:00 window
     assert result[0].data_source == "synthetic"
-
-
-def test_fetch_train_paths_returns_none_when_adapter_unreachable():
-    assert fetch_train_paths("NDLS-GZB", base_url="http://127.0.0.1:1") is None
-
-
-def test_train_paths_route_refuses_sections_without_a_real_source():
-    from fastapi.testclient import TestClient
-
-    from app.main import app
-
-    assert TestClient(app).get("/api/corridors/NOPE-NOPE/train-paths").status_code == 404
 
 
 def test_apply_ntes_predictions_ignores_too_few_observed_nights(monkeypatch):
