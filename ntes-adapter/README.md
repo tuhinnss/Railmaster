@@ -120,7 +120,7 @@ occupancy.py  frequency.py
  intervals)
         │
         ▼
-   FastAPI (main.py) — 3 read endpoints, all served from the Store
+   FastAPI (main.py) — 4 read endpoints, all served from the Store
 ```
 
 ## Setup
@@ -228,6 +228,16 @@ adjacency is not.
   `null` and `last_successful_fetch` is `null`. NTES being unreachable
   never crashes this endpoint; it just keeps returning the last good
   cache with the flag set.
+- `GET /api/v1/corridors/{corridor}/train-paths` — the section
+  traversals paired from the two cached boards, each with its direction
+  (`a_to_b` / `b_to_a`), train name, and observed departure and arrival
+  times, plus the board `provider` and `stale` flag. Derived by
+  `occupancy.derive_train_paths`, which reuses the same pairing as the
+  occupancy log, so it can never show a movement the log wouldn't count.
+  Only the two endpoints are observed; anything drawn between them is
+  interpolation. Empty when either board is missing, and on a long
+  corridor whose boards share no trains (GHY-LMG — see Known
+  limitations). Backs Rail Master's time–distance chart.
 - `GET /api/v1/corridors/{corridor}/predicted-windows` — cached
   frequency predictions for that corridor, ranked by
   `predicted_availability` descending. Always served from cache, never

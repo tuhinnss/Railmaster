@@ -61,6 +61,38 @@ class SectionOccupancyInterval(BaseModel):
     occupied_to: datetime
 
 
+class PathDirection(str, Enum):
+    A_TO_B = "a_to_b"
+    B_TO_A = "b_to_a"
+
+
+class TrainPath(BaseModel):
+    """One paired section traversal: the same interval as
+    SectionOccupancyInterval, plus which way the train went and its name.
+    Only the two endpoints are observed; anything drawn between them is
+    interpolation, not a measured position."""
+
+    corridor: str
+    train_no: str
+    train_name: str
+    direction: PathDirection
+    departed_at: datetime
+    arrived_at: datetime
+
+
+class CorridorTrainPaths(BaseModel):
+    corridor: str
+    station_a: str
+    station_b: str
+    paths: list[TrainPath]
+    # The older of the two boards' fetch times, and the window each covers.
+    # None when either board is missing -- pairing needs both ends.
+    boards_fetched_at: datetime | None
+    window_hours: int | None
+    stale: bool
+    provider: str = "unknown"
+
+
 class PredictedWindow(BaseModel):
     corridor: str
     window: str

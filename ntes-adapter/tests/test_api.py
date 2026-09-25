@@ -117,3 +117,38 @@ def test_predicted_windows_empty_before_any_data_collected():
     resp = client.get("/api/v1/corridors/LMG-RNY/predicted-windows")
     assert resp.status_code == 200
     assert resp.json() == []
+
+
+def test_train_paths_pairs_cached_boards():
+    now = datetime.now()
+    dep = now + timedelta(minutes=10)
+    main.store.set_live_board("NDLS", StationLiveBoard(
+        station_code="NDLS", fetched_at=now, window_hours=8,
+        events=[TrainEvent(train_no="101", train_name="TEST TRAIN", station_code="NDLS",
+                           event_type=EventType.DEPARTURE, status=TrainEventStatus.ON_TIME,
+                           actual_or_expected_time=dep)],
+    ))
+    main.store.set_live_board("GZB", StationLiveBoard(
+        station_code="GZB", fetched_at=now, window_hours=8,
+        events=[TrainEvent(train_no="101", train_name="TEST TRAIN", station_code="GZB",
+                           event_type=EventType.ARRIVAL, status=TrainEventStatus.ON_TIME,
+                           actual_or_expected_time=dep + timedelta(minutes=40))],
+    ))
+
+    resp = client.get("/api/v1/corridors/NDLS-GZB/train-paths")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["provider"] == "mock"
+    assert body["window_hours"] == 8
+    assert [(p["train_no"], p["direction"]) for p in body["paths"]] == [("101", "a_to_b")]
+
+
+def test_train_paths_empty_when_a_board_is_missing():
+    main.store.set_live_board("LMG", make_board("LMG", datetime.now()))
+    body = client.get("/api/v1/corridors/LMG-RNY/train-paths").json()
+    assert body["paths"] == []
+    assert body["boards_fetched_at"] is None
+
+
+def test_train_paths_unknown_corridor_404s():
+    assert client.get("/api/v1/corridors/NOPE-NOPE/train-paths").status_code == 404

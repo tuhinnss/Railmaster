@@ -23,7 +23,8 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 
 from app.config import CORRIDORS, STALE_THRESHOLD_SECONDS
-from app.models import LiveCorridorStatus, PredictedWindow
+from app.models import CorridorTrainPaths, LiveCorridorStatus, PredictedWindow
+from app.occupancy import derive_train_paths
 from app.poller import Poller
 from app.providers.fixture_provider import CapturedFixtureProvider
 from app.providers.mock_provider import MockProvider
@@ -69,6 +70,24 @@ def _find_corridor(corridor_id: str):
     return None
 
 
+def _freshness(cfg) -> tuple[datetime | None, bool]:
+    """(older of the two stations' last successful fetch, stale?). A
+    corridor is only as fresh as its staler end."""
+    fetch_a = store.get_last_successful_fetch(cfg.station_a)
+    fetch_b = store.get_last_successful_fetch(cfg.station_b)
+
+    if fetch_a and fetch_b:
+        last_successful_fetch = min(fetch_a, fetch_b)
+    else:
+        last_successful_fetch = fetch_a or fetch_b
+
+    stale = (
+        last_successful_fetch is None
+        or (datetime.now() - last_successful_fetch).total_seconds() > STALE_THRESHOLD_SECONDS
+    )
+    return last_successful_fetch, stale
+
+
 @app.get("/api/v1/corridors")
 def list_corridors():
     return [
@@ -91,18 +110,7 @@ def get_live(corridor: str):
 
     board_a = store.get_live_board(cfg.station_a)
     board_b = store.get_live_board(cfg.station_b)
-    fetch_a = store.get_last_successful_fetch(cfg.station_a)
-    fetch_b = store.get_last_successful_fetch(cfg.station_b)
-
-    if fetch_a and fetch_b:
-        last_successful_fetch = min(fetch_a, fetch_b)
-    else:
-        last_successful_fetch = fetch_a or fetch_b
-
-    stale = (
-        last_successful_fetch is None
-        or (datetime.now() - last_successful_fetch).total_seconds() > STALE_THRESHOLD_SECONDS
-    )
+    last_successful_fetch, stale = _freshness(cfg)
 
     return LiveCorridorStatus(
         corridor=corridor,
@@ -110,6 +118,33 @@ def get_live(corridor: str):
         station_b=board_b,
         stale=stale,
         last_successful_fetch=last_successful_fetch,
+        provider=provider.name,
+    )
+
+
+@app.get("/api/v1/corridors/{corridor}/train-paths", response_model=CorridorTrainPaths)
+def get_train_paths(corridor: str):
+    """Paired section traversals from the cached boards, with direction --
+    what a time-distance chart draws. Empty whenever the two boards share
+    no trains in their window, which on a long corridor is the normal case
+    (see README "Known limitations"), and when either board is missing."""
+    cfg = _find_corridor(corridor)
+    if cfg is None:
+        raise HTTPException(status_code=404, detail=f"Unknown corridor {corridor!r}")
+
+    board_a = store.get_live_board(cfg.station_a)
+    board_b = store.get_live_board(cfg.station_b)
+    _, stale = _freshness(cfg)
+
+    both = board_a is not None and board_b is not None
+    return CorridorTrainPaths(
+        corridor=corridor,
+        station_a=cfg.station_a,
+        station_b=cfg.station_b,
+        paths=derive_train_paths(corridor, board_a, board_b) if both else [],
+        boards_fetched_at=min(board_a.fetched_at, board_b.fetched_at) if both else None,
+        window_hours=min(board_a.window_hours, board_b.window_hours) if both else None,
+        stale=stale,
         provider=provider.name,
     )
 
