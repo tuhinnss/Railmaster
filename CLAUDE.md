@@ -115,10 +115,11 @@ which is a strict lexicographic tie-break (the real objective is scaled
 so stability can never outweigh one unit of real benefit). Keep it a
 tie-break: a replan must be the plan the scheduler would choose anyway.
 
-**Field reports and control decisions are the one persisted user input**
-(`app/operations.py`, `/api/operations`, JSON under `data/operations/`,
-overridable with `RAILMASTER_OPS_DIR`). `planning.plan_current` is the
-plan every page shows: the fixture plan, plus reported defects as tasks,
+**Field reports, control decisions and added blocks are the one persisted
+user input** (`app/operations.py`, `/api/operations`, JSON under
+`data/operations/`, overridable with `RAILMASTER_OPS_DIR`).
+`planning.plan_current` is the plan every page shows: the fixture plan,
+plus reported defects as tasks, plus blocks the control office added,
 plus decisions applied as `CancelBlock`/`CurtailBlock`/`MoveBlock`
 (cancel, granted late, rescheduled), with touched
 sections replanned against the fixture plan as `preferred_assignments`.
@@ -127,6 +128,15 @@ its "before" is exactly what the other pages show. A plain "granted"
 decision changes nothing in the plan and does not lock work in the block.
 A moved block drops back to `data_source="synthetic"`: any real NTES figure
 described its original slot, not the new one.
+An added block (Overview, "Work that didn't fit") is one more block
+opportunity for a task the plan couldn't place. It is held for that task
+(`BlockOpportunity.reserved_for`, `scheduling/common.py:hold_for_owner`,
+applied in both stages): other work may share it only alongside. Left
+open, it went to whatever outranked the task -- on the seed-1 data a block
+added for each of 9 unscheduled tasks got only 3 of them in. Its
+`expected_train_impact` is 0 because nothing predicted it; that leaves
+every priority unchanged (AvailabilityImpact is a max), and
+`data_source="added"` keeps the 0 from being shown as a measurement.
 `tests/conftest.py` points every test at an empty temporary store; keep it
 that way so tests never read or write the real directory.
 
@@ -142,8 +152,11 @@ Real and synthetic data must never be presented identically. Two fields carry
 this, and anything new that surfaces data should extend the pattern:
 
 - `BlockOpportunity.data_source` — `"ntes_live"` only when a real adapter
-  prediction actually overwrote `expected_train_impact`; otherwise
-  `"synthetic"`. Set solely by `ntes_bridge.py`.
+  prediction actually overwrote `expected_train_impact`; `"added"` for a
+  block the control office added (set solely by
+  `operations.added_opportunities`, shown with an ADDED badge and a dashed
+  outline); otherwise `"synthetic"`. `ntes_live` is set solely by
+  `ntes_bridge.py`.
 - `MaintenanceTask.data_source` — `"reported"` for a defect entered on the
   Report Defect page, shown with a REPORTED badge; otherwise `"synthetic"`.
   Set solely by `operations.reported_tasks`.

@@ -71,11 +71,13 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
   control decisions, with touched sections replanned against the fixture
   plan as the tie-break baseline.
 - `operations.py` — the only persisted user input: defects reported on
-  the Report Defect page and control-office decisions on planned blocks
-  (granted / granted late / rescheduled / cancelled), stored as JSON
-  under `data/operations/`. Reported defects become tasks with
-  `data_source="reported"`; decisions become the same `CancelBlock` /
-  `CurtailBlock` / `MoveBlock` disruptions what-if uses.
+  the Report Defect page, control-office decisions on planned blocks
+  (granted / granted late / rescheduled / cancelled), and blocks added
+  for work that didn't fit, stored as JSON under `data/operations/`.
+  Reported defects become tasks with `data_source="reported"`; decisions
+  become the same `CancelBlock` / `CurtailBlock` / `MoveBlock`
+  disruptions what-if uses; added blocks become block opportunities with
+  `data_source="added"`, held for their task (`reserved_for`).
 - `api/` — FastAPI routers exposing tasks, blocks, generated plans,
   what-if replans, and field reports / control decisions
   (`/api/operations`) to the dashboard.
@@ -146,7 +148,11 @@ distinction from `ntes_bridge.py` is visible, not just internal.
 `CorridorMap.tsx` on Overview shows where blocks land along the corridor
 by km; clicking a block there opens `BlockActionsPanel.tsx` to reschedule
 or delete it (saved as the same control decisions Block Decisions makes,
-through the shared `hooks/useBlockDecisions.ts`); `CorridorTraffic.tsx` shows real captured NTES train boards.
+through the shared `hooks/useBlockDecisions.ts`). Below the map,
+`UnscheduledWork.tsx` lists the work that didn't fit with the planner's
+reason and adds a block for one (`RescheduleForm` again, as "Add block"),
+and lists the added blocks with Remove; `AddedBadge.tsx` marks them
+wherever a block is shown. `CorridorTraffic.tsx` shows real captured NTES train boards.
 
 ## Explicitly out of scope for this build
 

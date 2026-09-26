@@ -78,7 +78,7 @@ falls back to synthetic values silently if it's unreachable.
 
 Backend engine (schema, synthetic data, priority score, CP-SAT Stage A/B,
 safety validator, explainability, what-if replanning) is done and wired
-end to end — 115 backend + 62 adapter tests passing. Dashboard ships
+end to end — 125 backend + 62 adapter tests passing. Dashboard ships
 Overview, Weekly plan (+ per-section printable version), Task queue,
 detail panel, What-if, Corridor traffic, Report Defect and Block
 Decisions.
@@ -102,14 +102,20 @@ Report Defect and Block Decisions are the persisted counterpart
 its section's backlog as a task marked `REPORTED`; a control office can
 mark a planned block granted, granted late (the block shortens),
 rescheduled to another day and time in the plan week (optionally with a
-new length), or cancelled (it leaves the plan). Every page then shows the fixture plan
+new length), or cancelled (it leaves the plan). Under the Overview's block
+map, "Work that didn't fit" lists what the plan couldn't place, with the
+planner's reason; **Schedule…** adds a block for it at a chosen time
+(checked against the booked timetable like a move). The block is held for
+that work, other work may share it alongside, and it is marked ADDED
+everywhere: no corridor data offered it, so it has no train-impact figure.
+Every page then shows the fixture plan
 with these applied, replanned with the same keep-the-current-plan
 tie-break, so only work that has to move does. What-if scenarios start
 from this plan. The view chosen on the first page only changes which pages
 the nav shows: there is no login, and every page stays reachable by URL.
 
 Every block carries a `data_source` field (`"ntes_live"` vs
-`"synthetic"`), surfaced as a badge in the detail panel and an Overview
+`"synthetic"`, or `"added"` for a block added by hand), surfaced as a badge in the detail panel and an Overview
 KPI, so real and synthetic numbers are never presented identically. A
 block only counts as real when it falls in a window the adapter has
 observations for.
