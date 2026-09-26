@@ -11,6 +11,9 @@ export type Horizon = "WEEKLY";
 
 export type DataSource = "synthetic" | "ntes_live";
 
+// "reported" = entered on the Report Defect page, not the generated backlog.
+export type TaskSource = "synthetic" | "reported";
+
 export interface TaskSummary {
   task_id: string;
   department: Department;
@@ -30,6 +33,7 @@ export interface TaskSummary {
   scheduled: boolean;
   block_id: string | null;
   reason: string;
+  data_source: TaskSource;
 }
 
 export interface ScheduledBlockSummary {
@@ -81,6 +85,7 @@ export interface PlanResponse {
 export type Disruption =
   | { kind: "cancel_block"; block_id: string }
   | { kind: "curtail_block"; block_id: string; minutes_lost: number }
+  | { kind: "move_block"; block_id: string; new_start: string; duration_min?: number }
   | {
       kind: "urgent_defect";
       section: string;
@@ -109,6 +114,39 @@ export interface WhatIfResponse {
   sections: { section: string; before: SectionPlanResult; after: SectionPlanResult }[];
   changes: TaskChange[];
   replan_seconds: number;
+}
+
+// Field reports and control decisions: /api/operations (backend/app/schemas/operations.py).
+export interface DefectReportRequest {
+  section: string;
+  department: Department;
+  defect_type: string;
+  km_from: number;
+  km_to: number;
+  severity_code: SeverityCode;
+  est_duration_min: number;
+  block_type_required: BlockType;
+  description: string;
+  reported_by: string;
+}
+
+export interface DefectReport extends DefectReportRequest {
+  report_id: string; // also the task_id it is planned under
+  reported_at: string;
+}
+
+export type BlockDecisionKind = "granted" | "granted_late" | "rescheduled" | "cancelled";
+
+export interface BlockDecision {
+  block_id: string;
+  section: string;
+  planned_start: string;
+  planned_end: string;
+  decision: BlockDecisionKind;
+  minutes_lost: number;
+  decided_at: string;
+  new_start: string | null; // set only when rescheduled
+  new_end: string | null;
 }
 
 // Mirrors ntes-adapter's models.py, proxied through /api/corridors/{section}/trains.

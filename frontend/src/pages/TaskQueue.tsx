@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import DepartmentBadge from "../components/DepartmentBadge";
+import ReportedBadge from "../components/ReportedBadge";
 import SeverityBadge from "../components/SeverityBadge";
 import TaskDetailPanel from "../components/TaskDetailPanel";
 import { usePlan } from "../context/PlanContext";
@@ -112,7 +113,10 @@ export default function TaskQueue() {
               onClick={() => setSelected(task)}
               style={{ borderTop: "1px solid #f1f5f9", fontSize: 13, cursor: "pointer" }}
             >
-              <td style={{ padding: "8px" }}>{task.task_id}</td>
+              <td style={{ padding: "8px" }}>
+                {task.task_id}
+                {task.data_source === "reported" && <ReportedBadge />}
+              </td>
               <td style={{ padding: "8px" }}>
                 <DepartmentBadge department={task.department} />
               </td>

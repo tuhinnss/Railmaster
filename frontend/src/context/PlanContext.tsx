@@ -7,6 +7,10 @@ interface PlanContextValue {
   loading: boolean;
   error: string | null;
   refresh: () => void;
+  // Refetches without the loading state, so a page that just changed the
+  // plan (a report, a control decision) keeps its content on screen, and
+  // resolves to the new plan so that page can say what changed.
+  reload: () => Promise<PlanResponse>;
 }
 
 const PlanContext = createContext<PlanContextValue | null>(null);
@@ -25,12 +29,22 @@ export function PlanProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
+  const reload = useCallback(
+    () =>
+      fetchPlan("WEEKLY").then((next) => {
+        setPlan(next);
+        setError(null);
+        return next;
+      }),
+    []
+  );
+
   useEffect(() => {
     load();
   }, [load]);
 
   return (
-    <PlanContext.Provider value={{ plan, loading, error, refresh: load }}>
+    <PlanContext.Provider value={{ plan, loading, error, refresh: load, reload }}>
       {children}
     </PlanContext.Provider>
   );

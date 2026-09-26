@@ -2,6 +2,7 @@ import { useState } from "react";
 import { runWhatIf } from "../api/client";
 import SafetyChecks from "../components/SafetyChecks";
 import { BLOCK_TYPE_LABELS } from "../constants/colors";
+import { DEFAULT_BLOCK_TYPE, DEFECT_TYPES } from "../constants/defects";
 import { usePlan } from "../context/PlanContext";
 import type {
   BlockType,
@@ -14,20 +15,6 @@ import type {
 } from "../types";
 import { hhmm } from "../utils/time";
 
-// Mirrors DEFECT_TYPES in backend/app/datagen/reference_data.py, so an
-// injected defect reads like the rest of the backlog.
-const DEFECT_TYPES: Record<Department, string[]> = {
-  Engineering: ["rail_fracture_risk", "ballast_deficiency", "track_geometry_defect", "joint_wear", "formation_failure"],
-  TRD: ["ohe_wire_wear", "insulator_damage", "feeder_fault", "isolator_failure", "earthing_defect"],
-  "S&T": ["signal_relay_fault", "point_machine_defect", "cable_fault", "interlocking_fault", "level_crossing_fault"],
-};
-
-const DEFAULT_BLOCK_TYPE: Record<Department, BlockType> = {
-  Engineering: "traffic",
-  TRD: "power",
-  "S&T": "traffic",
-};
-
 const CHANGE_LABELS: Record<TaskChangeKind, { text: string; color: string }> = {
   dropped: { text: "Dropped", color: "#dc2626" },
   new_unscheduled: { text: "New · not placed", color: "#dc2626" },
@@ -36,11 +23,14 @@ const CHANGE_LABELS: Record<TaskChangeKind, { text: string; color: string }> = {
   added: { text: "Now placed", color: "#15803d" },
 };
 
-type Kind = Disruption["kind"];
+// Moving a block is a control-office decision (Block Decisions page); the
+// scenario form offers the other three.
+type Kind = Exclude<Disruption["kind"], "move_block">;
 
 function describe(d: Disruption): string {
   if (d.kind === "cancel_block") return `Cancel ${d.block_id}`;
   if (d.kind === "curtail_block") return `${d.block_id} granted ${d.minutes_lost} min late`;
+  if (d.kind === "move_block") return `${d.block_id} moved to ${d.new_start.replace("T", " ")}`;
   return `New sev-${d.severity_code ?? "A"} ${d.department} defect (${d.defect_type.replaceAll("_", " ")}) at km ${d.km_from}–${d.km_to} in ${d.section}, ${d.est_duration_min} min ${BLOCK_TYPE_LABELS[d.block_type_required].toLowerCase()}`;
 }
 
@@ -365,7 +355,8 @@ export default function WhatIf() {
           margin: "12px 0 16px",
         }}
       >
-        Scenarios are never saved. The published plan and its data stay exactly as they are.
+        Scenarios start from the current plan, including field reports and control decisions, and are never
+        saved. The published plan and its data stay exactly as they are.
       </div>
 
       <DisruptionForm sections={plan.sections} onAdd={(d) => setScenario((s) => [...s, d])} />

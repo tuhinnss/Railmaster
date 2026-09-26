@@ -1,5 +1,9 @@
 import type {
+  BlockDecision,
+  BlockDecisionKind,
   CorridorBlock,
+  DefectReport,
+  DefectReportRequest,
   Disruption,
   Horizon,
   LiveCorridorStatus,
@@ -29,14 +33,27 @@ export async function apiGet<T>(path: string): Promise<T> {
   return res.json();
 }
 
-export async function apiPost<T>(path: string, body: unknown): Promise<T> {
+async function send<T>(method: "POST" | "PUT", path: string, body: unknown): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
-    method: "POST",
+    method,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   if (!res.ok) throw await failure(res);
   return res.json();
+}
+
+export function apiPost<T>(path: string, body: unknown): Promise<T> {
+  return send<T>("POST", path, body);
+}
+
+export function apiPut<T>(path: string, body: unknown): Promise<T> {
+  return send<T>("PUT", path, body);
+}
+
+export async function apiDelete(path: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}${path}`, { method: "DELETE" });
+  if (!res.ok) throw await failure(res);
 }
 
 export function fetchPlan(horizon: Horizon = "WEEKLY"): Promise<PlanResponse> {
@@ -45,6 +62,41 @@ export function fetchPlan(horizon: Horizon = "WEEKLY"): Promise<PlanResponse> {
 
 export function runWhatIf(disruptions: Disruption[], horizon: Horizon = "WEEKLY"): Promise<WhatIfResponse> {
   return apiPost<WhatIfResponse>(`/plans/${horizon}/what-if`, { disruptions });
+}
+
+export function fetchReports(): Promise<DefectReport[]> {
+  return apiGet<DefectReport[]>("/operations/reports");
+}
+
+export function submitReport(report: DefectReportRequest): Promise<DefectReport> {
+  return apiPost<DefectReport>("/operations/reports", report);
+}
+
+export function withdrawReport(reportId: string): Promise<void> {
+  return apiDelete(`/operations/reports/${encodeURIComponent(reportId)}`);
+}
+
+export function fetchDecisions(): Promise<BlockDecision[]> {
+  return apiGet<BlockDecision[]>("/operations/decisions");
+}
+
+// newStart is local wall-clock time, "YYYY-MM-DDTHH:MM" with no zone -- the
+// same naive local time every block in the plan is expressed in.
+export function decideBlock(
+  blockId: string,
+  decision: BlockDecisionKind,
+  opts: { minutesLost?: number; newStart?: string; durationMin?: number } = {}
+): Promise<BlockDecision> {
+  return apiPut<BlockDecision>(`/operations/decisions/${encodeURIComponent(blockId)}`, {
+    decision,
+    minutes_lost: opts.minutesLost ?? 0,
+    new_start: opts.newStart ?? null,
+    duration_min: opts.durationMin ?? null,
+  });
+}
+
+export function undoDecision(blockId: string): Promise<void> {
+  return apiDelete(`/operations/decisions/${encodeURIComponent(blockId)}`);
 }
 
 export function fetchDefects(): Promise<TaskSummary[]> {

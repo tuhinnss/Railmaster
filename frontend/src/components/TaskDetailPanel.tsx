@@ -1,5 +1,6 @@
 import DepartmentBadge from "./DepartmentBadge";
 import RealDataBadge from "./RealDataBadge";
+import ReportedBadge from "./ReportedBadge";
 import SeverityBadge from "./SeverityBadge";
 import { DEPARTMENT_COLORS } from "../constants/colors";
 import type { SectionPlanResult, TaskSummary } from "../types";
@@ -62,7 +63,10 @@ export default function TaskDetailPanel({ task, section, onClose }: Props) {
       <div style={{ marginBottom: 4 }}>
         <DepartmentBadge department={task.department} />
       </div>
-      <h2 style={{ fontSize: 16, margin: "4px 0" }}>{task.task_id}</h2>
+      <h2 style={{ fontSize: 16, margin: "4px 0" }}>
+        {task.task_id}
+        {task.data_source === "reported" && <ReportedBadge />}
+      </h2>
       <div style={{ fontSize: 13, color: "#475569", marginBottom: 12 }}>
         {task.defect_type.replaceAll("_", " ")} · {task.section}
       </div>
