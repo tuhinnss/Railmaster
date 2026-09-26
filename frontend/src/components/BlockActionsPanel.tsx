@@ -15,6 +15,7 @@ import { DECISION_STATUS, decidedEnd, decidedStart, span, workKmRange } from "..
 export default function BlockActionsPanel({
   section,
   blockId,
+  addedFor,
   decision,
   planDays,
   busy,
@@ -26,6 +27,7 @@ export default function BlockActionsPanel({
 }: {
   section: SectionPlanResult;
   blockId: string;
+  addedFor: string | undefined; // set when the control office added this block
   decision: BlockDecision | undefined;
   planDays: string[];
   busy: boolean;
@@ -79,6 +81,11 @@ export default function BlockActionsPanel({
           <div style={{ color: "#64748b", marginTop: 2 }}>
             {minutes} min{block && ` · ${BLOCK_TYPE_LABELS[block.block_type_possible]} block · ${block.used_min} of ${block.duration_min} min used`}
           </div>
+        </div>
+      )}
+      {addedFor && (
+        <div style={{ fontSize: 12, color: "#475569", marginTop: 4 }}>
+          <strong>ADDED</strong> by the control office for {addedFor}; remove it under Work that didn't fit.
         </div>
       )}
       {decision?.decision === "rescheduled" && (

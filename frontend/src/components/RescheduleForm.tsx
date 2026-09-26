@@ -60,22 +60,29 @@ function TimetableLine({ check, kmFrom, kmTo }: { check: TimetableCheck; kmFrom:
 
 // New day, start time and length for a block, checked against the booked
 // timetable as you choose. The days on offer are the plan week only; the
-// backend refuses anything outside it.
+// backend refuses anything outside it. Also used to add a block for work
+// that didn't fit (actionLabel, minMinutes and note say so).
 export default function RescheduleForm({
   section,
   kmRange,
   start,
   minutes,
+  minMinutes = 15,
   planDays,
   busy,
+  actionLabel = "Move block",
+  note = "The week is re-planned around the new time; work that no longer fits moves or drops out.",
   onMove,
 }: {
   section: string;
   kmRange: [number, number];
   start: string;
   minutes: number;
+  minMinutes?: number;
   planDays: string[];
   busy: boolean;
+  actionLabel?: string;
+  note?: string;
   onMove: (newStart: string, durationMin: number) => void;
 }) {
   const [day, setDay] = useState(dayKey(start));
@@ -155,7 +162,7 @@ export default function RescheduleForm({
           Length (min)
           <input
             type="number"
-            min={15}
+            min={minMinutes}
             step={15}
             value={length}
             onChange={(e) => {
@@ -166,11 +173,11 @@ export default function RescheduleForm({
           />
         </label>
         <button
-          disabled={busy || !time || length <= 0}
+          disabled={busy || !time || length < minMinutes}
           onClick={() => onMove(chosenStart, length)}
           style={{ fontSize: 12, padding: "4px 10px", cursor: "pointer", color: MOVE_COLOR, fontWeight: 600 }}
         >
-          Move block
+          {actionLabel}
         </button>
         <button
           disabled={suggesting || length <= 0}
@@ -226,9 +233,10 @@ export default function RescheduleForm({
         </div>
       )}
 
-      <div style={{ marginTop: 8, fontSize: 11 }}>
-        The week is re-planned around the new time; work that no longer fits moves or drops out.
-      </div>
+      {length < minMinutes && (
+        <div style={{ marginTop: 8, color: "#b91c1c" }}>Too short: at least {minMinutes} min is needed.</div>
+      )}
+      <div style={{ marginTop: 8, fontSize: 11 }}>{note}</div>
     </div>
   );
 }

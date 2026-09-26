@@ -1,4 +1,5 @@
 import type {
+  AddedBlock,
   BlockDecision,
   BlockDecisionKind,
   CorridorBlock,
@@ -99,6 +100,19 @@ export function decideBlock(
 
 export function undoDecision(blockId: string): Promise<void> {
   return apiDelete(`/operations/decisions/${encodeURIComponent(blockId)}`);
+}
+
+export function fetchAddedBlocks(): Promise<AddedBlock[]> {
+  return apiGet<AddedBlock[]>("/operations/added-blocks");
+}
+
+// start is local wall-clock time with no zone, like decideBlock's newStart.
+export function addBlock(taskId: string, start: string, durationMin: number): Promise<AddedBlock> {
+  return apiPost<AddedBlock>("/operations/added-blocks", { task_id: taskId, start, duration_min: durationMin });
+}
+
+export function removeAddedBlock(blockId: string): Promise<void> {
+  return apiDelete(`/operations/added-blocks/${encodeURIComponent(blockId)}`);
 }
 
 export function fetchDefects(): Promise<TaskSummary[]> {

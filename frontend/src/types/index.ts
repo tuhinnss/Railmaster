@@ -9,7 +9,9 @@ export type BlockType = "traffic" | "power" | "traffic_and_power";
 
 export type Horizon = "WEEKLY";
 
-export type DataSource = "synthetic" | "ntes_live";
+// "added" = a block the control office added for work that didn't fit; no
+// corridor data offered it.
+export type DataSource = "synthetic" | "ntes_live" | "added";
 
 // "reported" = entered on the Report Defect page, not the generated backlog.
 export type TaskSource = "synthetic" | "reported";
@@ -24,6 +26,7 @@ export interface TaskSummary {
   days_overdue: number;
   block_type_required: BlockType;
   est_duration_min: number;
+  depends_on: string[];
   priority_score: number;
   criticality: number;
   urgency: number;
@@ -138,6 +141,19 @@ export interface DefectReport extends Omit<DefectReportRequest, "severity_score"
 }
 
 export type BlockDecisionKind = "granted" | "granted_late" | "rescheduled" | "cancelled";
+
+// A block the control office added for work that didn't fit. Held for that
+// task; other work may share it alongside.
+export interface AddedBlock {
+  block_id: string;
+  section: string;
+  start_time: string;
+  end_time: string;
+  duration_min: number;
+  block_type_possible: BlockType;
+  for_task: string;
+  added_at: string;
+}
 
 export interface BlockDecision {
   block_id: string;

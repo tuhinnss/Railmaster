@@ -1,6 +1,7 @@
 import { useState } from "react";
 import BlockActionsPanel from "../components/BlockActionsPanel";
 import CorridorMap from "../components/CorridorMap";
+import UnscheduledWork from "../components/UnscheduledWork";
 import { usePlan } from "../context/PlanContext";
 import { useBlockDecisions } from "../hooks/useBlockDecisions";
 import type { SectionPlanResult } from "../types";
@@ -162,6 +163,7 @@ export default function Overview() {
             onClick={() => {
               setSelected(key);
               setOpenBlock(null);
+              ops.setMessage(null);
             }}
             style={{
               fontSize: 12,
@@ -214,10 +216,25 @@ export default function Overview() {
         />
       )}
 
+      {current && (
+        <UnscheduledWork
+          section={current}
+          planDays={planDaysOf(plan.sections)}
+          added={ops.added}
+          decisionOf={ops.decisionOf}
+          busy={ops.busy}
+          // The side panel shows the outcome of its own actions.
+          message={openBlock ? null : ops.message}
+          onAdd={(task, start, minutes) => ops.add(current, task, start, minutes)}
+          onRemove={(blockId) => ops.removeAdded(current, blockId)}
+        />
+      )}
+
       {current && openBlock && (
         <BlockActionsPanel
           section={current}
           blockId={openBlock}
+          addedFor={ops.addedOf.get(openBlock)?.for_task}
           decision={ops.decisionOf.get(openBlock)}
           planDays={planDaysOf(plan.sections)}
           busy={ops.busy}

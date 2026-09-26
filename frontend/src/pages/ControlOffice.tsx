@@ -26,6 +26,7 @@ const inputStyle = { fontSize: 12, padding: "3px 5px", border: "1px solid #cbd5e
 
 function BlockCard({
   block,
+  addedFor,
   decision,
   section,
   planDays,
@@ -34,6 +35,7 @@ function BlockCard({
   onUndo,
 }: {
   block: ScheduledBlockSummary | null; // null when the plan no longer uses it (cancelled, or nothing fits)
+  addedFor: string | undefined; // set when the control office added this block
   decision: BlockDecision | undefined;
   section: SectionPlanResult;
   planDays: string[];
@@ -75,6 +77,11 @@ function BlockCard({
             {" · "}
             {blockId}
           </span>
+          {addedFor && (
+            <div style={{ fontSize: 11.5, color: "#475569", marginTop: 2 }}>
+              <strong>ADDED</strong> by the control office for {addedFor}.
+            </div>
+          )}
           {decision?.decision === "granted_late" && (
             <div style={{ fontSize: 11.5, color: status.color, marginTop: 2 }}>
               Planned {hhmm(decision.planned_start)}–{hhmm(decision.planned_end)}; granted {decision.minutes_lost} min late.
@@ -295,6 +302,7 @@ export default function ControlOffice() {
             <BlockCard
               key={`${id}-${decision?.decided_at ?? "none"}`}
               block={block}
+              addedFor={ops.addedOf.get(id)?.for_task}
               decision={decision}
               section={current}
               planDays={planDays}
