@@ -17,6 +17,11 @@ Mechanics (confirmed by live investigation, Sept 2026):
 4. The response is a full server-rendered HTML page, not JSON -- parsed
    by ntes_parser.parse_live_station_html.
 
+A second query, "Trains between stations", gives the booked timetable
+both ways along a corridor (confirmed 2026-09-26, same session + CSRF
+mechanics). The poller asks for it about once a day per corridor, not on
+every cycle -- a timetable doesn't change between polls.
+
 Respect NTES's own behavior: no retry storms, no bypassing CAPTCHA (none
 was encountered on this specific query during investigation, but nothing
 here should be built assuming that holds under heavy or automated load),
@@ -30,10 +35,11 @@ from datetime import datetime
 
 import httpx
 
-from app.config import CORRIDORS
-from app.models import StationLiveBoard
+from app.config import CORRIDORS, TIMETABLE_QUERY_GAP_SECONDS, Corridor
+from app.models import CorridorTimetable, StationLiveBoard, TimetabledTrain
 from app.providers.base import RailwayDataProvider
 from app.providers.ntes_parser import parse_live_station_html
+from app.providers.timetable_parser import parse_trains_between_html
 
 BASE_URL = "https://enquiry.indianrail.gov.in/mntes"
 USER_AGENT = (
@@ -109,3 +115,39 @@ class NTESProvider(RailwayDataProvider):
         )
         resp.raise_for_status()
         return parse_live_station_html(resp.text, station_code, query_time, window_hours)
+
+    def _trains_between(self, from_code: str, from_name: str, to_code: str, to_name: str) -> list[TimetabledTrain]:
+        """POST /mntes/q?opt=TrainsBetweenStation&subOpt=tbs -- the query behind
+        the site's own "Trains B/w Stations" menu (onTBS() in mntes.js), with
+        the fields its form frmTBS submits. Confirmed 2026-09-26: no CAPTCHA,
+        full-day result with running days. See README."""
+        self._ensure_session()
+        csrf_name, csrf_value = self._get_csrf_field()
+        resp = self._client.post(
+            "/q",
+            params={"opt": "TrainsBetweenStation", "subOpt": "tbs"},
+            data={
+                "jFromStationInput": f"{from_code} - {from_name}",
+                "jToStationInput": f"{to_code} - {to_name}",
+                "appLang": "en",
+                csrf_name: csrf_value,
+            },
+        )
+        resp.raise_for_status()
+        return parse_trains_between_html(resp.text)
+
+    def get_timetable(self, corridor: Corridor) -> CorridorTimetable:
+        a_to_b = self._trains_between(
+            corridor.station_a, corridor.station_a_name, corridor.station_b, corridor.station_b_name
+        )
+        time.sleep(TIMETABLE_QUERY_GAP_SECONDS)  # two queries, not a burst
+        b_to_a = self._trains_between(
+            corridor.station_b, corridor.station_b_name, corridor.station_a, corridor.station_a_name
+        )
+        return CorridorTimetable(
+            corridor=corridor.corridor_id,
+            fetched_at=datetime.now(),
+            provider=self.name,
+            a_to_b=a_to_b,
+            b_to_a=b_to_a,
+        )

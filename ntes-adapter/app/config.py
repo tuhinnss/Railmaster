@@ -46,6 +46,14 @@ POLL_INTERVAL_SECONDS = 60
 POLL_MAX_BACKOFF_SECONDS = 600
 STALE_THRESHOLD_SECONDS = 300  # ~5x the poll interval
 
+# Booked timetables ("Trains between stations"). A timetable changes at most
+# a few times a year, so each corridor is re-fetched about daily: two
+# queries per corridor, spaced apart, one corridor per poll cycle, and a
+# failed fetch waits before trying again rather than retrying every cycle.
+TIMETABLE_MAX_AGE_HOURS = 24
+TIMETABLE_RETRY_MINUTES = 60
+TIMETABLE_QUERY_GAP_SECONDS = 3
+
 # How many nights of self-collected data to roll into a frequency prediction.
 FREQUENCY_LOOKBACK_NIGHTS = 90
 

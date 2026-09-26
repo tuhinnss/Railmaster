@@ -7,7 +7,8 @@ whether the data came from NTESProvider or MockProvider.
 
 from abc import ABC, abstractmethod
 
-from app.models import StationLiveBoard
+from app.config import Corridor
+from app.models import CorridorTimetable, StationLiveBoard
 
 
 class RailwayDataProvider(ABC):
@@ -31,3 +32,10 @@ class RailwayDataProvider(ABC):
         for each provider (NTESProvider: NTES's own next-N-hours board;
         MockProvider: canned, deterministic)."""
         raise NotImplementedError
+
+    def get_timetable(self, corridor: Corridor) -> CorridorTimetable | None:
+        """The booked timetable both ways along a corridor, from NTES's
+        "Trains between stations" query. None means this provider has no
+        timetable for it (the default -- mock has none, rather than an
+        invented one); a failed fetch raises, like get_live_station."""
+        return None

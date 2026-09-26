@@ -1,14 +1,19 @@
 """Booked timetables: the "Trains between stations" parser against the
-real responses captured on 2026-09-26."""
+real responses captured on 2026-09-26, and the providers."""
 
+from datetime import datetime
 from pathlib import Path
 
 import pytest
 
+from app.config import CORRIDORS
 from app.models import TimetabledTrain
+from app.providers.fixture_provider import CapturedFixtureProvider
+from app.providers.mock_provider import MockProvider
 from app.providers.timetable_parser import parse_trains_between_html
 
 FIXTURES = Path(__file__).parent / "fixtures"
+CORRIDOR = {c.corridor_id: c for c in CORRIDORS}
 
 
 def captured(name: str) -> str:
@@ -65,3 +70,18 @@ def test_unknown_running_days_are_refused():
     html = captured("GHY_LMG").replace("Daily | Mail Express", "Alternate days | Mail Express", 1)
     with pytest.raises(ValueError, match="running days"):
         parse_trains_between_html(html)
+
+
+# --- providers ---------------------------------------------------------------
+
+
+def test_fixture_timetable_reports_its_capture_time_not_today():
+    timetable = CapturedFixtureProvider().get_timetable(CORRIDOR["NDLS-GZB"])
+    assert timetable.provider == "captured_fixture"
+    assert timetable.fetched_at == datetime(2026, 9, 26, 13, 10)
+    assert (len(timetable.a_to_b), len(timetable.b_to_a)) == (160, 169)
+
+
+def test_uncaptured_and_mock_timetables_are_absent_not_invented():
+    assert CapturedFixtureProvider().get_timetable(CORRIDOR["LMG-RNY"]) is None
+    assert MockProvider().get_timetable(CORRIDOR["GHY-LMG"]) is None
