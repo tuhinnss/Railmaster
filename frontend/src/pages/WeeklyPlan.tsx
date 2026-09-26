@@ -184,7 +184,7 @@ function BlockDetail({
 
 export default function WeeklyPlan() {
   const { plan, loading, error } = usePlan();
-  const [sectionFilter, setSectionFilter] = useState("ALL");
+  const [selected, setSelected] = useState<string | null>(null);
   const [openBlock, setOpenBlock] = useState<{ blockId: string; section: string } | null>(null);
   const [selectedTask, setSelectedTask] = useState<{ task: TaskSummary; section: SectionPlanResult } | null>(null);
 
@@ -194,8 +194,11 @@ export default function WeeklyPlan() {
   if (error) return <p style={{ color: "#dc2626" }}>Failed to load plan: {error}</p>;
   if (!plan) return null;
 
-  const sections = sectionFilter === "ALL" ? plan.sections : plan.sections.filter((s) => s.section === sectionFilter);
-  const openSection = openBlock ? plan.sections.find((s) => s.section === openBlock.section) : undefined;
+  // One section at a time, as on the Overview. Defaults to the first section.
+  const current = plan.sections.find((s) => s.section === selected) ?? plan.sections[0];
+  const sections = current ? [current] : [];
+  // A block opened on another section stays closed when you switch away from it.
+  const openSection = openBlock && openBlock.section === current?.section ? current : undefined;
   const openBlockData = openSection?.blocks.find((b) => b.block_id === openBlock?.blockId);
   const unscheduled = sections.flatMap((s) => s.tasks.filter((t) => !t.scheduled).map((t) => ({ t, s })));
 
@@ -213,7 +216,7 @@ export default function WeeklyPlan() {
           )}
         </h1>
         <Link
-          to={sectionFilter === "ALL" ? "/print" : `/print?section=${encodeURIComponent(sectionFilter)}`}
+          to={current ? `/print?section=${encodeURIComponent(current.section)}` : "/print"}
           target="_blank"
           style={{ fontSize: 12 }}
         >
@@ -223,21 +226,21 @@ export default function WeeklyPlan() {
 
       <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 12, flexWrap: "wrap" }}>
         <span style={{ fontSize: 12, color: "#64748b" }}>Section</span>
-        {["ALL", ...plan.sections.map((s) => s.section)].map((key) => (
+        {plan.sections.map((s) => s.section).map((key) => (
           <button
             key={key}
-            onClick={() => setSectionFilter(key)}
+            onClick={() => setSelected(key)}
             style={{
               fontSize: 12,
               padding: "4px 11px",
               borderRadius: 5,
               cursor: "pointer",
-              border: key === sectionFilter ? "1px solid #0f172a" : "1px solid #cbd5e1",
-              background: key === sectionFilter ? "#0f172a" : "white",
-              color: key === sectionFilter ? "white" : "#475569",
+              border: key === current?.section ? "1px solid #0f172a" : "1px solid #cbd5e1",
+              background: key === current?.section ? "#0f172a" : "white",
+              color: key === current?.section ? "white" : "#475569",
             }}
           >
-            {key === "ALL" ? "All sections" : key}
+            {key}
           </button>
         ))}
       </div>
