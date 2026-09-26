@@ -12,7 +12,9 @@ from app.models.enums import BlockType, Department, SeverityCode
 class DefectReportRequest(BaseModel):
     section: str
     department: Department
-    defect_type: str
+    # In the reporter's own words. Only ever shown, never used to plan, so
+    # it isn't held to the generator's list of defect types.
+    defect_type: str = Field(max_length=80)
     km_from: float
     km_to: float
     severity_code: SeverityCode

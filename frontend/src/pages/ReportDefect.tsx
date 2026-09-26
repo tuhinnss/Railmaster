@@ -49,7 +49,7 @@ export default function ReportDefect() {
 
   const [section, setSection] = useState<string | null>(null);
   const [department, setDepartment] = useState<Department>("Engineering");
-  const [defectType, setDefectType] = useState(DEFECT_TYPES.Engineering[0]);
+  const [defectType, setDefectType] = useState("");
   const [severity, setSeverity] = useState<SeverityCode>("B");
   const [kmFrom, setKmFrom] = useState<number | null>(null);
   const [kmTo, setKmTo] = useState<number | null>(null);
@@ -86,11 +86,14 @@ export default function ReportDefect() {
 
   const pickDepartment = (d: Department) => {
     setDepartment(d);
-    setDefectType(DEFECT_TYPES[d][0]);
     setBlockType(DEFAULT_BLOCK_TYPE[d]);
   };
 
   const submit = () => {
+    if (!defectType.trim()) {
+      setSubmitError("Say what the defect is.");
+      return;
+    }
     setSubmitting(true);
     setSubmitError(null);
     submitReport({
@@ -109,6 +112,7 @@ export default function ReportDefect() {
         Promise.all([reload(), fetchReports()]).then(([, list]) => {
           setReports(list);
           setLastReport(created.report_id);
+          setDefectType("");
           setDescription("");
         })
       )
@@ -170,13 +174,13 @@ export default function ReportDefect() {
             </select>
           </Field>
           <Field label="Defect">
-            <select value={defectType} onChange={(e) => setDefectType(e.target.value)} style={fieldStyle}>
-              {DEFECT_TYPES[department].map((t) => (
-                <option key={t} value={t}>
-                  {t.replaceAll("_", " ")}
-                </option>
-              ))}
-            </select>
+            <input
+              value={defectType}
+              maxLength={80}
+              placeholder="e.g. rail fracture risk"
+              onChange={(e) => setDefectType(e.target.value)}
+              style={{ ...fieldStyle, width: 230 }}
+            />
           </Field>
           <Field label="Severity">
             <select value={severity} onChange={(e) => setSeverity(e.target.value as SeverityCode)} style={fieldStyle}>

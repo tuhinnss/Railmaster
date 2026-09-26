@@ -24,7 +24,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from app.datagen.generate import REPO_ROOT
-from app.datagen.reference_data import DEFECT_TYPES, DEPARTMENT_TASK_ID_PREFIX
+from app.datagen.reference_data import DEPARTMENT_TASK_ID_PREFIX
 from app.models.block import BlockOpportunity
 from app.models.enums import SeverityCode
 from app.models.task import MaintenanceTask
@@ -75,10 +75,11 @@ def list_reports() -> list[DefectReport]:
 
 def add_report(request: DefectReportRequest, now: datetime) -> DefectReport:
     """Raises ValueError for a report that can't be planned (km outside the
-    section, a defect type that isn't that department's)."""
+    section) or doesn't say what was found."""
     check_km_range(request.section, request.km_from, request.km_to)
-    if request.defect_type not in DEFECT_TYPES[request.department]:
-        raise ValueError(f"{request.defect_type!r} is not a {request.department.value} defect type")
+    defect_type = " ".join(request.defect_type.split())
+    if not defect_type:
+        raise ValueError("Say what the defect is")
 
     with _lock:
         data = _read(REPORTS_FILE, {"next_seq": 1, "reports": []})
@@ -86,7 +87,8 @@ def add_report(request: DefectReportRequest, now: datetime) -> DefectReport:
         # never handed to a different defect.
         seq = data["next_seq"]
         report = DefectReport(
-            **request.model_dump(),
+            **request.model_dump(exclude={"defect_type"}),
+            defect_type=defect_type,
             report_id=f"{DEPARTMENT_TASK_ID_PREFIX[request.department]}-RPT-{seq:02d}",
             reported_at=now,
         )

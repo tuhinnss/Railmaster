@@ -120,7 +120,7 @@ export interface WhatIfResponse {
 export interface DefectReportRequest {
   section: string;
   department: Department;
-  defect_type: string;
+  defect_type: string; // free text, as the reporter describes it
   km_from: number;
   km_to: number;
   severity_code: SeverityCode;

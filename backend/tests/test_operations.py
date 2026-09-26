@@ -58,13 +58,18 @@ def test_reports_persist_and_ids_are_never_reused():
     [
         {"km_from": 170.0, "km_to": 190.0},  # runs past the section end
         {"section": "NOPE-NOPE"},
-        {"defect_type": "feeder_fault"},  # a TRD defect filed as Engineering
+        {"defect_type": "   "},  # says nothing about what was found
     ],
 )
 def test_unplannable_reports_are_rejected(overrides):
     with pytest.raises(ValueError):
         add_report(report_request(**overrides), NOW)
     assert list_reports() == []
+
+
+def test_the_defect_is_free_text_kept_as_typed():
+    report = add_report(report_request(department="TRD", defect_type="  Dropper   snapped near OHE mast 61/4 "), NOW)
+    assert report.defect_type == "Dropper snapped near OHE mast 61/4"
 
 
 def test_reported_defects_become_labelled_tasks_with_severity_due_dates():
