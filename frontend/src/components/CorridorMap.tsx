@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import AddedBadge from "./AddedBadge";
 import { DEPARTMENT_COLORS, REAL_DATA_COLOR } from "../constants/colors";
 import type { Department, SectionPlanResult, TaskSummary } from "../types";
 
@@ -36,6 +37,7 @@ export interface PositionedBlock {
   taskCount: number;
   tasks: TaskSummary[];
   isRealData: boolean;
+  isAdded: boolean; // added by the control office for work that didn't fit
   startTime: string;
   endTime: string;
 }
@@ -59,6 +61,7 @@ export function positionBlocks(section: SectionPlanResult): PositionedBlock[] {
         taskCount: tasks.length,
         tasks,
         isRealData: block.data_source === "ntes_live",
+        isAdded: block.data_source === "added",
         startTime: block.start_time,
         endTime: block.end_time,
       },
@@ -264,7 +267,8 @@ function CorridorLine({
                           borderRadius: 3,
                           overflow: "hidden",
                           cursor: "pointer",
-                          border: "1px solid #0f172a",
+                          // Dashed, like the ADDED badge: no corridor data offered this block.
+                          border: `1px ${b.isAdded ? "dashed" : "solid"} #0f172a`,
                           boxShadow: b.isRealData ? `0 0 0 2px ${REAL_DATA_COLOR}` : "none",
                           // Outline, not the shadow, marks the selected block, so
                           // a selected real-data block still shows both.
@@ -367,6 +371,7 @@ function HoverCard({ block, x, y }: { block: PositionedBlock; x: number; y: numb
             REAL NTES
           </span>
         )}
+        {block.isAdded && <AddedBadge />}
       </div>
 
       <table style={{ width: "100%", borderCollapse: "collapse" }}>

@@ -1,3 +1,4 @@
+import AddedBadge from "./AddedBadge";
 import DepartmentBadge from "./DepartmentBadge";
 import RealDataBadge from "./RealDataBadge";
 import ReportedBadge from "./ReportedBadge";
@@ -103,6 +104,7 @@ export default function TaskDetailPanel({ task, section, onClose }: Props) {
               Block {block.block_id}
             </h3>
             {block.data_source === "ntes_live" && <RealDataBadge />}
+            {block.data_source === "added" && <AddedBadge />}
           </div>
           <div style={{ fontSize: 13, marginBottom: 8 }}>
             {new Date(block.start_time).toLocaleString()} → {new Date(block.end_time).toLocaleTimeString()}

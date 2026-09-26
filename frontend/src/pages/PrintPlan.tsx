@@ -60,6 +60,7 @@ function Section({ s }: { s: SectionPlanResult }) {
               <td style={cell}>
                 {b.block_id}
                 {b.data_source === "ntes_live" && " ●"}
+                {b.data_source === "added" && " (added)"}
               </td>
               <td style={cell}>{BLOCK_TYPE_LABELS[b.block_type_possible]}</td>
               <td style={cell}>
@@ -186,8 +187,9 @@ export default function PrintPlan() {
         <strong>Prototype output — not an operational document.</strong> Railmaster (SIH26027 prototype). Defect
         and block data come from a seeded synthetic generator. Blocks marked ● take their expected train impact from
         ntes-adapter's NTES-derived availability: a frequency count over nights the adapter has observed, which are
-        either measured by live polling or illustrative seed values, depending on how the adapter is run. No part of
-        this plan has been reviewed or approved by anyone.
+        either measured by live polling or illustrative seed values, depending on how the adapter is run. Blocks
+        marked (added) were added by hand for work that didn't fit and have no train-impact figure. No part of this
+        plan has been reviewed or approved by anyone.
       </div>
 
       <p style={{ fontSize: 10.5, margin: "0 0 18px", color: "#334155" }}>

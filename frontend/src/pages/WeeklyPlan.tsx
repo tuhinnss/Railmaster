@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import AddedBadge from "../components/AddedBadge";
 import RealDataBadge from "../components/RealDataBadge";
 import SafetyChecks from "../components/SafetyChecks";
 import SeverityBadge from "../components/SeverityBadge";
@@ -95,6 +96,7 @@ function BlockCard({
           {hhmm(block.start_time)}–{hhmm(block.end_time)}
         </span>
         {block.data_source === "ntes_live" && <RealDataBadge compact />}
+        {block.data_source === "added" && <AddedBadge />}
       </div>
       <div style={{ fontSize: 10.5, color: "#64748b" }}>{BLOCK_TYPE_LABELS[block.block_type_possible]}</div>
       <div style={{ fontSize: 10.5, color: "#334155", marginTop: 3, display: "flex", flexWrap: "wrap" }}>
@@ -142,6 +144,11 @@ function BlockDetail({
       {block.data_source === "ntes_live" && (
         <div style={{ marginTop: 6 }}>
           <RealDataBadge />
+        </div>
+      )}
+      {block.data_source === "added" && (
+        <div style={{ marginTop: 6, fontSize: 12, color: "#475569" }}>
+          <AddedBadge /> Added by the control office for work that didn't fit; it has no train-impact figure.
         </div>
       )}
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, marginTop: 10 }}>
