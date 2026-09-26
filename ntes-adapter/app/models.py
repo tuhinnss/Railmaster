@@ -61,6 +61,34 @@ class SectionOccupancyInterval(BaseModel):
     occupied_to: datetime
 
 
+class TimetabledTrain(BaseModel):
+    """One train from NTES's "Trains between stations" answer: its booked
+    times at the two ends and the days it runs. A timetable, not an
+    observation -- it says what should run, not what did."""
+
+    train_no: str
+    train_name: str
+    train_type: str  # NTES's own label: "Mail Express", "Emu", "Train On Demand", ...
+    # Weekday abbreviations ("Mon".."Sun"); all seven when NTES says "Daily".
+    # Which day these count from (departure from this station, or from the
+    # train's origin) is NOT confirmed -- see README.
+    running_days: list[str]
+    from_station: str  # NTES groups nearby stations: a Delhi query also lists DLI, ANVT, NZM...
+    departs: str  # "HH:MM"
+    to_station: str
+    arrives: str  # "HH:MM"; earlier than departs means the next day
+
+
+class CorridorTimetable(BaseModel):
+    corridor: str
+    # When this data was obtained from NTES. For captured_fixture that is
+    # the capture time, not today.
+    fetched_at: datetime
+    provider: str
+    a_to_b: list[TimetabledTrain]
+    b_to_a: list[TimetabledTrain]
+
+
 class PredictedWindow(BaseModel):
     corridor: str
     window: str
