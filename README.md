@@ -166,6 +166,11 @@ Known gaps, in rough priority order:
   whether a train's running days count from this station or its origin is
   unconfirmed. Nothing checks a moved block against other blocks either —
   two blocks on a section can overlap in time.
+- Demo seeding (`scripts.seed_demo_predictions`) makes blocks show the
+  REAL NTES DATA badge although their availability comes from invented
+  nights: the badge can't tell seeded history from observed history.
+  Leave seeding out unless that demo is needed, and never seed a live
+  data folder.
 - A reported defect's severity is a 1-10 score, planned by its band
   (8-10 is A, due today; 4-7 is B, due within 7 days; 1-3 is C, due
   within 30). Only the band counts, so a 9 and a 10 are planned alike.

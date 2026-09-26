@@ -277,6 +277,10 @@ scarce.
   and changes explanation wording, so an overdue severity-A task can lose
   a contested block to a higher-scoring severity-B task. Contradicts spec
   section 4; not yet fixed.
+- Seeded demo history isn't labelled downstream: after
+  `seed_demo_predictions`, blocks using it show the same REAL NTES DATA
+  badge as blocks built from observed nights (2026-09-27; see the adapter
+  README's correction). Breaks the provenance rule above; not yet fixed.
 - A reported defect is scored 1-10 and planned by the band the score
   falls in (`operations.SEVERITY_BANDS`: 8-10 A, 4-7 B, 1-3 C), whose due
   date comes from `operations.DUE_DAYS_BY_SEVERITY` (A today, B 7 days, C

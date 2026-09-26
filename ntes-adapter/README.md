@@ -245,7 +245,15 @@ and occupancy history (not the predictions cache directly — the poller
 recomputes that from the logs on every cycle, including at startup, so a
 directly-seeded cache entry gets overwritten within seconds). The seeded
 availability figures (`ILLUSTRATIVE_AVAILABILITY` in the script) are
-made up, not measured — labeled as such everywhere they surface.
+made up, not measured.
+
+**Correction (2026-09-27):** this used to say the seeded figures are
+"labeled as such everywhere they surface". They aren't. Once the backend
+uses them, the dashboard marks those blocks **REAL NTES DATA**
+(`frontend/src/components/RealDataBadge.tsx`), exactly as it marks blocks
+built from observed nights -- nothing downstream can tell the two apart.
+Checked on a fresh clone: after seeding, 25 blocks carried the badge.
+Until that is fixed, treat seeding as a demo of the mechanism only.
 
 **Never seed a data directory that live polling writes to.** The seeded
 nights and real nights land in the same logs and become indistinguishable,
