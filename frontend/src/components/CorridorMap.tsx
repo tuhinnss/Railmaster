@@ -25,6 +25,7 @@ const RULER_HEIGHT = 34;
 // their rules join into one line across the row.
 const ROW_PAD = 18;
 const ROW_RULE = "1px solid #cbd5e1";
+const SELECTED_COLOR = "#4338ca";
 
 export interface PositionedBlock {
   blockId: string;
@@ -165,10 +166,14 @@ function CorridorLine({
   chain,
   onHover,
   onLeave,
+  onSelect,
+  selectedId,
 }: {
   chain: SectionPlanResult[];
   onHover: (block: PositionedBlock, e: React.MouseEvent) => void;
   onLeave: () => void;
+  onSelect?: (block: PositionedBlock) => void;
+  selectedId?: string | null;
 }) {
   const runs = useMemo(() => buildRuns(chain, PX_PER_KM), [chain]);
   const totalBlocks = chain.reduce((n, s) => n + s.blocks.length, 0);
@@ -251,6 +256,7 @@ function CorridorLine({
                         onMouseEnter={(e) => onHover(b, e)}
                         onMouseMove={(e) => onHover(b, e)}
                         onMouseLeave={onLeave}
+                        onClick={onSelect ? () => onSelect(b) : undefined}
                         style={{
                           display: "flex",
                           height: LANE_HEIGHT,
@@ -260,6 +266,10 @@ function CorridorLine({
                           cursor: "pointer",
                           border: "1px solid #0f172a",
                           boxShadow: b.isRealData ? `0 0 0 2px ${REAL_DATA_COLOR}` : "none",
+                          // Outline, not the shadow, marks the selected block, so
+                          // a selected real-data block still shows both.
+                          outline: b.blockId === selectedId ? `2px solid ${SELECTED_COLOR}` : "none",
+                          outlineOffset: 2,
                           boxSizing: "border-box",
                         }}
                       >
@@ -406,7 +416,17 @@ export function DepartmentLegend() {
   );
 }
 
-export default function CorridorMap({ sections }: { sections: SectionPlanResult[] }) {
+// With onSelect, clicking a block selects it (the Overview then offers
+// reschedule / delete); without it the map is display-only, as on the printout.
+export default function CorridorMap({
+  sections,
+  onSelect,
+  selectedId,
+}: {
+  sections: SectionPlanResult[];
+  onSelect?: (block: PositionedBlock) => void;
+  selectedId?: string | null;
+}) {
   const [hovered, setHovered] = useState<{ block: PositionedBlock; x: number; y: number } | null>(null);
   const chains = useMemo(() => groupIntoCorridors(sections), [sections]);
 
@@ -422,6 +442,8 @@ export default function CorridorMap({ sections }: { sections: SectionPlanResult[
           chain={chain}
           onHover={(block, e) => setHovered({ block, x: e.clientX, y: e.clientY })}
           onLeave={() => setHovered(null)}
+          onSelect={onSelect}
+          selectedId={selectedId}
         />
       ))}
 

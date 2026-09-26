@@ -1,7 +1,10 @@
 import { useState } from "react";
+import BlockActionsPanel from "../components/BlockActionsPanel";
 import CorridorMap from "../components/CorridorMap";
 import { usePlan } from "../context/PlanContext";
+import { useBlockDecisions } from "../hooks/useBlockDecisions";
 import type { SectionPlanResult } from "../types";
+import { planDaysOf } from "../utils/blockDecisions";
 
 // Local calendar day a block starts on, as YYYY-MM-DD -- the same "day a block
 // runs" rule the Weekly Plan grid uses.
@@ -31,7 +34,15 @@ const toggleStyle = (active: boolean) => ({
 // scheduled can't be picked. It opens on today when the plan covers today;
 // blocks are generated for the next operating week, so often it doesn't, and
 // it opens on the first planned day instead.
-function AllocationView({ section }: { section: SectionPlanResult }) {
+function AllocationView({
+  section,
+  onSelect,
+  selectedId,
+}: {
+  section: SectionPlanResult;
+  onSelect: (blockId: string) => void;
+  selectedId: string | null;
+}) {
   const [mode, setMode] = useState<"daily" | "weekly">("weekly");
   const [pickedDay, setPickedDay] = useState<string | null>(null);
 
@@ -73,7 +84,7 @@ function AllocationView({ section }: { section: SectionPlanResult }) {
           </span>
         )}
       </div>
-      <CorridorMap sections={[shown]} />
+      <CorridorMap sections={[shown]} onSelect={(b) => onSelect(b.blockId)} selectedId={selectedId} />
     </>
   );
 }
@@ -101,6 +112,9 @@ function KpiCard({ label, value, sub }: { label: string; value: string; sub?: st
 export default function Overview() {
   const { plan, loading, error, refresh } = usePlan();
   const [selected, setSelected] = useState<string | null>(null);
+  // The block clicked on the map, open in the side panel for reschedule / delete.
+  const [openBlock, setOpenBlock] = useState<string | null>(null);
+  const ops = useBlockDecisions();
 
   if (loading) return <p>Loading…</p>;
   if (error) return <p style={{ color: "#dc2626" }}>Failed to load plan: {error}</p>;
@@ -145,7 +159,10 @@ export default function Overview() {
         })).map(({ key, label }) => (
           <button
             key={key}
-            onClick={() => setSelected(key)}
+            onClick={() => {
+              setSelected(key);
+              setOpenBlock(null);
+            }}
             style={{
               fontSize: 12,
               padding: "4px 11px",
@@ -184,9 +201,36 @@ export default function Overview() {
       <h2 style={{ fontSize: 15, marginTop: 28 }}>Block allocation</h2>
       <p style={{ fontSize: 12, color: "#64748b", margin: "2px 0 12px" }}>
         Each marker is a scheduled block, positioned along the corridor by the km range of the work
-        assigned to it. Hover a block for its timetable.
+        assigned to it. Hover a block for its timetable; click it to reschedule or delete it.
       </p>
-      {current && <AllocationView section={current} />}
+      {current && (
+        <AllocationView
+          section={current}
+          selectedId={openBlock}
+          onSelect={(id) => {
+            setOpenBlock(id);
+            ops.setMessage(null);
+          }}
+        />
+      )}
+
+      {current && openBlock && (
+        <BlockActionsPanel
+          section={current}
+          blockId={openBlock}
+          decision={ops.decisionOf.get(openBlock)}
+          planDays={planDaysOf(plan.sections)}
+          busy={ops.busy}
+          message={ops.message}
+          onMove={(newStart, durationMin) => ops.decide(current, openBlock, "rescheduled", { newStart, durationMin })}
+          onDelete={() => ops.decide(current, openBlock, "cancelled")}
+          onUndo={() => ops.undo(current, openBlock)}
+          onClose={() => {
+            setOpenBlock(null);
+            ops.setMessage(null);
+          }}
+        />
+      )}
     </div>
   );
 }
