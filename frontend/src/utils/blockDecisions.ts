@@ -52,6 +52,15 @@ export function decidedEnd(d: BlockDecision): string {
   return d.decision === "rescheduled" && d.new_end ? d.new_end : d.planned_end;
 }
 
+// Where a block's work lies: the span of its tasks' km ranges, or the whole
+// section for a block with no work in it. The timetable check asks about
+// trains over this stretch.
+export function workKmRange(section: SectionPlanResult, taskIds: string[]): [number, number] {
+  const ranges = taskIds.map((id) => section.tasks.find((t) => t.task_id === id)?.km_range).filter((r) => r !== undefined);
+  if (ranges.length === 0) return [section.km_start, section.km_end];
+  return [Math.min(...ranges.map((r) => r[0])), Math.max(...ranges.map((r) => r[1]))];
+}
+
 // Days a block can be moved to: the plan week, first to last planned day.
 // The backend holds reschedules to the same span.
 export function planDaysOf(sections: SectionPlanResult[]): string[] {

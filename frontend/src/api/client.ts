@@ -8,7 +8,9 @@ import type {
   Horizon,
   LiveCorridorStatus,
   PlanResponse,
+  QuietSlots,
   TaskSummary,
+  TimetableCheck,
   WhatIfResponse,
 } from "../types";
 
@@ -106,6 +108,29 @@ export function fetchDefects(): Promise<TaskSummary[]> {
 export function fetchCorridorBlocks(section?: string): Promise<CorridorBlock[]> {
   const qs = section ? `?section=${encodeURIComponent(section)}` : "";
   return apiGet<CorridorBlock[]>(`/corridors/${qs}`);
+}
+
+export function fetchTimetableCheck(
+  section: string,
+  kmFrom: number,
+  kmTo: number,
+  start: string,
+  durationMin: number
+): Promise<TimetableCheck> {
+  const qs = new URLSearchParams({ km_from: String(kmFrom), km_to: String(kmTo), start, duration_min: String(durationMin) });
+  return apiGet<TimetableCheck>(`/corridors/${encodeURIComponent(section)}/timetable-check?${qs}`);
+}
+
+export function fetchQuietSlots(
+  section: string,
+  kmFrom: number,
+  kmTo: number,
+  day: string,
+  durationMin: number,
+  around: string
+): Promise<QuietSlots> {
+  const qs = new URLSearchParams({ km_from: String(kmFrom), km_to: String(kmTo), day, duration_min: String(durationMin), around });
+  return apiGet<QuietSlots>(`/corridors/${encodeURIComponent(section)}/quiet-slots?${qs}`);
 }
 
 export function fetchCorridorTrains(section: string): Promise<LiveCorridorStatus> {

@@ -17,6 +17,7 @@ import {
   nightLabel,
   planDaysOf,
   span,
+  workKmRange,
 } from "../utils/blockDecisions";
 import { hhmm } from "../utils/time";
 
@@ -151,6 +152,8 @@ function BlockCard({
       {moving && (
         <div style={{ marginTop: 10 }}>
           <RescheduleForm
+            section={section.section}
+            kmRange={workKmRange(section, block?.task_ids ?? [])}
             start={start}
             minutes={minutes}
             planDays={planDays}
@@ -229,8 +232,9 @@ export default function ControlOffice() {
         }}
       >
         Granting records the go-ahead but does not lock the work inside the block: a later report or
-        cancellation can still move it. The plan does not check a moved block against train running or
-        other blocks — check live running on <Link to="/traffic">Corridor Traffic</Link> before deciding.
+        cancellation can still move it. Rescheduling checks the booked passenger timetable and can suggest
+        quieter times, but it doesn't see goods trains, live delays or other blocks — check live running on{" "}
+        <Link to="/traffic">Corridor Traffic</Link> before deciding.
       </div>
 
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>

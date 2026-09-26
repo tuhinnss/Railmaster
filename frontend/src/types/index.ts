@@ -149,6 +149,35 @@ export interface BlockDecision {
   new_end: string | null;
 }
 
+// Booked-timetable check for a block's time: /api/corridors/{section}/timetable-check
+// and /quiet-slots (backend/app/schemas/timetable.py). available=false means
+// not checked -- never "no trains".
+export interface TrainPass {
+  train_no: string;
+  train_name: string;
+  train_type: string;
+  direction: string;
+  passes_from: string; // estimated
+  passes_to: string;
+}
+
+interface TimetableSource {
+  section: string;
+  available: boolean;
+  reason: string | null;
+  fetched_at: string | null;
+  provider: string | null;
+  not_counted: number;
+}
+
+export interface TimetableCheck extends TimetableSource {
+  trains: TrainPass[];
+}
+
+export interface QuietSlots extends TimetableSource {
+  slots: { start: string; end: string; trains: TrainPass[] }[];
+}
+
 // Mirrors ntes-adapter's models.py, proxied through /api/corridors/{section}/trains.
 export type TrainEventType = "arrival" | "departure";
 

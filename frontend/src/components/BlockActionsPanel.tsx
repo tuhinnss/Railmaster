@@ -6,7 +6,7 @@ import RescheduleForm from "./RescheduleForm";
 import { BLOCK_TYPE_LABELS } from "../constants/colors";
 import type { DecisionMessage } from "../hooks/useBlockDecisions";
 import type { BlockDecision, SectionPlanResult, TaskSummary } from "../types";
-import { DECISION_STATUS, decidedEnd, decidedStart, span } from "../utils/blockDecisions";
+import { DECISION_STATUS, decidedEnd, decidedStart, span, workKmRange } from "../utils/blockDecisions";
 
 // Opens when a block is clicked on the Overview's block map: what the block
 // is, and the control office's two direct actions on it -- move it, or
@@ -123,7 +123,16 @@ export default function BlockActionsPanel({
               Reschedule
             </div>
             {/* keyed on the time so the form resets to wherever the block now is */}
-            <RescheduleForm key={`${start}-${minutes}`} start={start} minutes={minutes} planDays={planDays} busy={busy} onMove={onMove} />
+            <RescheduleForm
+              key={`${start}-${minutes}`}
+              section={section.section}
+              kmRange={workKmRange(section, block?.task_ids ?? [])}
+              start={start}
+              minutes={minutes}
+              planDays={planDays}
+              busy={busy}
+              onMove={onMove}
+            />
           </>
         )}
 
@@ -159,8 +168,9 @@ export default function BlockActionsPanel({
           {busy && <span style={{ fontSize: 12, color: "#64748b" }}>Re-planning…</span>}
         </div>
         <p style={{ fontSize: 11, color: "#94a3b8", marginTop: 14 }}>
-          Every change is saved and can be undone here or on Block Decisions. A moved block isn't checked
-          against train running or other blocks — check Corridor Traffic first.
+          Every change is saved and can be undone here or on Block Decisions. The timetable check covers
+          booked passenger trains only — not goods trains, live delays or other blocks. Check Corridor
+          Traffic for live running.
         </p>
       </div>
     </div>
