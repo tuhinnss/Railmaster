@@ -1,3 +1,4 @@
+import json
 from datetime import date, datetime
 
 import pytest
@@ -5,13 +6,16 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.operations import (
+    REPORTS_FILE,
     add_report,
     clear_decision,
     control_disruptions,
     list_decisions,
     list_reports,
+    ops_dir,
     record_decision,
     reported_tasks,
+    severity_from_score,
     withdraw_report,
 )
 from app.planning import plan_all, plan_current, run_what_if
@@ -30,7 +34,7 @@ def report_request(**overrides) -> DefectReportRequest:
         defect_type="joint_wear",
         km_from=60.0,
         km_to=60.4,
-        severity_code="B",
+        severity_score=5,
         est_duration_min=60,
         block_type_required="traffic",
     )
@@ -72,9 +76,42 @@ def test_the_defect_is_free_text_kept_as_typed():
     assert report.defect_type == "Dropper snapped near OHE mast 61/4"
 
 
+@pytest.mark.parametrize(
+    "score, band",
+    [(1, "C"), (3, "C"), (4, "B"), (7, "B"), (8, "A"), (10, "A")],
+)
+def test_a_severity_score_falls_in_a_band(score, band):
+    assert severity_from_score(score).value == band
+    report = add_report(report_request(severity_score=score), NOW)
+    assert (report.severity_score, report.severity_code.value) == (score, band)
+
+
+def test_reports_saved_before_scores_existed_still_load():
+    path = ops_dir() / REPORTS_FILE
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "next_seq": 2,
+                "reports": [
+                    {
+                        **report_request().model_dump(mode="json", exclude={"severity_score"}),
+                        "severity_code": "A",
+                        "report_id": "ENG-RPT-01",
+                        "reported_at": "2026-09-07T14:30:00",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    [report] = list_reports()
+    assert (report.severity_score, report.severity_code.value) == (None, "A")
+
+
 def test_reported_defects_become_labelled_tasks_with_severity_due_dates():
-    add_report(report_request(severity_code="A"), NOW)
-    add_report(report_request(severity_code="C"), NOW)
+    add_report(report_request(severity_score=9), NOW)
+    add_report(report_request(severity_score=2), NOW)
     a, c = reported_tasks(list_reports(), date(2026, 9, 10))
     assert a.data_source == c.data_source == "reported"
     assert a.date_raised == date(2026, 9, 7)
@@ -235,6 +272,12 @@ def test_report_endpoint_round_trip():
     assert client.delete(f"/api/operations/reports/{report_id}").status_code == 404
     tasks, _ = _plan_tasks()
     assert report_id not in tasks
+
+
+@pytest.mark.parametrize("score", [0, 11])
+def test_report_endpoint_rejects_a_score_outside_1_to_10(score):
+    payload = report_request().model_dump(mode="json") | {"severity_score": score}
+    assert client.post("/api/operations/reports", json=payload).status_code == 422
 
 
 def test_report_endpoint_rejects_a_bad_range_with_a_reason():

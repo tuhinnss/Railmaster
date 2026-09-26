@@ -17,7 +17,9 @@ class DefectReportRequest(BaseModel):
     defect_type: str = Field(max_length=80)
     km_from: float
     km_to: float
-    severity_code: SeverityCode
+    # 1 (minor) to 10 (safety-critical). The planner works with the A/B/C
+    # band it falls in -- see operations.severity_from_score.
+    severity_score: int = Field(ge=1, le=10)
     est_duration_min: int = Field(gt=0, le=720)
     block_type_required: BlockType
     description: str = Field(default="", max_length=500)
@@ -25,6 +27,9 @@ class DefectReportRequest(BaseModel):
 
 
 class DefectReport(DefectReportRequest):
+    # None on reports saved before scores existed, which picked A/B/C directly.
+    severity_score: int | None = Field(default=None, ge=1, le=10)
+    severity_code: SeverityCode
     report_id: str  # also the task_id it is planned under
     reported_at: datetime
 

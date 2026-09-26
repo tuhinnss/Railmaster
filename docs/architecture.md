@@ -114,6 +114,9 @@ the Task/block detail panel. Beyond those:
   commits `36b18f1` (adapter) and `40cb357` (page, `TimeDistance.tsx`).
 - `ReportDefect.tsx` (`/report`, field staff) — report a defect; it joins
   the backlog at once and the page says where the replanned week put it.
+  The defect is typed in as free text and severity is a 1-10 score whose
+  A/B/C band the backend works out (`operations.severity_from_score`); the
+  form mirrors the bands only to show them while scoring.
 - `RescheduleForm.tsx` — shared by both places a block can be moved. As
   the day, start and length change it checks the booked passenger
   timetable (`/api/corridors/{section}/timetable-check`, backend

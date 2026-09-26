@@ -2,20 +2,64 @@ import { useEffect, useState } from "react";
 import { fetchReports, submitReport, withdrawReport } from "../api/client";
 import DepartmentBadge from "../components/DepartmentBadge";
 import SeverityBadge from "../components/SeverityBadge";
-import { BLOCK_TYPE_LABELS } from "../constants/colors";
-import { DEFAULT_BLOCK_TYPE, DEFECT_TYPES } from "../constants/defects";
+import { BLOCK_TYPE_LABELS, SEVERITY_COLORS } from "../constants/colors";
+import { DEFAULT_BLOCK_TYPE, DEFECT_TYPES, SEVERITY_BAND_TEXT, severityFromScore } from "../constants/defects";
 import { usePlan } from "../context/PlanContext";
-import type { BlockType, DefectReport, Department, PlanResponse, SeverityCode } from "../types";
+import type { BlockType, DefectReport, Department, PlanResponse } from "../types";
 import { hhmm } from "../utils/time";
 
 const fieldStyle = { fontSize: 13, padding: "5px 7px", border: "1px solid #cbd5e1", borderRadius: 4 } as const;
+const labelStyle = { display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: "#64748b" } as const;
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: "#64748b" }}>
+    <label style={labelStyle}>
       {label}
       {children}
     </label>
+  );
+}
+
+// Scores 1 to 10, each coloured by the band it falls in, so the reporter
+// sees where A, B and C start while choosing. Not inside a <label>: a click
+// on the label's text would press the first button.
+function ScorePicker({ value, onChange }: { value: number; onChange: (score: number) => void }) {
+  const band = severityFromScore(value);
+  return (
+    <div role="group" aria-label="Severity score, 1 to 10" style={labelStyle}>
+      Severity score (1 minor – 10 safety-critical)
+      <div style={{ display: "flex", gap: 3, alignItems: "center" }}>
+        {Array.from({ length: 10 }, (_, i) => i + 1).map((score) => {
+          const color = SEVERITY_COLORS[severityFromScore(score)];
+          const chosen = score === value;
+          return (
+            <button
+              key={score}
+              type="button"
+              aria-pressed={chosen}
+              onClick={() => onChange(score)}
+              style={{
+                width: 27,
+                padding: "5px 0",
+                fontSize: 13,
+                fontWeight: 600,
+                borderRadius: 4,
+                cursor: "pointer",
+                border: `1px solid ${color}`,
+                color: chosen ? "white" : color,
+                background: chosen ? color : "white",
+              }}
+            >
+              {score}
+            </button>
+          );
+        })}
+        <span style={{ display: "flex", gap: 6, alignItems: "center", marginLeft: 8, color: "#334155", fontSize: 12.5 }}>
+          <SeverityBadge severity={band} />
+          {SEVERITY_BAND_TEXT[band]}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -50,7 +94,7 @@ export default function ReportDefect() {
   const [section, setSection] = useState<string | null>(null);
   const [department, setDepartment] = useState<Department>("Engineering");
   const [defectType, setDefectType] = useState("");
-  const [severity, setSeverity] = useState<SeverityCode>("B");
+  const [score, setScore] = useState(5);
   const [kmFrom, setKmFrom] = useState<number | null>(null);
   const [kmTo, setKmTo] = useState<number | null>(null);
   const [duration, setDuration] = useState(60);
@@ -102,7 +146,7 @@ export default function ReportDefect() {
       defect_type: defectType,
       km_from: from,
       km_to: to,
-      severity_code: severity,
+      severity_score: score,
       est_duration_min: duration,
       block_type_required: blockType,
       description: description.trim(),
@@ -151,8 +195,9 @@ export default function ReportDefect() {
         }}
       >
         Reports are saved and marked <strong>REPORTED</strong> on every page, so they are never mixed up with the
-        generated backlog. Severity sets the due date: A today, B within 7 days, C within 30 days. That rule is a
-        prototype assumption, not a railway standard.
+        generated backlog. Severity is scored 1 to 10 and the planner works with the band the score falls in:
+        8–10 is A, due today; 4–7 is B, due within 7 days; 1–3 is C, due within 30 days. So a 9 and a 10 are
+        planned alike. These bands are a prototype assumption, not a railway standard.
       </div>
 
       <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 16 }}>
@@ -182,13 +227,7 @@ export default function ReportDefect() {
               style={{ ...fieldStyle, width: 230 }}
             />
           </Field>
-          <Field label="Severity">
-            <select value={severity} onChange={(e) => setSeverity(e.target.value as SeverityCode)} style={fieldStyle}>
-              <option value="A">A — safety-critical</option>
-              <option value="B">B — major</option>
-              <option value="C">C — minor</option>
-            </select>
-          </Field>
+          <ScorePicker value={score} onChange={setScore} />
         </div>
 
         <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-end", marginTop: 14 }}>
@@ -278,6 +317,11 @@ export default function ReportDefect() {
                     <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
                       <DepartmentBadge department={r.department} />
                       <SeverityBadge severity={r.severity_code} />
+                      {r.severity_score !== null && (
+                        <span style={{ fontSize: 11, color: "#64748b" }} title="Severity score given by the reporter">
+                          {r.severity_score}/10
+                        </span>
+                      )}
                       <span>{r.defect_type.replaceAll("_", " ")}</span>
                     </div>
                     <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>

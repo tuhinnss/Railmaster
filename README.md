@@ -78,7 +78,7 @@ falls back to synthetic values silently if it's unreachable.
 
 Backend engine (schema, synthetic data, priority score, CP-SAT Stage A/B,
 safety validator, explainability, what-if replanning) is done and wired
-end to end — 105 backend + 62 adapter tests passing. Dashboard ships
+end to end — 115 backend + 62 adapter tests passing. Dashboard ships
 Overview, Weekly plan (+ per-section printable version), Task queue,
 detail panel, What-if, Corridor traffic, Report Defect and Block
 Decisions.
@@ -135,6 +135,8 @@ Known gaps, in rough priority order:
   whether a train's running days count from this station or its origin is
   unconfirmed. Nothing checks a moved block against other blocks either —
   two blocks on a section can overlap in time.
-- A reported defect's due date comes from its severity (A today, B within
-  7 days, C within 30). That rule is a prototype assumption, not a railway
+- A reported defect's severity is a 1-10 score, planned by its band
+  (8-10 is A, due today; 4-7 is B, due within 7 days; 1-3 is C, due
+  within 30). Only the band counts, so a 9 and a 10 are planned alike.
+  The bands and due dates are prototype assumptions, not a railway
   standard.

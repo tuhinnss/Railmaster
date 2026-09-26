@@ -123,14 +123,16 @@ export interface DefectReportRequest {
   defect_type: string; // free text, as the reporter describes it
   km_from: number;
   km_to: number;
-  severity_code: SeverityCode;
+  severity_score: number; // 1 (minor) to 10 (safety-critical)
   est_duration_min: number;
   block_type_required: BlockType;
   description: string;
   reported_by: string;
 }
 
-export interface DefectReport extends DefectReportRequest {
+export interface DefectReport extends Omit<DefectReportRequest, "severity_score"> {
+  severity_score: number | null; // null on reports saved before scores existed
+  severity_code: SeverityCode; // the band the score falls in, which the planner uses
   report_id: string; // also the task_id it is planned under
   reported_at: string;
 }

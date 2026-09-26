@@ -257,10 +257,13 @@ scarce.
   and changes explanation wording, so an overdue severity-A task can lose
   a contested block to a higher-scoring severity-B task. Contradicts spec
   section 4; not yet fixed.
-- A reported defect's due date comes from its severity
-  (`operations.DUE_DAYS_BY_SEVERITY`: A today, B 7 days, C 30 days). That's
-  a prototype assumption, not a railway rule, and is labelled so on the
-  page.
+- A reported defect is scored 1-10 and planned by the band the score
+  falls in (`operations.SEVERITY_BANDS`: 8-10 A, 4-7 B, 1-3 C), whose due
+  date comes from `operations.DUE_DAYS_BY_SEVERITY` (A today, B 7 days, C
+  30 days). Only the band reaches the plan, so a 9 and a 10 plan alike.
+  Both rules are prototype assumptions, not railway rules, and are
+  labelled so on the page. The defect itself is free text and is never
+  used to plan.
 - `LMG-RNY` is not a section beyond `LMG`. NTES's timetable (2026-09-26)
   shows all 15 LMG→RNY trains running via GHY, so the real line is
   LMG → GHY → RNY and the configured `GHY-LMG` + `LMG-RNY` chain (km 0–180,

@@ -42,6 +42,12 @@ DECISIONS_FILE = "block_decisions.json"
 # once and the safety override from the next day on.
 DUE_DAYS_BY_SEVERITY = {SeverityCode.A: 0, SeverityCode.B: 7, SeverityCode.C: 30}
 
+# Also a prototype assumption: the reporter scores a defect 1-10 and the
+# band the score falls in is its severity, (lowest score, band) from the top.
+# Only the band reaches the plan, so a 9 and a 10 are planned alike; the
+# score is kept on the report as the reporter gave it.
+SEVERITY_BANDS = ((8, SeverityCode.A), (4, SeverityCode.B), (1, SeverityCode.C))
+
 # FastAPI runs sync endpoints on a thread pool; every read-modify-write of
 # the files goes through this so two quick clicks can't lose one.
 _lock = threading.Lock()
@@ -69,6 +75,10 @@ def _write(name: str, data) -> None:
 # --- Field reports -----------------------------------------------------------
 
 
+def severity_from_score(score: int) -> SeverityCode:
+    return next(band for lowest, band in SEVERITY_BANDS if score >= lowest)
+
+
 def list_reports() -> list[DefectReport]:
     return [DefectReport(**r) for r in _read(REPORTS_FILE, {"reports": []})["reports"]]
 
@@ -89,6 +99,7 @@ def add_report(request: DefectReportRequest, now: datetime) -> DefectReport:
         report = DefectReport(
             **request.model_dump(exclude={"defect_type"}),
             defect_type=defect_type,
+            severity_code=severity_from_score(request.severity_score),
             report_id=f"{DEPARTMENT_TASK_ID_PREFIX[request.department]}-RPT-{seq:02d}",
             reported_at=now,
         )
