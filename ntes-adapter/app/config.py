@@ -8,6 +8,10 @@ sections in the real track topology with no intervening major stations
 that would break the two-station pairing assumption in occupancy.py.
 Confirm real corridors before treating this data as operationally
 meaningful.
+
+Evidence against the pairing (2026-09-26): NTES's booked timetable shows
+every LMG->RNY train running via GHY -- the line is LMG -> GHY -> RNY, so
+LMG-RNY overlaps GHY-LMG rather than continuing past LMG. See README.
 """
 
 from dataclasses import dataclass

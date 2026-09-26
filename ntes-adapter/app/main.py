@@ -23,7 +23,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 
 from app.config import CORRIDORS, STALE_THRESHOLD_SECONDS
-from app.models import LiveCorridorStatus, PredictedWindow
+from app.models import CorridorTimetable, LiveCorridorStatus, PredictedWindow
 from app.poller import Poller
 from app.providers.fixture_provider import CapturedFixtureProvider
 from app.providers.mock_provider import MockProvider
@@ -119,6 +119,20 @@ def get_live(corridor: str):
         last_successful_fetch=last_successful_fetch,
         provider=provider.name,
     )
+
+
+@app.get("/api/v1/corridors/{corridor}/timetable", response_model=CorridorTimetable)
+def get_timetable(corridor: str):
+    """The booked timetable both ways along the corridor, as last fetched
+    (fetched_at and provider say when and from where). 404 until one has
+    been fetched -- no timetable is never presented as an empty one."""
+    cfg = _find_corridor(corridor)
+    if cfg is None:
+        raise HTTPException(status_code=404, detail=f"Unknown corridor {corridor!r}")
+    timetable = store.get_timetable(corridor)
+    if timetable is None:
+        raise HTTPException(status_code=404, detail=f"No timetable fetched for {corridor} yet")
+    return timetable
 
 
 @app.get("/api/v1/corridors/{corridor}/predicted-windows", response_model=list[PredictedWindow])

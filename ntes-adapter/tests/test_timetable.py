@@ -1,16 +1,22 @@
 """Booked timetables: the "Trains between stations" parser against the
-real responses captured on 2026-09-26, and the providers."""
+real responses captured on 2026-09-26, the providers, the poller's
+about-daily refresh, and the API endpoint."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
+from fastapi.testclient import TestClient
 
-from app.config import CORRIDORS
-from app.models import TimetabledTrain
+from app import main
+from app.config import CORRIDORS, TIMETABLE_MAX_AGE_HOURS, TIMETABLE_RETRY_MINUTES
+from app.models import CorridorTimetable, TimetabledTrain
+from app.poller import Poller
+from app.providers.base import RailwayDataProvider
 from app.providers.fixture_provider import CapturedFixtureProvider
 from app.providers.mock_provider import MockProvider
 from app.providers.timetable_parser import parse_trains_between_html
+from app.store import Store
 
 FIXTURES = Path(__file__).parent / "fixtures"
 CORRIDOR = {c.corridor_id: c for c in CORRIDORS}
@@ -85,3 +91,83 @@ def test_fixture_timetable_reports_its_capture_time_not_today():
 def test_uncaptured_and_mock_timetables_are_absent_not_invented():
     assert CapturedFixtureProvider().get_timetable(CORRIDOR["LMG-RNY"]) is None
     assert MockProvider().get_timetable(CORRIDOR["GHY-LMG"]) is None
+
+
+# --- poller ------------------------------------------------------------------
+
+
+class CountingProvider(RailwayDataProvider):
+    name = "counting"
+
+    def __init__(self, fail: bool = False):
+        self.calls: list[str] = []
+        self.fail = fail
+
+    def get_live_station(self, station_code, window_hours=4):
+        raise NotImplementedError
+
+    def get_timetable(self, corridor):
+        self.calls.append(corridor.corridor_id)
+        if self.fail:
+            raise RuntimeError("NTES down")
+        return CorridorTimetable(corridor=corridor.corridor_id, fetched_at=datetime(2026, 9, 26, 20, 0), provider=self.name, a_to_b=[], b_to_a=[])
+
+
+NOW = datetime(2026, 9, 26, 20, 0)
+
+
+def test_one_corridor_per_cycle_then_nothing_until_a_day_later():
+    provider, store = CountingProvider(), Store()
+    poller = Poller(provider, store)
+    for minute in range(0, 12, 3):
+        poller._refresh_timetables(NOW + timedelta(minutes=minute))
+    assert provider.calls == ["GHY-LMG", "LMG-RNY", "NDLS-GZB"]
+    assert store.get_timetable("NDLS-GZB") is not None
+
+    poller._refresh_timetables(NOW + timedelta(hours=TIMETABLE_MAX_AGE_HOURS, minutes=1))
+    assert provider.calls[-1] == "GHY-LMG" and len(provider.calls) == 4
+
+
+def test_a_failed_fetch_waits_before_retrying_and_keeps_nothing_false():
+    provider, store = CountingProvider(fail=True), Store()
+    poller = Poller(provider, store)
+    poller._refresh_timetables(NOW)
+    poller._refresh_timetables(NOW + timedelta(minutes=1))  # moves on to the next corridor
+    poller._refresh_timetables(NOW + timedelta(minutes=2))
+    poller._refresh_timetables(NOW + timedelta(minutes=3))  # all three waiting to retry
+    assert provider.calls == ["GHY-LMG", "LMG-RNY", "NDLS-GZB"]
+    assert store.get_timetable("GHY-LMG") is None
+
+    poller._refresh_timetables(NOW + timedelta(minutes=TIMETABLE_RETRY_MINUTES + 1))
+    assert provider.calls[-1] == "GHY-LMG"
+
+
+def test_a_restart_does_not_refetch_a_fresh_timetable_from_the_same_provider():
+    store = Store()
+    store.set_timetable(CorridorTimetable(corridor="GHY-LMG", fetched_at=NOW - timedelta(hours=2), provider="counting", a_to_b=[], b_to_a=[]))
+    store.set_timetable(CorridorTimetable(corridor="LMG-RNY", fetched_at=NOW - timedelta(hours=2), provider="captured_fixture", a_to_b=[], b_to_a=[]))
+    provider = CountingProvider()
+    Poller(provider, store)._refresh_timetables(NOW)
+    # GHY-LMG is this provider's and two hours old: skipped. LMG-RNY came
+    # from a different provider, so it is replaced.
+    assert provider.calls == ["LMG-RNY"]
+
+
+# --- API ---------------------------------------------------------------------
+
+client = TestClient(main.app)
+
+
+@pytest.fixture
+def fresh_store():
+    main.store = Store(data_dir=None)
+    yield
+
+
+def test_timetable_endpoint_is_404_until_one_is_fetched(fresh_store):
+    assert client.get("/api/v1/corridors/GHY-LMG/timetable").status_code == 404
+    main.store.set_timetable(CapturedFixtureProvider().get_timetable(CORRIDOR["GHY-LMG"]))
+    body = client.get("/api/v1/corridors/GHY-LMG/timetable").json()
+    assert body["provider"] == "captured_fixture"
+    assert len(body["a_to_b"]) == 31
+    assert client.get("/api/v1/corridors/NOPE-NOPE/timetable").status_code == 404

@@ -1,6 +1,7 @@
 """Background polling: refreshes live station data on an interval,
-derives section occupancy, records poll coverage, and recomputes cached
-frequency predictions. Retries with exponential backoff per-station on
+derives section occupancy, records poll coverage, recomputes cached
+frequency predictions, and keeps each corridor's booked timetable about a
+day fresh. Retries with exponential backoff per-station on
 failure and never lets a fetch failure propagate out of a poll cycle --
 the API keeps serving the last good cached data (staleness is derived
 from fetched_at vs. now at read time, see main.py) instead of crashing.
@@ -9,7 +10,7 @@ from fetched_at vs. now at read time, see main.py) instead of crashing.
 import logging
 import threading
 import time
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from app.config import (
     CORRIDORS,
@@ -17,6 +18,8 @@ from app.config import (
     NIGHT_WINDOWS,
     POLL_INTERVAL_SECONDS,
     POLL_MAX_BACKOFF_SECONDS,
+    TIMETABLE_MAX_AGE_HOURS,
+    TIMETABLE_RETRY_MINUTES,
 )
 from app.frequency import compute_predicted_windows
 from app.occupancy import derive_corridor_occupancy
@@ -40,13 +43,51 @@ class Poller:
         self._max_backoff_seconds = max_backoff_seconds
         self._consecutive_failures: dict[str, int] = {}
         self._next_wait_seconds = interval_seconds
+        # Corridor -> when its timetable is next due. Filled from the store's
+        # fetched_at on first sight, so a restart doesn't re-query NTES for a
+        # timetable fetched an hour ago.
+        self._timetable_due: dict[str, datetime] = {}
 
     def poll_once(self) -> None:
         next_wait = self._interval_seconds
         for corridor in CORRIDORS:
             next_wait = max(next_wait, self._poll_corridor(corridor))
+        self._refresh_timetables(datetime.now())
         self._recompute_predictions()
         self._next_wait_seconds = next_wait
+
+    def _refresh_timetables(self, now: datetime) -> None:
+        """Fetches at most one corridor's timetable per cycle: the first one
+        due. Success (or a provider that has none) makes it due again after
+        TIMETABLE_MAX_AGE_HOURS; a failure after TIMETABLE_RETRY_MINUTES, so
+        a broken page isn't re-queried every cycle. The last good timetable
+        stays in the store meanwhile."""
+        for corridor in CORRIDORS:
+            cid = corridor.corridor_id
+            due = self._timetable_due.get(cid)
+            if due is None:
+                stored = self._store.get_timetable(cid)
+                # Only this provider's own timetable counts as fresh: after a
+                # switch from fixture to live, the replayed one is refetched.
+                fresh = stored is not None and stored.provider == self._provider.name
+                due = stored.fetched_at + timedelta(hours=TIMETABLE_MAX_AGE_HOURS) if fresh else now
+                self._timetable_due[cid] = due
+            if now < due:
+                continue
+
+            try:
+                timetable = self._provider.get_timetable(corridor)
+            except Exception as exc:  # noqa: BLE001 -- never crash the poll loop
+                logger.warning("Timetable fetch failed for %s, retrying in %d min: %s", cid, TIMETABLE_RETRY_MINUTES, exc)
+                self._timetable_due[cid] = now + timedelta(minutes=TIMETABLE_RETRY_MINUTES)
+            else:
+                if timetable is not None:
+                    self._store.set_timetable(timetable)
+                    logger.info(
+                        "Timetable for %s: %d + %d trains", cid, len(timetable.a_to_b), len(timetable.b_to_a)
+                    )
+                self._timetable_due[cid] = now + timedelta(hours=TIMETABLE_MAX_AGE_HOURS)
+            return
 
     def _poll_corridor(self, corridor) -> int:
         board_a, backoff_a = self._safe_fetch(corridor.corridor_id, corridor.station_a)

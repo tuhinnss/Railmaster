@@ -1,7 +1,8 @@
 """Persistence: live-board cache (with staleness tracking), an
 append-only section-occupancy log, a poll-coverage log (which nights we
 actually had live data for, distinct from which nights were clear -- see
-frequency.py), and cached frequency predictions.
+frequency.py), cached frequency predictions, and the latest booked
+timetable per corridor.
 
 Backed by JSON files so the prototype needs no database; kept behind a
 small interface so swapping in a real one later doesn't touch callers.
@@ -13,7 +14,7 @@ import threading
 from datetime import datetime
 from pathlib import Path
 
-from app.models import PredictedWindow, SectionOccupancyInterval, StationLiveBoard
+from app.models import CorridorTimetable, PredictedWindow, SectionOccupancyInterval, StationLiveBoard
 
 
 class Store:
@@ -24,6 +25,7 @@ class Store:
         self._occupancy_log: list[SectionOccupancyInterval] = []
         self._poll_coverage: dict[str, list[datetime]] = {}
         self._predictions: dict[str, list[PredictedWindow]] = {}
+        self._timetables: dict[str, CorridorTimetable] = {}
 
         if self._data_dir is not None:
             self._data_dir.mkdir(parents=True, exist_ok=True)
@@ -75,6 +77,16 @@ class Store:
         with self._lock:
             return list(self._predictions.get(corridor, []))
 
+    # --- booked timetables (replaced whole on each successful fetch) ---
+    def set_timetable(self, timetable: CorridorTimetable) -> None:
+        with self._lock:
+            self._timetables[timetable.corridor] = timetable
+            self._persist_timetables()
+
+    def get_timetable(self, corridor: str) -> CorridorTimetable | None:
+        with self._lock:
+            return self._timetables.get(corridor)
+
     # --- persistence (best-effort JSON files; skipped for in-memory stores) ---
     def _persist_occupancy(self) -> None:
         if self._data_dir is None:
@@ -96,6 +108,13 @@ class Store:
         data = {c: [json.loads(p.model_dump_json()) for p in preds] for c, preds in self._predictions.items()}
         path.write_text(json.dumps(data, indent=2))
 
+    def _persist_timetables(self) -> None:
+        if self._data_dir is None:
+            return
+        path = self._data_dir / "timetables.json"
+        data = {c: json.loads(t.model_dump_json()) for c, t in self._timetables.items()}
+        path.write_text(json.dumps(data, indent=2))
+
     def _load(self) -> None:
         occ_path = self._data_dir / "occupancy_log.json"
         if occ_path.exists():
@@ -112,3 +131,8 @@ class Store:
         if pred_path.exists():
             raw = json.loads(pred_path.read_text())
             self._predictions = {c: [PredictedWindow(**p) for p in preds] for c, preds in raw.items()}
+
+        tt_path = self._data_dir / "timetables.json"
+        if tt_path.exists():
+            raw = json.loads(tt_path.read_text())
+            self._timetables = {c: CorridorTimetable(**t) for c, t in raw.items()}

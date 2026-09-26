@@ -111,6 +111,38 @@ it.
   history it was mixed into, was moved to
   `data/replayed-and-seeded-backup-2026-09-25/` when live polling started,
   so the live history begins clean.
+- **A second query gives the booked timetable (confirmed 2026-09-26).**
+  `mntes.js` also drives a "Trains B/w Stations" menu (`onTBS()`), whose
+  form `frmTBS` submits `jFromStationInput` and `jToStationInput` (both
+  `"CODE - NAME"`) and `appLang`, plus the same CSRF field, as a POST to
+  `/mntes/q?opt=TrainsBetweenStation&subOpt=tbs`. One query per direction
+  was made by hand for NDLS↔GZB and GHY↔LMG; no CAPTCHA (the page carries
+  only an empty "Google reCAPTCHA" comment). The answer is the whole day,
+  not a look-ahead window: *"160 Trains found from NDLS - NEW DELHI to GZB
+  - GHAZIABAD"* (169 the other way; GHY→LMG 31, LMG→GHY 30), one card per
+  train with its number, name, type, running days (`"Daily"` or a weekday
+  list such as `"Tue,Wed,Fri,Sun"`) and booked times at both ends. Those
+  four responses are the fixtures `ntes_real_trains_between_*.html`.
+  LMG↔RNY was first queried by the live poller the same evening: 15 + 16
+  trains, parsed without error. What it does **not** tell us:
+  - It lists passenger trains only. There is no public goods timetable.
+  - NTES groups nearby stations: "from NDLS" also lists trains from DLI,
+    ANVT, NZM, DER and SSB (only 48 of the 160 start at NDLS). Each card
+    keeps its real end station, so consumers can filter.
+  - Whether a train's running days count from this station or from the
+    train's origin is **not confirmed**. Rail Master reads them as days
+    of departure from the first station of the pair.
+  - It gives times at the two ends only, nothing in between.
+  - Sustained use is lightly tested: the poller asks for each corridor
+    about once a day (two queries), so a few queries a day in total.
+- **LMG-RNY is not a section beyond LMG (found 2026-09-26).** All 15 of
+  the LMG→RNY trains also run LMG→GHY, and every one reaches Guwahati
+  before Rangiya (e.g. 12423 Rajdhani: LMG 03:20, GHY 06:20, RNY 07:28).
+  The line runs Lumding → Guwahati → Rangiya, so the configured
+  `GHY-LMG` + `LMG-RNY` pair (km 0–180 then 180–300 in Rail Master) does
+  not match the real geography: `LMG-RNY` overlaps all of `GHY-LMG` and
+  adds GHY→RNY. The corridors were always marked as unconfirmed
+  placeholders; this is evidence against the pairing, not yet acted on.
 - **This is not, and is never claimed to be, an authorized integration.**
   These are undocumented, internal endpoints of a public information
   website, reverse-engineered from its own client-side code. There is no
@@ -129,9 +161,11 @@ RailwayDataProvider (interface)
         ▼
    Poller (background, on an interval)
         │  fetches both stations of each corridor,
+        │  plus one corridor's booked timetable when it is due (about daily),
         │  never lets a failure propagate or wipe the cache
         ▼
-   Store (live-board cache + occupancy log + poll-coverage log + predictions cache)
+   Store (live-board cache + occupancy log + poll-coverage log + predictions cache
+          + latest timetable per corridor)
         │
    ┌────┴────┐
    ▼         ▼
@@ -141,7 +175,7 @@ occupancy.py  frequency.py
  intervals)
         │
         ▼
-   FastAPI (main.py) — 3 read endpoints, all served from the Store
+   FastAPI (main.py) — 4 read endpoints, all served from the Store
 ```
 
 ## Setup
@@ -179,7 +213,11 @@ Environment variables (all optional):
   are real, the calendar date they're shown against is not the date they
   were observed. `GHY`, `LMG`, `NDLS` and `GZB` are captured; `RNY` is not
   and raises, so `LMG-RNY` honestly reports no data for that end rather
-  than silently substituting mock trains.
+  than silently substituting mock trains. It also replays the booked
+  timetables ("Trains between stations") captured on 2026-09-26 for
+  `NDLS-GZB` and `GHY-LMG`, reporting the capture time as `fetched_at`;
+  `LMG-RNY` has none captured. `mock` has no timetable at all rather than
+  an invented one.
 
   Refresh or add a fixture with
   `.venv/Scripts/python.exe -m scripts.capture_fixture <CODE> "<NAME>" [--hours 8]`.
@@ -261,6 +299,15 @@ adjacency is not.
   `null` and `last_successful_fetch` is `null`. NTES being unreachable
   never crashes this endpoint; it just keeps returning the last good
   cache with the flag set.
+- `GET /api/v1/corridors/{corridor}/timetable` — the corridor's booked
+  passenger timetable both ways (`a_to_b`, `b_to_a`: train, type, days it
+  runs, departure and arrival at the two ends), with `fetched_at` and
+  `provider`. 404 until one has been fetched — "no timetable" is never
+  served as an empty one. The poller fetches it about once a day per
+  corridor (`TIMETABLE_MAX_AGE_HOURS`), one corridor per cycle, and waits
+  `TIMETABLE_RETRY_MINUTES` after a failure; the last good one stays
+  cached meanwhile. Rail Master uses it to warn when a block is moved onto
+  booked trains.
 - `GET /api/v1/corridors/{corridor}/predicted-windows` — cached
   frequency predictions for that corridor, ranked by
   `predicted_availability` descending. Always served from cache, never
