@@ -1,0 +1,16 @@
+# Render blueprint: the whole prototype as one free web service, built from
+# the Dockerfile. In Render: New > Blueprint, pick this repository.
+#
+# Free-tier facts the demo lives with: the service sleeps after ~15 idle
+# minutes and takes about a minute to wake, and its disk is not kept -- saved
+# reports, decisions and added blocks are cleared on every restart, wake-up
+# or deploy. NTES data is the captured pages replayed, never live polling.
+services:
+  - type: web
+    name: railmaster
+    runtime: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true

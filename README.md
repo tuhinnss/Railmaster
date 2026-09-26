@@ -74,11 +74,36 @@ Data auto-generates on first request if `data/synthetic/` doesn't exist.
 The backend works fine with ntes-adapter not running — `ntes_bridge.py`
 falls back to synthetic values silently if it's unreachable.
 
+## Hosted demo (Render)
+
+`Dockerfile` builds the whole prototype into one container: the dashboard
+is built and served by the backend (`RAILMASTER_FRONTEND_DIST`), so the
+pages and `/api` share one origin, and ntes-adapter runs beside it in
+fixture mode, replaying the captured NTES pages. A hosted copy never
+scrapes NTES itself. `render.yaml` describes it as one free Render web
+service: in Render, **New → Blueprint** and pick this repository; it
+redeploys on every push to `main`.
+
+What a free hosted copy is and isn't:
+
+- It sleeps after ~15 idle minutes and takes about a minute to wake.
+- Its disk isn't kept: reports, decisions and added blocks are cleared on
+  every restart, wake-up or deploy, and the synthetic data is regenerated
+  for the current week.
+- NTES data is the 2026-09 captures, labelled as replayed. Blocks stay on
+  synthetic availability (no observed nights), which the pages show.
+- There is no login: anyone with the link can file reports and change
+  blocks. It is a demo of prototype output, and the pages say so.
+- It runs on Indian time (`TZ=Asia/Kolkata`), like the data.
+
+To run the same image locally: `docker build -t railmaster .` then
+`docker run -p 8000:8000 railmaster` and open http://localhost:8000.
+
 ## Status
 
 Backend engine (schema, synthetic data, priority score, CP-SAT Stage A/B,
 safety validator, explainability, what-if replanning) is done and wired
-end to end — 125 backend + 62 adapter tests passing. Dashboard ships
+end to end — 127 backend + 62 adapter tests passing. Dashboard ships
 Overview, Weekly plan (+ per-section printable version), Task queue,
 detail panel, What-if, Corridor traffic, Report Defect and Block
 Decisions.

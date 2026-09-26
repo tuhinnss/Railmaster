@@ -63,6 +63,13 @@ npx tsc --noEmit    # typecheck; there is no test suite here
 npm run build
 ```
 
+Hosted demo: `Dockerfile` + `deploy/start.sh` + `render.yaml` run everything
+in one container -- the backend serves the built dashboard when
+`RAILMASTER_FRONTEND_DIST` is set (never in development), and the adapter
+runs beside it in fixture mode. Don't switch a hosted copy to live polling:
+it would scrape NTES from a cloud IP, restart often (free tier) and never
+build real history. See README "Hosted demo".
+
 Two networking quirks that will waste your time otherwise:
 
 - Vite binds IPv6-only, so use `http://localhost:5173` — `127.0.0.1:5173`
