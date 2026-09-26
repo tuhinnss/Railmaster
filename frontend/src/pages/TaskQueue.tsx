@@ -3,41 +3,67 @@ import DepartmentBadge from "../components/DepartmentBadge";
 import SeverityBadge from "../components/SeverityBadge";
 import TaskDetailPanel from "../components/TaskDetailPanel";
 import { usePlan } from "../context/PlanContext";
-import type { Department, SectionPlanResult, SeverityCode, TaskSummary } from "../types";
+import type { Department, SeverityCode, TaskSummary } from "../types";
 
 type SortKey = "priority_score" | "days_overdue";
 
 export default function TaskQueue() {
   const { plan, loading, error } = usePlan();
+  const [sectionKey, setSectionKey] = useState<string | null>(null);
   const [departmentFilter, setDepartmentFilter] = useState<Department | "ALL">("ALL");
   const [severityFilter, setSeverityFilter] = useState<SeverityCode | "ALL">("ALL");
   const [sortKey, setSortKey] = useState<SortKey>("priority_score");
-  const [selected, setSelected] = useState<{ task: TaskSummary; section: SectionPlanResult } | null>(null);
+  const [selected, setSelected] = useState<TaskSummary | null>(null);
+
+  // One section at a time, as on the Overview and Weekly Plan: each section's
+  // backlog competes only for its own blocks, so a combined ranking would put
+  // tasks side by side that never compete. Defaults to the first section.
+  const current = plan?.sections.find((s) => s.section === sectionKey) ?? plan?.sections[0];
 
   const rows = useMemo(() => {
-    if (!plan) return [];
-    const all: { task: TaskSummary; section: SectionPlanResult }[] = [];
-    for (const section of plan.sections) {
-      for (const task of section.tasks) {
-        if (departmentFilter !== "ALL" && task.department !== departmentFilter) continue;
-        if (severityFilter !== "ALL" && task.severity_code !== severityFilter) continue;
-        all.push({ task, section });
-      }
-    }
-    all.sort((a, b) =>
-      sortKey === "priority_score"
-        ? b.task.priority_score - a.task.priority_score
-        : b.task.days_overdue - a.task.days_overdue
+    if (!current) return [];
+    const tasks = current.tasks.filter(
+      (task) =>
+        (departmentFilter === "ALL" || task.department === departmentFilter) &&
+        (severityFilter === "ALL" || task.severity_code === severityFilter)
     );
-    return all;
-  }, [plan, departmentFilter, severityFilter, sortKey]);
+    tasks.sort((a, b) =>
+      sortKey === "priority_score" ? b.priority_score - a.priority_score : b.days_overdue - a.days_overdue
+    );
+    return tasks;
+  }, [current, departmentFilter, severityFilter, sortKey]);
 
   if (loading) return <p>Loading…</p>;
   if (error) return <p style={{ color: "#dc2626" }}>Failed to load: {error}</p>;
+  if (!plan) return null;
 
   return (
     <div>
       <h1 style={{ fontSize: 20 }}>Task Queue</h1>
+
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 12, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 12, color: "#64748b" }}>Section</span>
+        {plan.sections.map((s) => (
+          <button
+            key={s.section}
+            onClick={() => {
+              setSectionKey(s.section);
+              setSelected(null);
+            }}
+            style={{
+              fontSize: 12,
+              padding: "4px 11px",
+              borderRadius: 5,
+              cursor: "pointer",
+              border: s.section === current?.section ? "1px solid #0f172a" : "1px solid #cbd5e1",
+              background: s.section === current?.section ? "#0f172a" : "white",
+              color: s.section === current?.section ? "white" : "#475569",
+            }}
+          >
+            {s.section} · {s.task_count} tasks
+          </button>
+        ))}
+      </div>
 
       <div style={{ display: "flex", gap: 16, margin: "12px 0", fontSize: 13, alignItems: "center" }}>
         <label>
@@ -73,7 +99,6 @@ export default function TaskQueue() {
           <tr style={{ textAlign: "left", fontSize: 12, color: "#64748b" }}>
             <th style={{ padding: "6px 8px" }}>Task</th>
             <th style={{ padding: "6px 8px" }}>Department</th>
-            <th style={{ padding: "6px 8px" }}>Section</th>
             <th style={{ padding: "6px 8px" }}>Severity</th>
             <th style={{ padding: "6px 8px" }}>Overdue</th>
             <th style={{ padding: "6px 8px" }}>Priority</th>
@@ -81,17 +106,16 @@ export default function TaskQueue() {
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ task, section }) => (
+          {rows.map((task) => (
             <tr
               key={task.task_id}
-              onClick={() => setSelected({ task, section })}
+              onClick={() => setSelected(task)}
               style={{ borderTop: "1px solid #f1f5f9", fontSize: 13, cursor: "pointer" }}
             >
               <td style={{ padding: "8px" }}>{task.task_id}</td>
               <td style={{ padding: "8px" }}>
                 <DepartmentBadge department={task.department} />
               </td>
-              <td style={{ padding: "8px" }}>{task.section}</td>
               <td style={{ padding: "8px" }}>
                 <SeverityBadge severity={task.severity_code} />
               </td>
@@ -109,8 +133,8 @@ export default function TaskQueue() {
         </tbody>
       </table>
 
-      {selected && (
-        <TaskDetailPanel task={selected.task} section={selected.section} onClose={() => setSelected(null)} />
+      {selected && current && (
+        <TaskDetailPanel task={selected} section={current} onClose={() => setSelected(null)} />
       )}
     </div>
   );
