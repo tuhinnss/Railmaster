@@ -450,3 +450,46 @@ def test_decision_endpoint_validates_input():
     )
     assert too_late.status_code == 422
     assert client.delete("/api/operations/decisions/BLK-NOPE").status_code == 404
+
+
+def test_adding_a_block_through_the_api_schedules_the_work_and_removing_it_undoes_that():
+    tasks, body = _plan_tasks()
+    waiting = [t for t in tasks.values() if not t["scheduled"] and not t["depends_on"]]
+    assert waiting, "the fixture data should leave some work unscheduled"
+    task = waiting[0]
+    first_day = min(b["start_time"] for s in body["sections"] for b in s["blocks"])[:10]
+
+    response = client.post(
+        "/api/operations/added-blocks",
+        json={"task_id": task["task_id"], "start": f"{first_day}T01:00:00", "duration_min": task["est_duration_min"]},
+    )
+    assert response.status_code == 201
+    block_id = response.json()["block_id"]
+    after, after_body = _plan_tasks()
+    assert after[task["task_id"]]["block_id"] == block_id
+    [planned] = [b for s in after_body["sections"] for b in s["blocks"] if b["block_id"] == block_id]
+    assert planned["data_source"] == "added"
+
+    # Decisions apply to it like any other block.
+    assert client.put(f"/api/operations/decisions/{block_id}", json={"decision": "granted"}).status_code == 200
+
+    assert client.delete(f"/api/operations/added-blocks/{block_id}").status_code == 204
+    assert client.delete(f"/api/operations/added-blocks/{block_id}").status_code == 404
+    undone, undone_body = _plan_tasks()
+    assert not undone[task["task_id"]]["scheduled"]
+    assert undone_body["fingerprint"] == body["fingerprint"]
+    assert client.get("/api/operations/decisions").json() == []
+
+
+def test_add_block_endpoint_validates_input():
+    tasks, _ = _plan_tasks()
+    task = next(t for t in tasks.values() if not t["scheduled"])
+    missing = client.post(
+        "/api/operations/added-blocks", json={"task_id": "NOPE", "start": "2026-09-28T01:00:00", "duration_min": 60}
+    )
+    assert missing.status_code == 404
+    short = client.post(
+        "/api/operations/added-blocks",
+        json={"task_id": task["task_id"], "start": "2030-01-01T01:00:00", "duration_min": 60},
+    )
+    assert short.status_code == 422

@@ -11,7 +11,14 @@ from fastapi import APIRouter, HTTPException
 
 from app.data_access import load_blocks, load_tasks
 from app.models.enums import Horizon
-from app.operations import control_disruptions, list_decisions, list_reports, reported_tasks
+from app.operations import (
+    added_opportunities,
+    control_disruptions,
+    list_added_blocks,
+    list_decisions,
+    list_reports,
+    reported_tasks,
+)
 from app.planning import CurrentPlan, UnsafePlanError, plan_current, plan_fingerprint, run_what_if
 from app.schemas.plan import PlanResponse, WhatIfRequest, WhatIfResponse
 
@@ -24,14 +31,16 @@ def _require_weekly(horizon: Horizon) -> None:
 
 
 def _current_plan(today: date) -> CurrentPlan:
-    """Fixture data plus field reports plus control decisions -- the one plan
-    every page shows, and the baseline what-if scenarios start from."""
+    """Fixture data plus field reports, added blocks and control decisions --
+    the one plan every page shows, and the baseline what-if scenarios start
+    from."""
     return plan_current(
         load_tasks(),
         load_blocks(),
         reported_tasks(list_reports(), today),
         control_disruptions(list_decisions()),
         today,
+        added=added_opportunities(list_added_blocks()),
     )
 
 
