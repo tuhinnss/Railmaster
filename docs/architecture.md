@@ -114,6 +114,14 @@ the Task/block detail panel. Beyond those:
   commits `36b18f1` (adapter) and `40cb357` (page, `TimeDistance.tsx`).
 - `ReportDefect.tsx` (`/report`, field staff) — report a defect; it joins
   the backlog at once and the page says where the replanned week put it.
+- `RescheduleForm.tsx` — shared by both places a block can be moved. As
+  the day, start and length change it checks the booked passenger
+  timetable (`/api/corridors/{section}/timetable-check`, backend
+  `app/timetable.py` over the adapter's "Trains between stations" data)
+  and warns about trains booked over the block's km range then; "Suggest
+  quiet times" lists the least-busy starts that day (`/quiet-slots`). A
+  warning, never a veto. Passenger trains only, positions estimated —
+  the form says so.
 - `ControlOffice.tsx` (`/control`, control office) — one section and one
   night (noon to noon) at a time; grant, grant late, reschedule (new day,
   start and length within the plan week) or cancel each planned block,

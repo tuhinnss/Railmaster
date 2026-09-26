@@ -166,8 +166,15 @@ circular number, sign-off block or compliance certificate.
 `RailwayDataProvider` isolates the fragile scraping behind one interface:
 `MockProvider` (default, all tests), `CapturedFixtureProvider` (replays real
 captured NTES HTML, no network — use this for demos), `NTESProvider` (live).
-A background poller writes into a JSON-file `Store`; the three endpoints
-always read from cache and never recompute on request.
+A background poller writes into a JSON-file `Store`; the four endpoints
+always read from cache and never recompute on request. Besides the Live
+Station boards, the poller fetches each corridor's booked timetable
+(NTES "Trains between stations", confirmed 2026-09-26) about once a day,
+one corridor per cycle. The backend uses it only to *warn* when a block is
+moved onto booked passenger trains and to suggest quieter times
+(`app/timetable.py`, `/api/corridors/{section}/timetable-check` and
+`/quiet-slots`) -- never to forbid a move. With no timetable the answer is
+"not checked", never "no trains".
 
 `predicted_availability = clear_nights / observed_nights` — a frequency count
 over self-collected observations, **not** a trained model. Do not describe it
@@ -254,3 +261,9 @@ scarce.
   (`operations.DUE_DAYS_BY_SEVERITY`: A today, B 7 days, C 30 days). That's
   a prototype assumption, not a railway rule, and is labelled so on the
   page.
+- `LMG-RNY` is not a section beyond `LMG`. NTES's timetable (2026-09-26)
+  shows all 15 LMG→RNY trains running via GHY, so the real line is
+  LMG → GHY → RNY and the configured `GHY-LMG` + `LMG-RNY` chain (km 0–180,
+  180–300) doesn't match it. Timetable checks on `LMG-RNY` are therefore
+  rough. Recorded in the adapter README; the corridors are unchanged,
+  pending a decision.

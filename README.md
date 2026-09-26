@@ -78,7 +78,7 @@ falls back to synthetic values silently if it's unreachable.
 
 Backend engine (schema, synthetic data, priority score, CP-SAT Stage A/B,
 safety validator, explainability, what-if replanning) is done and wired
-end to end — 96 backend + 47 adapter tests passing. Dashboard ships
+end to end — 105 backend + 62 adapter tests passing. Dashboard ships
 Overview, Weekly plan (+ per-section printable version), Task queue,
 detail panel, What-if, Corridor traffic, Report Defect and Block
 Decisions.
@@ -127,10 +127,14 @@ Known gaps, in rough priority order:
   provided their km ranges overlap.
 - Granting a block records the go-ahead but does not lock the work inside
   it: a later report or cancellation can still move that work elsewhere.
-- A rescheduled block is not checked against train running or against
-  other blocks on the section: nothing in the model stops two blocks
-  overlapping in time. The control office is trusted to pick a workable
-  slot.
+- Moving a block is checked against the booked *passenger* timetable
+  only (NTES "Trains between stations", fetched about daily by the
+  adapter): it warns, suggests quieter times, and never blocks the move.
+  Goods trains are in no public timetable; a train's position between the
+  section ends is estimated at a steady speed; both directions count; and
+  whether a train's running days count from this station or its origin is
+  unconfirmed. Nothing checks a moved block against other blocks either —
+  two blocks on a section can overlap in time.
 - A reported defect's due date comes from its severity (A today, B within
   7 days, C within 30). That rule is a prototype assumption, not a railway
   standard.
