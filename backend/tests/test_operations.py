@@ -7,21 +7,26 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.operations import (
     REPORTS_FILE,
+    add_block,
     add_report,
+    added_opportunities,
     clear_decision,
     control_disruptions,
+    list_added_blocks,
     list_decisions,
     list_reports,
     ops_dir,
     record_decision,
+    remove_added_block,
     reported_tasks,
     severity_from_score,
     withdraw_report,
 )
 from app.planning import plan_all, plan_current, run_what_if
-from app.schemas.operations import BlockDecisionRequest, DefectReportRequest
+from app.schemas.operations import AddBlockRequest, BlockDecisionRequest, DefectReportRequest
 from app.schemas.plan import CancelBlock, CurtailBlock, MoveBlock
 from tests.test_planning import REFERENCE_DATE, small_world
+from tests.test_stage_b import make_task
 
 NOW = datetime(2026, 9, 7, 14, 30)
 WEEK = (date(2026, 9, 8), date(2026, 9, 14))  # small_world's blocks fall on the 8th and 9th
@@ -231,6 +236,109 @@ def test_a_decision_on_a_block_that_no_longer_exists_is_skipped():
     tasks, blocks = small_world()
     current = plan_current(tasks, blocks, [], [CancelBlock(kind="cancel_block", block_id="BLK-GONE")], REFERENCE_DATE)
     assert len(current.blocks) == 2
+
+
+# --- Added blocks ------------------------------------------------------------
+
+
+def crowded_world():
+    """small_world plus work that doesn't fit. Only the 180-min block is
+    long enough for the 150-min tasks at km 70 (C) and km 80 (A), and it
+    goes to the A task; the 120-min B task that had it is left out too, as
+    is a 40-min task beside the km-70 one, too long to share that block."""
+    tasks, blocks = small_world()
+    tasks += [
+        make_task(task_id="ENG-2026-00003", km_range=(70.0, 70.5), est_duration_min=150, severity_code="C"),
+        make_task(task_id="ENG-2026-00004", km_range=(80.0, 80.5), est_duration_min=150, severity_code="A"),
+        make_task(task_id="ENG-2026-00005", km_range=(70.2, 70.4), est_duration_min=40, severity_code="C"),
+    ]
+    return tasks, blocks
+
+
+def added_for(task_id, minutes=150, start=datetime(2026, 9, 10, 1, 0)):
+    tasks, _ = crowded_world()
+    task = next(t for t in tasks if t.task_id == task_id)
+    return add_block(task, AddBlockRequest(task_id=task_id, start=start, duration_min=minutes), NOW, WEEK)
+
+
+def plan_with_added(tasks, blocks, control=()):
+    return plan_current(tasks, blocks, [], list(control), REFERENCE_DATE, added=added_opportunities(list_added_blocks()))
+
+
+def test_work_that_does_not_fit_gets_the_block_added_for_it():
+    tasks, blocks = crowded_world()
+    before = plan_current(tasks, blocks, [], [], REFERENCE_DATE).runs["GHY-LMG"].assignments
+    assert before["ENG-2026-00001"] is None and before["ENG-2026-00003"] is None
+
+    added = added_for("ENG-2026-00003")
+    assert added.block_id == "BLK-GHY-LMG-ADD-01"
+    assert added.block_type_possible == "traffic"  # what the task needs
+    current = plan_with_added(tasks, blocks)
+    after = current.runs["GHY-LMG"].assignments
+    # Held for the C task it was added for, though the B task outranks it
+    # and would fit too; nothing else moves.
+    assert after["ENG-2026-00003"] == added.block_id
+    assert after["ENG-2026-00001"] is None
+    assert {t: b for t, b in after.items() if t != "ENG-2026-00003"} == {
+        t: b for t, b in before.items() if t != "ENG-2026-00003"
+    }
+    [planned] = [b for b in current.runs["GHY-LMG"].result.blocks if b.block_id == added.block_id]
+    assert planned.data_source == "added"
+
+
+def test_other_work_can_share_an_added_block_alongside_its_task():
+    tasks, blocks = crowded_world()
+    added = added_for("ENG-2026-00003", minutes=190)
+    after = plan_with_added(tasks, blocks).runs["GHY-LMG"].assignments
+    assert after["ENG-2026-00003"] == after["ENG-2026-00005"] == added.block_id
+
+
+def test_an_added_block_leaves_every_priority_as_it_was():
+    tasks, blocks = crowded_world()
+    added_for("ENG-2026-00003")
+    before = plan_current(tasks, blocks, [], [], REFERENCE_DATE).runs["GHY-LMG"].result.tasks
+    after = plan_with_added(tasks, blocks).runs["GHY-LMG"].result.tasks
+    assert [t.priority_score for t in before] == [t.priority_score for t in after]
+
+
+def test_a_block_whose_task_has_gone_is_left_empty():
+    tasks, blocks = crowded_world()
+    added = added_for("ENG-2026-00003")
+    without_owner = [t for t in tasks if t.task_id != "ENG-2026-00003"]
+    current = plan_with_added(without_owner, blocks)
+    assert added.block_id not in current.runs["GHY-LMG"].assignments.values()
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [
+        {"minutes": 120},  # the task needs 150
+        {"start": datetime(2026, 9, 20, 1, 0)},  # outside the plan week
+    ],
+)
+def test_an_added_block_must_be_able_to_take_its_task(fields):
+    with pytest.raises(ValueError):
+        added_for("ENG-2026-00003", **fields)
+    assert list_added_blocks() == []
+
+
+def test_removing_an_added_block_clears_its_decision_and_ids_are_not_reused():
+    first = added_for("ENG-2026-00003")
+    [block] = added_opportunities(list_added_blocks())
+    record_decision(block, BlockDecisionRequest(decision="granted"), NOW, WEEK)
+    assert remove_added_block(first.block_id)
+    assert not remove_added_block(first.block_id)
+    assert list_added_blocks() == [] and list_decisions() == []
+    assert added_for("ENG-2026-00003").block_id == "BLK-GHY-LMG-ADD-02"
+
+
+def test_a_moved_added_block_stays_labelled_added():
+    tasks, blocks = crowded_world()
+    added = added_for("ENG-2026-00003")
+    move = MoveBlock(kind="move_block", block_id=added.block_id, new_start=datetime(2026, 9, 11, 1, 0))
+    moved = next(b for b in plan_with_added(tasks, blocks, [move]).blocks if b.block_id == added.block_id)
+    assert moved.start_time == datetime(2026, 9, 11, 1, 0)
+    assert moved.data_source == "added"
 
 
 def test_what_if_starts_from_the_current_plan():

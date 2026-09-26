@@ -25,7 +25,7 @@ from ortools.sat.python import cp_model
 
 from app.models.block import BlockOpportunity
 from app.models.task import MaintenanceTask
-from app.scheduling.common import PRIORITY_SCALE, UNSCHEDULED_PENALTY_DAYS, delay_days, new_solver
+from app.scheduling.common import PRIORITY_SCALE, UNSCHEDULED_PENALTY_DAYS, delay_days, hold_for_owner, new_solver
 from app.scheduling.compatibility import task_fits_block
 from app.scheduling.config import DEFAULT_PRIORITY_WEIGHTS, PriorityWeights
 from app.scheduling.prioritizer import score_task
@@ -78,6 +78,8 @@ def solve_stage_a(
         block_vars = [x[(t.task_id, block.block_id)] for t in tasks if (t.task_id, block.block_id) in x]
         if block_vars:
             model.Add(sum(block_vars) <= 1)
+
+    hold_for_owner(model, x, blocks)
 
     # Dependency order: a dependency in this section's task set must be
     # scheduled at or before its dependent, and the dependent can only be

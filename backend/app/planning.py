@@ -101,6 +101,7 @@ def plan_section(
             days_overdue=task.days_overdue,
             block_type_required=task.block_type_required,
             est_duration_min=task.est_duration_min,
+            depends_on=task.depends_on,
             priority_score=breakdowns[task.task_id].score,
             criticality=breakdowns[task.task_id].criticality,
             urgency=breakdowns[task.task_id].urgency,
@@ -232,9 +233,11 @@ def plan_current(
     reported: list[MaintenanceTask],
     control: list[CancelBlock | CurtailBlock | MoveBlock],
     reference_date: date,
+    added: list[BlockOpportunity] | None = None,
 ) -> CurrentPlan:
     """The plan every page shows: the fixture data, plus defects reported
-    from the field, with control-office decisions applied to its blocks.
+    from the field and blocks the control office added, with its decisions
+    applied to the blocks.
 
     Sections those touch are replanned with the fixture plan as
     preferred_assignments -- the same lexicographic tie-break what-if uses --
@@ -242,14 +245,15 @@ def plan_current(
     than reshuffling the week. Sections nothing touched keep the fixture plan
     as is. A decision on a block the data no longer has (regenerated
     fixtures) is skipped rather than failing the whole plan."""
+    added = added or []
     baseline = plan_all(tasks, blocks, reference_date)
-    block_ids = {b.block_id for b in blocks}
+    block_ids = {b.block_id for b in blocks + added}
     control = [d for d in control if d.block_id in block_ids]
-    if not reported and not control:
+    if not reported and not control and not added:
         return CurrentPlan(baseline, tasks, blocks)
 
-    cur_tasks, cur_blocks, _, affected, _ = apply_disruptions(tasks + reported, blocks, control, reference_date)
-    affected |= {t.section for t in reported}
+    cur_tasks, cur_blocks, _, affected, _ = apply_disruptions(tasks + reported, blocks + added, control, reference_date)
+    affected |= {t.section for t in reported} | {b.section for b in added}
 
     runs: dict[str, SectionRun] = {}
     for section in sections_in(cur_tasks, cur_blocks):
@@ -302,8 +306,10 @@ def apply_disruptions(
                 block.end_time = d.new_start + timedelta(minutes=block.duration_min)
                 # A real NTES figure described the original slot, not this
                 # one, so the moved block no longer claims real data. Its
-                # train-impact value is carried over as a stand-in.
-                block.data_source = "synthetic"
+                # train-impact value is carried over as a stand-in. An added
+                # block stays "added": no source offered it at either time.
+                if block.data_source == "ntes_live":
+                    block.data_source = "synthetic"
                 applied.append(
                     f"{block.block_id} ({block.section}) moved from {was} to "
                     f"{block.start_time:%a %H:%M}-{block.end_time:%H:%M} ({block.duration_min} min)."

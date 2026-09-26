@@ -1,5 +1,6 @@
 """Wire shapes for the two dashboards that write data: Report Defect (field
-staff) and Control Office (block decisions). See app/operations.py."""
+staff) and the control office (block decisions, and blocks added for work
+that didn't fit). See app/operations.py."""
 
 from datetime import datetime
 from typing import Literal
@@ -58,3 +59,22 @@ class BlockDecision(BaseModel):
     decided_at: datetime
     new_start: datetime | None = None  # set only when rescheduled
     new_end: datetime | None = None
+
+
+class AddBlockRequest(BaseModel):
+    task_id: str  # the work that didn't fit, which the block is for
+    start: datetime
+    duration_min: int = Field(gt=0, le=720)
+
+
+class AddedBlock(BaseModel):
+    block_id: str
+    section: str
+    start_time: datetime
+    end_time: datetime
+    duration_min: int
+    block_type_possible: BlockType  # the type the work needs
+    # Why it was added. The planner may put other work that fits in it too,
+    # or, if the plan changes, none at all.
+    for_task: str
+    added_at: datetime

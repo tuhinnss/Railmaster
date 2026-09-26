@@ -21,6 +21,7 @@ class TaskSummary(BaseModel):
     days_overdue: int
     block_type_required: BlockType
     est_duration_min: int
+    depends_on: list[str] = Field(default_factory=list)
     priority_score: float
     criticality: float
     urgency: float
@@ -40,7 +41,7 @@ class ScheduledBlockSummary(BaseModel):
     end_time: datetime
     block_type_possible: BlockType
     task_ids: list[str]
-    data_source: Literal["synthetic", "ntes_live"]
+    data_source: Literal["synthetic", "ntes_live", "added"]
     duration_min: int
     used_min: int  # sum of assigned tasks' est_duration_min
 

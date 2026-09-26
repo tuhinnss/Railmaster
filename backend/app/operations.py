@@ -1,5 +1,6 @@
-"""The only user input the app keeps: defects reported from the field and the
-control office's decisions on planned blocks.
+"""The only user input the app keeps: defects reported from the field, the
+control office's decisions on planned blocks, and blocks the control office
+adds for work the plan couldn't fit.
 
 Everything else is read-only fixture data, and what-if scenarios are never
 saved. These two are different on purpose -- a report or a cancelled block
@@ -29,12 +30,20 @@ from app.models.block import BlockOpportunity
 from app.models.enums import SeverityCode
 from app.models.task import MaintenanceTask
 from app.planning import check_km_range
-from app.schemas.operations import BlockDecision, BlockDecisionRequest, DefectReport, DefectReportRequest
+from app.schemas.operations import (
+    AddBlockRequest,
+    AddedBlock,
+    BlockDecision,
+    BlockDecisionRequest,
+    DefectReport,
+    DefectReportRequest,
+)
 from app.schemas.plan import CancelBlock, CurtailBlock, MoveBlock
 
 DEFAULT_OPS_DIR = REPO_ROOT / "data" / "operations"
 REPORTS_FILE = "reported_defects.json"
 DECISIONS_FILE = "block_decisions.json"
+ADDED_FILE = "added_blocks.json"
 
 # Prototype assumption, not an Indian Railways rule: how long a reported
 # defect may wait before it counts as overdue. Severity A is due the day it
@@ -234,3 +243,94 @@ def control_disruptions(decisions: list[BlockDecision]) -> list[CancelBlock | Cu
                 )
             )
     return out
+
+
+# --- Added blocks ------------------------------------------------------------
+
+
+def list_added_blocks() -> list[AddedBlock]:
+    return [AddedBlock(**b) for b in _read(ADDED_FILE, {"blocks": []})["blocks"]]
+
+
+def add_block(
+    task: MaintenanceTask,
+    request: AddBlockRequest,
+    now: datetime,
+    plan_days: tuple[date, date],
+) -> AddedBlock:
+    """A block the control office grants outside the generated
+    opportunities, for `task`, work the plan couldn't fit. It is held for
+    that task -- other work may share it only alongside (see
+    scheduling/common.py:hold_for_owner) -- and the planner decides the rest
+    of the plan as usual. It takes the block type the task needs, and must
+    be long enough for it and start in the plan week. Raises ValueError
+    otherwise."""
+    first, last = plan_days
+    if not first <= request.start.date() <= last:
+        raise ValueError(
+            f"The plan covers {first:%a %d %b} to {last:%a %d %b}; {request.start:%a %d %b} is outside it"
+        )
+    if request.duration_min < task.est_duration_min:
+        raise ValueError(
+            f"{task.task_id} needs {task.est_duration_min} min; a {request.duration_min}-min block is too short"
+        )
+    with _lock:
+        data = _read(ADDED_FILE, {"next_seq": 1, "blocks": []})
+        # A counter, like report ids: a removed block's id is never reused,
+        # so an old decision can't attach itself to a different block.
+        seq = data["next_seq"]
+        block = AddedBlock(
+            block_id=f"BLK-{task.section}-ADD-{seq:02d}",
+            section=task.section,
+            start_time=request.start,
+            end_time=request.start + timedelta(minutes=request.duration_min),
+            duration_min=request.duration_min,
+            block_type_possible=task.block_type_required,
+            for_task=task.task_id,
+            added_at=now,
+        )
+        data["blocks"].append(block.model_dump(mode="json"))
+        data["next_seq"] = seq + 1
+        _write(ADDED_FILE, data)
+    return block
+
+
+def remove_added_block(block_id: str) -> bool:
+    """Removes the block, and any decision recorded on it."""
+    with _lock:
+        data = _read(ADDED_FILE, {"next_seq": 1, "blocks": []})
+        kept = [b for b in data["blocks"] if b["block_id"] != block_id]
+        if len(kept) == len(data["blocks"]):
+            return False
+        data["blocks"] = kept
+        _write(ADDED_FILE, data)
+        decisions = _read(DECISIONS_FILE, [])
+        remaining = [d for d in decisions if d["block_id"] != block_id]
+        if len(remaining) != len(decisions):
+            _write(DECISIONS_FILE, remaining)
+    return True
+
+
+def added_opportunities(added: list[AddedBlock]) -> list[BlockOpportunity]:
+    """Added blocks in the shape the planner takes.
+
+    Nothing predicted a block nobody offered, so there is no train-impact
+    figure for it. It gets 0, which leaves every task's priority exactly as
+    it was: AvailabilityImpact is the max over a task's compatible blocks,
+    and no impact is below 0. data_source="added" keeps that 0 from ever
+    being shown as a measured value."""
+    return [
+        BlockOpportunity(
+            block_id=a.block_id,
+            section=a.section,
+            start_time=a.start_time,
+            end_time=a.end_time,
+            duration_min=a.duration_min,
+            block_type_possible=a.block_type_possible,
+            expected_train_impact=0.0,
+            goods_traffic_load=0.0,
+            data_source="added",
+            reserved_for=a.for_task,
+        )
+        for a in added
+    ]

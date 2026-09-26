@@ -43,3 +43,30 @@ def new_solver() -> cp_model.CpSolver:
 
 def delay_days(block: BlockOpportunity, reference_date: date) -> int:
     return max(0, (block.start_time.date() - reference_date).days)
+
+
+def hold_for_owner(
+    model: cp_model.CpModel,
+    x: dict[tuple[str, str], cp_model.IntVar],
+    blocks: list[BlockOpportunity],
+) -> None:
+    """A block added for one task (reserved_for) takes other work only
+    alongside that task. Left open, the block went to whatever outranked
+    the task it was added for: tried on the seed-1 data, a block added for
+    each of the 9 unscheduled tasks got only 3 of them scheduled. Other work
+    may still share it, so merging into an added block still pays. If the
+    task has left the backlog (a withdrawn report), nothing uses the block.
+    One rule for both stages; in Stage A, one task per block, it leaves the
+    block to its owner alone."""
+    for block in blocks:
+        owner = block.reserved_for
+        if owner is None:
+            continue
+        owner_var = x.get((owner, block.block_id))
+        for (task_id, block_id), var in x.items():
+            if block_id != block.block_id or task_id == owner:
+                continue
+            if owner_var is None:
+                model.Add(var == 0)
+            else:
+                model.Add(var <= owner_var)
