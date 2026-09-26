@@ -58,6 +58,14 @@ def fetch_live_trains(corridor: str, base_url: str = NTES_ADAPTER_BASE_URL) -> d
     return _fetch_optional(f"{base_url}/api/v1/corridors/{corridor}/live", f"live data for {corridor}")
 
 
+def fetch_timetable(corridor: str, base_url: str = NTES_ADAPTER_BASE_URL) -> dict | None:
+    """The corridor's booked timetable both ways (ntes-adapter's "Trains
+    between stations" data), or None when the adapter has none -- not
+    fetched yet, never captured, or not running. Callers must treat None
+    as "not checked", never as "no trains"."""
+    return _fetch_optional(f"{base_url}/api/v1/corridors/{corridor}/timetable", f"timetable for {corridor}")
+
+
 def _fetch_optional(url: str, what: str) -> dict | None:
     try:
         resp = httpx.get(url, timeout=5.0)

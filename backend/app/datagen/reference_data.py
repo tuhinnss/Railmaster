@@ -4,7 +4,9 @@ Sections are limited to the corridors ntes-adapter actually covers, so
 every section planned here has a real data source behind it rather than
 being purely invented. The station codes GHY/LMG/RNY are verified real
 (see ntes-adapter/README.md), though real-world section adjacency is
-not, and the km ranges are illustrative.
+not, and the km ranges are illustrative. In fact NTES's timetable shows
+LMG->RNY trains running via GHY (2026-09-26), so LMG-RNY as km 180-300
+beyond GHY-LMG doesn't match the real line -- recorded, not yet changed.
 
 Defect and block data for these sections is still synthetic -- only
 corridor availability comes from real NTES-derived data, and only for
