@@ -43,36 +43,149 @@ and the build spec for what's in/out.
 - `data/operations/` — defects reported and block decisions recorded on the
   dashboards (gitignored; delete it to start clean).
 
-## Running the full stack
+## How to run it
+
+### What you need
+
+- [Git](https://git-scm.com/)
+- [Python](https://www.python.org/downloads/) 3.12 or newer (tested on 3.12
+  and 3.13)
+- [Node.js](https://nodejs.org/) 18 or newer, with npm (tested on 22)
+
+### 1. Get the code
 
 ```bash
-# 1. ntes-adapter (optional but recommended -- without it, GHY-LMG and
-#    LMG-RNY just use synthetic data like every other section)
-cd ntes-adapter
-python -m venv .venv && .venv/Scripts/python.exe -m pip install -r requirements.txt
-.venv/Scripts/python.exe -m scripts.seed_demo_predictions   # illustrative history, see its README
-# NTES_ADAPTER_PROVIDER=fixture serves the real captured NTES train boards
-# (Corridor Traffic page). Omit it for canned mock trains.
-NTES_ADAPTER_PROVIDER=fixture .venv/Scripts/python.exe -m uvicorn app.main:app --port 8001
-# Or live: polls NTES's unofficial Live Station page every 3 minutes and
-# builds real availability history night by night. Skip the seeding step
-# above for a live data directory -- see ntes-adapter/README.md.
-# NTES_ADAPTER_PROVIDER=ntes NTES_ADAPTER_POLL_INTERVAL=180 .venv/Scripts/python.exe -m uvicorn app.main:app --port 8001
-
-# 2. backend
-cd backend
-python -m venv .venv && .venv/Scripts/python.exe -m pip install -r requirements.txt
-.venv/Scripts/python.exe -m uvicorn app.main:app --port 8000
-
-# 3. frontend
-cd frontend
-npm install && npm run dev
-# open http://localhost:5173 (not 127.0.0.1 -- Vite may bind IPv6-only)
+git clone https://github.com/tuhinnss/Railmaster.git
+cd Railmaster
 ```
 
-Data auto-generates on first request if `data/synthetic/` doesn't exist.
-The backend works fine with ntes-adapter not running — `ntes_bridge.py`
-falls back to synthetic values silently if it's unreachable.
+### 2. Start the three services
+
+Open **three terminals**, each starting in the `Railmaster` folder, and
+start the services in this order. Leave each one running. The commands
+call the Python inside each service's own virtual environment directly,
+so there is nothing to activate.
+
+**Terminal 1: ntes-adapter** (port 8001), replaying the real NTES pages
+captured during development:
+
+```powershell
+# Windows (PowerShell)
+cd ntes-adapter
+py -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+$env:NTES_ADAPTER_PROVIDER = "fixture"
+.venv\Scripts\python.exe -m uvicorn app.main:app --port 8001
+```
+
+```bash
+# macOS / Linux
+cd ntes-adapter
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+NTES_ADAPTER_PROVIDER=fixture .venv/bin/python -m uvicorn app.main:app --port 8001
+```
+
+**Terminal 2: backend** (port 8000):
+
+```powershell
+# Windows (PowerShell)
+cd backend
+py -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe -m uvicorn app.main:app --port 8000
+```
+
+```bash
+# macOS / Linux
+cd backend
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m uvicorn app.main:app --port 8000
+```
+
+**Terminal 3: dashboard** (port 5173), the same on every system:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The `venv` and `install` lines are only needed the first time; after that,
+start each service with its last line (plus the `$env:` line in
+PowerShell, which lasts only for that terminal).
+
+### 3. Open it
+
+Go to **http://localhost:5173** (use `localhost`, not `127.0.0.1`: Vite may
+listen on IPv6 only). The first page asks whether you are the control
+office or field staff; that only picks which pages the menu shows.
+
+The first page load takes a few seconds: the backend generates the
+synthetic maintenance backlog and block opportunities for the coming week
+(`data/synthetic/`) on its first request.
+
+For the first few minutes after the adapter starts, the timetable check
+used when moving a block may say "not checked": the adapter loads one
+corridor's timetable per poll, about a minute apart (measured: NDLS-GZB
+was ready 3–4 minutes after start).
+
+### Options
+
+- **Without the adapter.** The backend runs fine on its own: blocks keep
+  synthetic availability, Corridor Traffic has no train boards, and the
+  timetable check when moving a block says "not checked".
+- **Adapter modes** (`NTES_ADAPTER_PROVIDER`):
+  - `fixture` (used above): real captured NTES pages, replayed and
+    labelled as such.
+  - `mock` (the default when unset): invented trains. Corridor Traffic
+    shows a warning banner.
+  - `ntes`: polls NTES's live pages and builds real availability history
+    night by night; blocks only use it once 7 nights have been observed.
+    Always set `NTES_ADAPTER_POLL_INTERVAL=180` with it (every 3 minutes):
+    the 60-second default is meant for the offline modes. Read
+    `ntes-adapter/README.md` first.
+- **Demo seeding: not needed, and read this before using it.**
+  Running `.venv/bin/python -m scripts.seed_demo_predictions` (Windows:
+  `.venv\Scripts\python.exe -m ...`) in `ntes-adapter`, before starting
+  it, fills the adapter with made-up past nights so blocks use
+  NTES-style availability straight away. Those blocks then show the
+  **REAL NTES DATA** badge although the numbers are illustrative, not
+  observed (see Known gaps). Never run it on a data folder that live
+  polling writes to.
+
+### Run the tests
+
+```bash
+# from backend/ and from ntes-adapter/ (use .venv\Scripts\python.exe on Windows)
+.venv/bin/python -m pytest -q
+# from frontend/: typecheck (there is no frontend test suite)
+npx tsc --noEmit
+```
+
+### Start over
+
+Stop the backend, delete `data/operations/` (saved reports, block
+decisions and added blocks) and, to regenerate the week's synthetic data,
+`data/synthetic/`. Then start the backend again.
+
+### If something goes wrong
+
+- **`127.0.0.1:5173` refuses to connect.** Use `http://localhost:5173`.
+- **Every page says it failed to load the plan.** The backend isn't running
+  on port 8000; the dashboard sends `/api` requests there
+  (`frontend/vite.config.ts`).
+- **Windows: `pip install` tries to build `pydantic-core` and asks for
+  Rust.** The virtual environment was made with an MSYS/Git-Bash
+  `python`. Delete `.venv` and recreate it with `py -m venv .venv`.
+- **A port is already in use.** Stop whatever holds it. To move the
+  adapter, start the backend with `NTES_ADAPTER_BASE_URL` pointing at the
+  new port; to move the backend, change the proxy in
+  `frontend/vite.config.ts`.
+- **Docker instead.** With Docker installed, `docker build -t railmaster .`
+  then `docker run -p 8000:8000 railmaster` runs all three in one
+  container at http://localhost:8000 (see Hosted demo below).
 
 ## Hosted demo (Render)
 
