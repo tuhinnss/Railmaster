@@ -27,6 +27,12 @@ from app.models.block import BlockOpportunity
 
 logger = logging.getLogger("railmaster.ntes_bridge")
 
+# One client for every call. A fresh one per request (httpx.get) re-reads
+# the CA bundle each time: measured at 0.2-0.7 s a call, 2.1 s of a 2.6 s
+# plan request, where a shared client takes ~6 ms -- and a small hosted
+# instance multiplies the difference.
+_client = httpx.Client(timeout=5.0)
+
 # A prediction built from fewer nights than this is not used. A fresh
 # adapter reports observed_nights=0 with predicted_availability=0.0, which
 # read literally means "never clear" and would stamp impact 1.0 -- labelled
@@ -42,7 +48,7 @@ def fetch_predicted_windows(corridor: str, base_url: str = NTES_ADAPTER_BASE_URL
     predictions yet) -- all of those are legitimate "no real data available
     right now" states, not errors worth surfacing to the scheduler."""
     try:
-        resp = httpx.get(f"{base_url}/api/v1/corridors/{corridor}/predicted-windows", timeout=5.0)
+        resp = _client.get(f"{base_url}/api/v1/corridors/{corridor}/predicted-windows")
         resp.raise_for_status()
         return resp.json()
     except Exception as exc:  # noqa: BLE001 -- enrichment is best-effort by design
@@ -68,7 +74,7 @@ def fetch_timetable(corridor: str, base_url: str = NTES_ADAPTER_BASE_URL) -> dic
 
 def _fetch_optional(url: str, what: str) -> dict | None:
     try:
-        resp = httpx.get(url, timeout=5.0)
+        resp = _client.get(url)
         resp.raise_for_status()
         return resp.json()
     except Exception as exc:  # noqa: BLE001 -- enrichment is best-effort by design
