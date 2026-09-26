@@ -28,13 +28,20 @@ and the build spec for what's in/out.
 - `frontend/` — React dashboard, all wired to real scheduler output:
   Overview (KPIs + corridor map), Weekly plan (day × section grid, with a
   per-section printable version), Task queue + detail panel, What-if
-  replanning, Corridor traffic (real NTES train boards).
+  replanning, Corridor traffic (real NTES train boards), Report Defect
+  (field staff) and Block Decisions (control office). The first page
+  (`/`) asks who you are — control office or field staff — and each
+  view gets its own nav. The control office sees the whole block
+  allocation (every planning page plus Block Decisions); there is no
+  separate planner view for now. The Overview lives at `/overview`.
 - `ntes-adapter/` — separate service; see its own README. Provides real,
   self-collected train-movement-derived predicted-availability data, plus
   real captured NTES train boards, for the three corridors.
 - `docs/` — architecture notes.
 - `data/synthetic/` — generated fixture data (gitignored, reproducible via
   `python -m app.datagen.generate` from `backend/`).
+- `data/operations/` — defects reported and block decisions recorded on the
+  dashboards (gitignored; delete it to start clean).
 
 ## Running the full stack
 
@@ -71,9 +78,10 @@ falls back to synthetic values silently if it's unreachable.
 
 Backend engine (schema, synthetic data, priority score, CP-SAT Stage A/B,
 safety validator, explainability, what-if replanning) is done and wired
-end to end — 74 backend + 47 adapter tests passing. Dashboard ships
+end to end — 96 backend + 47 adapter tests passing. Dashboard ships
 Overview, Weekly plan (+ per-section printable version), Task queue,
-detail panel, What-if and Corridor traffic.
+detail panel, What-if, Corridor traffic, Report Defect and Block
+Decisions.
 
 The solver is deterministic (one CP-SAT worker, fixed seed). The default
 parallel search returned different, equally optimal plans for the same
@@ -88,6 +96,17 @@ the data, re-runs the full pipeline on the affected sections, and diffs
 the result. Among equally good replans it keeps the current plan (a
 strict tie-break in Stage B), so every listed change is one the
 disruption forced. Nothing is persisted.
+
+Report Defect and Block Decisions are the persisted counterpart
+(`/api/operations`, `backend/app/operations.py`). A reported defect joins
+its section's backlog as a task marked `REPORTED`; a control office can
+mark a planned block granted, granted late (the block shortens),
+rescheduled to another day and time in the plan week (optionally with a
+new length), or cancelled (it leaves the plan). Every page then shows the fixture plan
+with these applied, replanned with the same keep-the-current-plan
+tie-break, so only work that has to move does. What-if scenarios start
+from this plan. The view chosen on the first page only changes which pages
+the nav shows: there is no login, and every page stays reachable by URL.
 
 Every block carries a `data_source` field (`"ntes_live"` vs
 `"synthetic"`), surfaced as a badge in the detail panel and an Overview
@@ -106,3 +125,12 @@ Known gaps, in rough priority order:
   resource constraint exists.
 - No department-conflict rule: any two departments may share a block
   provided their km ranges overlap.
+- Granting a block records the go-ahead but does not lock the work inside
+  it: a later report or cancellation can still move that work elsewhere.
+- A rescheduled block is not checked against train running or against
+  other blocks on the section: nothing in the model stops two blocks
+  overlapping in time. The control office is trusted to pick a workable
+  slot.
+- A reported defect's due date comes from its severity (A today, B within
+  7 days, C within 30). That rule is a prototype assumption, not a railway
+  standard.

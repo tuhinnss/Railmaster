@@ -13,7 +13,13 @@ blocks instead of separate ones.
 It is built to a written build spec. Where this file says "spec section N",
 that refers to it. Deliberately out of scope: real TMS/SMMS/TDMS/COA/BDMS
 connections, trained ML models, network-scale solving, auth/roles, approval
-workflow, monthly horizon.
+workflow, monthly horizon. The first page (`/`, `ChooseView.tsx`) asks which
+view to use (Control office / Field staff); that only picks which pages
+the nav shows. The control office view carries every planning page plus
+Block Decisions; there is no separate planner view for now, by the user's
+choice. It is not access
+control: there is no login and every route stays reachable by URL. Don't
+describe it as roles or permissions.
 
 ## Three services
 
@@ -109,6 +115,21 @@ which is a strict lexicographic tie-break (the real objective is scaled
 so stability can never outweigh one unit of real benefit). Keep it a
 tie-break: a replan must be the plan the scheduler would choose anyway.
 
+**Field reports and control decisions are the one persisted user input**
+(`app/operations.py`, `/api/operations`, JSON under `data/operations/`,
+overridable with `RAILMASTER_OPS_DIR`). `planning.plan_current` is the
+plan every page shows: the fixture plan, plus reported defects as tasks,
+plus decisions applied as `CancelBlock`/`CurtailBlock`/`MoveBlock`
+(cancel, granted late, rescheduled), with touched
+sections replanned against the fixture plan as `preferred_assignments`.
+What-if starts from this plan (`run_what_if(..., baseline_runs=...)`), so
+its "before" is exactly what the other pages show. A plain "granted"
+decision changes nothing in the plan and does not lock work in the block.
+A moved block drops back to `data_source="synthetic"`: any real NTES figure
+described its original slot, not the new one.
+`tests/conftest.py` points every test at an empty temporary store; keep it
+that way so tests never read or write the real directory.
+
 **Resolved spec contradiction — do not "fix" this back.** Read literally, the
 spec's power-isolation rule would forbid the merge its own worked example
 requires. It is therefore scoped to blocks whose `block_type_possible` is
@@ -123,6 +144,9 @@ this, and anything new that surfaces data should extend the pattern:
 - `BlockOpportunity.data_source` — `"ntes_live"` only when a real adapter
   prediction actually overwrote `expected_train_impact`; otherwise
   `"synthetic"`. Set solely by `ntes_bridge.py`.
+- `MaintenanceTask.data_source` — `"reported"` for a defect entered on the
+  Report Defect page, shown with a REPORTED badge; otherwise `"synthetic"`.
+  Set solely by `operations.reported_tasks`.
 - `LiveCorridorStatus.provider` — `"mock"` / `"captured_fixture"` /
   `"ntes_live"`. The Corridor Traffic page renders an amber warning banner on
   mock data.
@@ -226,3 +250,7 @@ scarce.
   and changes explanation wording, so an overdue severity-A task can lose
   a contested block to a higher-scoring severity-B task. Contradicts spec
   section 4; not yet fixed.
+- A reported defect's due date comes from its severity
+  (`operations.DUE_DAYS_BY_SEVERITY`: A today, B 7 days, C 30 days). That's
+  a prototype assumption, not a railway rule, and is labelled so on the
+  page.

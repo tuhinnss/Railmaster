@@ -66,9 +66,19 @@ app.datagen.generate ──> data/synthetic/{tasks,blocks}.json
   validator, explanations, safety-check summary) assembled into API shapes,
   plus the plan fingerprint and what-if replanning. Shared by the weekly
   plan and what-if so both run identical steps. What-if disruptions apply
-  to copies of the loaded data and are never persisted.
-- `api/` — FastAPI routers exposing tasks, blocks, generated plans and
-  what-if replans to the dashboard.
+  to copies of the loaded data and are never persisted. `plan_current`
+  builds the plan every page shows: fixture data plus field reports plus
+  control decisions, with touched sections replanned against the fixture
+  plan as the tie-break baseline.
+- `operations.py` — the only persisted user input: defects reported on
+  the Report Defect page and control-office decisions on planned blocks
+  (granted / granted late / rescheduled / cancelled), stored as JSON
+  under `data/operations/`. Reported defects become tasks with
+  `data_source="reported"`; decisions become the same `CancelBlock` /
+  `CurtailBlock` / `MoveBlock` disruptions what-if uses.
+- `api/` — FastAPI routers exposing tasks, blocks, generated plans,
+  what-if replans, and field reports / control decisions
+  (`/api/operations`) to the dashboard.
 - `ntes_bridge.py` — optional enrichment layer connecting to the separate
   `ntes-adapter/` service (real NTES-derived predicted-availability data
   and real captured train boards, see its own README). For the
@@ -102,6 +112,17 @@ the Task/block detail panel. Beyond those:
   movements was built and then removed on 2026-09-25 as unnecessary, along
   with the adapter's `/train-paths` endpoint that fed it. Recoverable from
   commits `36b18f1` (adapter) and `40cb357` (page, `TimeDistance.tsx`).
+- `ReportDefect.tsx` (`/report`, field staff) — report a defect; it joins
+  the backlog at once and the page says where the replanned week put it.
+- `ControlOffice.tsx` (`/control`, control office) — one section and one
+  night (noon to noon) at a time; grant, grant late, reschedule (new day,
+  start and length within the plan week) or cancel each planned block,
+  with the resulting task moves listed after each decision.
+- `ChooseView.tsx` (`/`) — the first page: choose a view (control office,
+  which has every planning page, or field staff), which picks the pages
+  `App.tsx` puts in the nav;
+  "change" in the nav returns here. Overview moved to `/overview`. Not
+  access control; no login.
 - `PrintPlan.tsx` (`/print?section=…`) — print-first weekly programme for
   the browser's Save as PDF, one section per printout, carrying that
   section's own fingerprint (`SectionPlanResult.fingerprint`). The page
@@ -112,7 +133,9 @@ the Task/block detail panel. Beyond those:
 the detail panel, a count KPI on Overview) so the real-vs-synthetic
 distinction from `ntes_bridge.py` is visible, not just internal.
 `CorridorMap.tsx` on Overview shows where blocks land along the corridor
-by km; `CorridorTraffic.tsx` shows real captured NTES train boards.
+by km; clicking a block there opens `BlockActionsPanel.tsx` to reschedule
+or delete it (saved as the same control decisions Block Decisions makes,
+through the shared `hooks/useBlockDecisions.ts`); `CorridorTraffic.tsx` shows real captured NTES train boards.
 
 ## Explicitly out of scope for this build
 
