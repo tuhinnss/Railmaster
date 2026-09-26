@@ -30,6 +30,7 @@ class TaskSummary(BaseModel):
     scheduled: bool
     block_id: str | None
     reason: str
+    data_source: Literal["synthetic", "reported"] = "synthetic"
 
 
 class ScheduledBlockSummary(BaseModel):
@@ -99,6 +100,16 @@ class CurtailBlock(BaseModel):
     minutes_lost: int = Field(gt=0)
 
 
+class MoveBlock(BaseModel):
+    """A block is moved to a different time. It keeps its length unless a
+    new one is given."""
+
+    kind: Literal["move_block"]
+    block_id: str
+    new_start: datetime
+    duration_min: int | None = Field(default=None, gt=0, le=720)
+
+
 class UrgentDefect(BaseModel):
     """A new defect found mid-week that needs a block this week."""
 
@@ -113,7 +124,7 @@ class UrgentDefect(BaseModel):
     block_type_required: BlockType
 
 
-Disruption = Annotated[CancelBlock | CurtailBlock | UrgentDefect, Field(discriminator="kind")]
+Disruption = Annotated[CancelBlock | CurtailBlock | MoveBlock | UrgentDefect, Field(discriminator="kind")]
 
 
 class WhatIfRequest(BaseModel):

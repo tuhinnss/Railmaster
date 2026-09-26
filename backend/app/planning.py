@@ -9,7 +9,9 @@ assembles API response shapes, which the scheduler itself never sees.
 
 What-if disruptions are applied to copies of the loaded data and never
 written back: a scenario is a question asked of the plan, not an edit to
-the fixture data every other page reads.
+the fixture data every other page reads. Field reports and control
+decisions (app/operations.py) are the persisted counterpart: plan_current
+applies them through the same machinery on every request.
 """
 
 import hashlib
@@ -31,6 +33,7 @@ from app.schemas.plan import (
     CancelBlock,
     CurtailBlock,
     Disruption,
+    MoveBlock,
     SafetyCheckSummary,
     ScheduledBlockSummary,
     SectionPlanResult,
@@ -107,6 +110,7 @@ def plan_section(
             scheduled=result_b.assignments[task.task_id] is not None,
             block_id=result_b.assignments[task.task_id],
             reason=explanations[task.task_id].reason,
+            data_source=task.data_source,
         )
         for task in tasks
     ]
@@ -200,6 +204,69 @@ def plan_fingerprint(reference_date: date, sections: list[SectionPlanResult]) ->
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+def check_km_range(section: str, km_from: float, km_to: float) -> None:
+    """Raises ValueError unless km_from-km_to is a real range inside the
+    section. Shared by what-if defects and field reports."""
+    if section not in _SECTION_KM:
+        raise ValueError(f"Unknown section {section!r}")
+    km_start, km_end = _SECTION_KM[section]
+    if not (km_start <= km_from < km_to <= km_end):
+        raise ValueError(
+            f"km {km_from}-{km_to} is not a valid range inside {section} (km {km_start}-{km_end})"
+        )
+
+
+# --- The plan as it stands ---------------------------------------------------
+
+
+@dataclass
+class CurrentPlan:
+    runs: dict[str, SectionRun]
+    tasks: list[MaintenanceTask]
+    blocks: list[BlockOpportunity]
+
+
+def plan_current(
+    tasks: list[MaintenanceTask],
+    blocks: list[BlockOpportunity],
+    reported: list[MaintenanceTask],
+    control: list[CancelBlock | CurtailBlock | MoveBlock],
+    reference_date: date,
+) -> CurrentPlan:
+    """The plan every page shows: the fixture data, plus defects reported
+    from the field, with control-office decisions applied to its blocks.
+
+    Sections those touch are replanned with the fixture plan as
+    preferred_assignments -- the same lexicographic tie-break what-if uses --
+    so a report or a cancelled block moves only the work it has to, rather
+    than reshuffling the week. Sections nothing touched keep the fixture plan
+    as is. A decision on a block the data no longer has (regenerated
+    fixtures) is skipped rather than failing the whole plan."""
+    baseline = plan_all(tasks, blocks, reference_date)
+    block_ids = {b.block_id for b in blocks}
+    control = [d for d in control if d.block_id in block_ids]
+    if not reported and not control:
+        return CurrentPlan(baseline, tasks, blocks)
+
+    cur_tasks, cur_blocks, _, affected, _ = apply_disruptions(tasks + reported, blocks, control, reference_date)
+    affected |= {t.section for t in reported}
+
+    runs: dict[str, SectionRun] = {}
+    for section in sections_in(cur_tasks, cur_blocks):
+        if section in affected or section not in baseline:
+            prior = baseline.get(section)
+            runs[section] = plan_section(
+                section,
+                [t for t in cur_tasks if t.section == section],
+                [b for b in cur_blocks if b.section == section],
+                reference_date,
+                preferred_assignments=prior.assignments if prior else None,
+            )
+        else:
+            runs[section] = baseline[section]
+    return CurrentPlan(runs, cur_tasks, cur_blocks)
+
+
 # --- What-if ---------------------------------------------------------------
 
 
@@ -220,7 +287,7 @@ def apply_disruptions(
     injected: set[str] = set()
 
     for d in disruptions:
-        if isinstance(d, (CancelBlock, CurtailBlock)):
+        if isinstance(d, (CancelBlock, CurtailBlock, MoveBlock)):
             block = next((b for b in blocks if b.block_id == d.block_id), None)
             if block is None:
                 raise ValueError(f"Unknown block {d.block_id!r}")
@@ -228,6 +295,19 @@ def apply_disruptions(
             if isinstance(d, CancelBlock):
                 blocks.remove(block)
                 applied.append(f"{block.block_id} ({block.section}) cancelled.")
+            elif isinstance(d, MoveBlock):
+                was = f"{block.start_time:%a %H:%M}"
+                block.duration_min = d.duration_min or block.duration_min
+                block.start_time = d.new_start
+                block.end_time = d.new_start + timedelta(minutes=block.duration_min)
+                # A real NTES figure described the original slot, not this
+                # one, so the moved block no longer claims real data. Its
+                # train-impact value is carried over as a stand-in.
+                block.data_source = "synthetic"
+                applied.append(
+                    f"{block.block_id} ({block.section}) moved from {was} to "
+                    f"{block.start_time:%a %H:%M}-{block.end_time:%H:%M} ({block.duration_min} min)."
+                )
             else:
                 if d.minutes_lost >= block.duration_min:
                     raise ValueError(
@@ -242,14 +322,7 @@ def apply_disruptions(
                 )
 
         elif isinstance(d, UrgentDefect):
-            if d.section not in _SECTION_KM:
-                raise ValueError(f"Unknown section {d.section!r}")
-            km_start, km_end = _SECTION_KM[d.section]
-            if not (km_start <= d.km_from < d.km_to <= km_end):
-                raise ValueError(
-                    f"km {d.km_from}-{d.km_to} is not a valid range inside {d.section} "
-                    f"(km {km_start}-{km_end})"
-                )
+            check_km_range(d.section, d.km_from, d.km_to)
             task_id = f"{DEPARTMENT_TASK_ID_PREFIX[d.department]}-WHATIF-{len(injected) + 1:02d}"
             tasks.append(
                 MaintenanceTask(
@@ -323,7 +396,11 @@ def run_what_if(
     blocks: list[BlockOpportunity],
     disruptions: list[Disruption],
     reference_date: date,
+    baseline_runs: dict[str, SectionRun] | None = None,
 ) -> WhatIfResponse:
+    """baseline_runs, when given, is the plan already published for this
+    data (plan_current's runs), so "before" is exactly what the other pages
+    show rather than a fresh solve that could differ on ties."""
     new_tasks, new_blocks, applied, affected, injected = apply_disruptions(
         tasks, blocks, disruptions, reference_date
     )
@@ -333,12 +410,15 @@ def run_what_if(
     replan_seconds = 0.0
 
     for section in sorted(affected):
-        baseline = plan_section(
-            section,
-            [t for t in tasks if t.section == section],
-            [b for b in blocks if b.section == section],
-            reference_date,
-        )
+        if baseline_runs is not None and section in baseline_runs:
+            baseline = baseline_runs[section]
+        else:
+            baseline = plan_section(
+                section,
+                [t for t in tasks if t.section == section],
+                [b for b in blocks if b.section == section],
+                reference_date,
+            )
         started = time.perf_counter()
         replanned = plan_section(
             section,

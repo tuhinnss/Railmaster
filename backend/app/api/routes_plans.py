@@ -11,7 +11,8 @@ from fastapi import APIRouter, HTTPException
 
 from app.data_access import load_blocks, load_tasks
 from app.models.enums import Horizon
-from app.planning import UnsafePlanError, plan_all, plan_fingerprint, run_what_if
+from app.operations import control_disruptions, list_decisions, list_reports, reported_tasks
+from app.planning import CurrentPlan, UnsafePlanError, plan_current, plan_fingerprint, run_what_if
 from app.schemas.plan import PlanResponse, WhatIfRequest, WhatIfResponse
 
 router = APIRouter(prefix="/plans", tags=["plans"])
@@ -22,13 +23,25 @@ def _require_weekly(horizon: Horizon) -> None:
         raise HTTPException(status_code=400, detail="Only the WEEKLY horizon is supported in this build")
 
 
+def _current_plan(today: date) -> CurrentPlan:
+    """Fixture data plus field reports plus control decisions -- the one plan
+    every page shows, and the baseline what-if scenarios start from."""
+    return plan_current(
+        load_tasks(),
+        load_blocks(),
+        reported_tasks(list_reports(), today),
+        control_disruptions(list_decisions()),
+        today,
+    )
+
+
 @router.get("/{horizon}", response_model=PlanResponse)
 def get_plan(horizon: Horizon):
     _require_weekly(horizon)
     today = date.today()
 
     try:
-        runs = plan_all(load_tasks(), load_blocks(), today)
+        runs = _current_plan(today).runs
     except UnsafePlanError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -45,13 +58,16 @@ def get_plan(horizon: Horizon):
 @router.post("/{horizon}/what-if", response_model=WhatIfResponse)
 def what_if(horizon: Horizon, request: WhatIfRequest):
     """Replans the sections a set of disruptions touches and reports the
-    before/after difference. Nothing is persisted: the fixture data every
-    other endpoint reads is unchanged afterwards. An unsafe replan is a
-    500, exactly as for the weekly plan."""
+    before/after difference, starting from the current plan (field reports
+    and control decisions included). Nothing is persisted: every other
+    endpoint reads the same data afterwards. An unsafe replan is a 500,
+    exactly as for the weekly plan."""
     _require_weekly(horizon)
+    today = date.today()
 
     try:
-        return run_what_if(load_tasks(), load_blocks(), request.disruptions, date.today())
+        current = _current_plan(today)
+        return run_what_if(current.tasks, current.blocks, request.disruptions, today, baseline_runs=current.runs)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except UnsafePlanError as exc:

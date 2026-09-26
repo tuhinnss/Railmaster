@@ -28,6 +28,9 @@ Thumbs.db
 # Generated synthetic data (reproducible via app.datagen.generate)
 data/synthetic/
 
+# Field reports and control decisions entered on the dashboards (app/operations.py)
+data/operations/
+
 # ntes-adapter runtime persistence (JSON-file store, rebuilt by polling)
 ntes-adapter/data/
 *.tsbuildinfo

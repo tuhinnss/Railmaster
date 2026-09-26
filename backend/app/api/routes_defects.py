@@ -4,10 +4,13 @@ plan actually assigns the task to a block) comes from /plans, not here;
 this is the pre-scheduling priority view.
 """
 
+from datetime import date
+
 from fastapi import APIRouter, Query
 
 from app.data_access import load_blocks, load_tasks
 from app.models.enums import Department, SeverityCode
+from app.operations import list_reports, reported_tasks
 from app.scheduling.prioritizer import rank_tasks
 
 router = APIRouter(prefix="/defects", tags=["defects"])
@@ -18,7 +21,7 @@ def list_defects(
     department: Department | None = Query(default=None),
     severity_code: SeverityCode | None = Query(default=None),
 ):
-    tasks = load_tasks()
+    tasks = load_tasks() + reported_tasks(list_reports(), date.today())
     blocks = load_blocks()
     tasks_by_id = {t.task_id: t for t in tasks}
 
