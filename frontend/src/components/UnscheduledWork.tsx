@@ -14,7 +14,7 @@ const ADD_COLOR = "#4338ca";
 
 // Why an added block isn't in the plan, in one line.
 function unusedReason(block: AddedBlock, section: SectionPlanResult, decision: BlockDecision | undefined): string {
-  if (decision?.decision === "cancelled") return "It was cancelled; undo that on Block Decisions, or remove it here.";
+  if (decision?.decision === "cancelled") return "It was deleted; undo that under Blocks off the plan, or remove it here.";
   const task = section.tasks.find((t) => t.task_id === block.for_task);
   if (!task) return `${block.for_task} is no longer in the backlog.`;
   if (task.scheduled) return `${block.for_task} is scheduled in ${task.block_id} instead.`;

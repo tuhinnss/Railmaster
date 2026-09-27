@@ -1,6 +1,7 @@
 import { useState } from "react";
 import BlockActionsPanel from "../components/BlockActionsPanel";
 import CorridorMap from "../components/CorridorMap";
+import OffPlanBlocks from "../components/OffPlanBlocks";
 import UnscheduledWork from "../components/UnscheduledWork";
 import { usePlan } from "../context/PlanContext";
 import { useBlockDecisions } from "../hooks/useBlockDecisions";
@@ -213,6 +214,19 @@ export default function Overview() {
             setOpenBlock(id);
             ops.setMessage(null);
           }}
+        />
+      )}
+
+      {current && (
+        <OffPlanBlocks
+          section={current}
+          decisions={ops.decisions}
+          busy={ops.busy}
+          onOpen={(id) => {
+            setOpenBlock(id);
+            ops.setMessage(null);
+          }}
+          onUndo={(id) => ops.undo(current, id)}
         />
       )}
 

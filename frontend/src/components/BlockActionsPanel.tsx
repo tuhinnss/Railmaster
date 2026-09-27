@@ -10,8 +10,8 @@ import { DECISION_STATUS, decidedEnd, decidedStart, span, workKmRange } from "..
 
 // Opens when a block is clicked on the Overview's block map: what the block
 // is, and every control-office decision on it -- grant it, grant it late (it
-// shortens), move it, or delete it (recorded as a cancellation, so it can be
-// undone here or on Block Decisions).
+// shortens), move it, or delete it (recorded as a cancellation). Each can be
+// undone here; a deleted block is also listed under the map with Undo.
 export default function BlockActionsPanel({
   section,
   blockId,
@@ -211,7 +211,7 @@ export default function BlockActionsPanel({
           {busy && <span style={{ fontSize: 12, color: "#64748b" }}>Re-planning…</span>}
         </div>
         <p style={{ fontSize: 11, color: "#94a3b8", marginTop: 14 }}>
-          Every change is saved and can be undone here or on Block Decisions. The timetable check covers
+          Every change is saved and can be undone here; a deleted block stays listed under the map. The timetable check covers
           booked passenger trains only — not goods trains, live delays or other blocks. Check Corridor
           Traffic for live running.
         </p>
