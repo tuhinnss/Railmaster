@@ -5,14 +5,12 @@ import type {
   CorridorBlock,
   DefectReport,
   DefectReportRequest,
-  Disruption,
   Horizon,
   LiveCorridorStatus,
   PlanResponse,
   QuietSlots,
   TaskSummary,
   TimetableCheck,
-  WhatIfResponse,
 } from "../types";
 
 const BASE_URL = "/api";
@@ -61,10 +59,6 @@ export async function apiDelete(path: string): Promise<void> {
 
 export function fetchPlan(horizon: Horizon = "WEEKLY"): Promise<PlanResponse> {
   return apiGet<PlanResponse>(`/plans/${horizon}`);
-}
-
-export function runWhatIf(disruptions: Disruption[], horizon: Horizon = "WEEKLY"): Promise<WhatIfResponse> {
-  return apiPost<WhatIfResponse>(`/plans/${horizon}/what-if`, { disruptions });
 }
 
 export function fetchReports(): Promise<DefectReport[]> {

@@ -84,41 +84,6 @@ export interface PlanResponse {
   sections: SectionPlanResult[];
 }
 
-// What-if replanning: POST /api/plans/WEEKLY/what-if
-export type Disruption =
-  | { kind: "cancel_block"; block_id: string }
-  | { kind: "curtail_block"; block_id: string; minutes_lost: number }
-  | { kind: "move_block"; block_id: string; new_start: string; duration_min?: number }
-  | {
-      kind: "urgent_defect";
-      section: string;
-      department: Department;
-      defect_type: string;
-      km_from: number;
-      km_to: number;
-      severity_code?: SeverityCode;
-      est_duration_min: number;
-      block_type_required: BlockType;
-    };
-
-export type TaskChangeKind = "dropped" | "added" | "moved" | "new_scheduled" | "new_unscheduled";
-
-export interface TaskChange {
-  task_id: string;
-  section: string;
-  change: TaskChangeKind;
-  block_before: string | null;
-  block_after: string | null;
-  reason_after: string;
-}
-
-export interface WhatIfResponse {
-  applied: string[];
-  sections: { section: string; before: SectionPlanResult; after: SectionPlanResult }[];
-  changes: TaskChange[];
-  replan_seconds: number;
-}
-
 // Field reports and control decisions: /api/operations (backend/app/schemas/operations.py).
 export interface DefectReportRequest {
   section: string;

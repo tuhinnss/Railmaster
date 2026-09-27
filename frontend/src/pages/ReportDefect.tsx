@@ -3,7 +3,7 @@ import { fetchReports, submitReport, withdrawReport } from "../api/client";
 import DepartmentBadge from "../components/DepartmentBadge";
 import SeverityBadge from "../components/SeverityBadge";
 import { BLOCK_TYPE_LABELS, SEVERITY_COLORS } from "../constants/colors";
-import { DEFAULT_BLOCK_TYPE, DEFECT_TYPES, SEVERITY_BAND_TEXT, severityFromScore } from "../constants/defects";
+import { DEFAULT_BLOCK_TYPE, DEPARTMENTS, SEVERITY_BAND_TEXT, severityFromScore } from "../constants/defects";
 import { usePlan } from "../context/PlanContext";
 import type { BlockType, DefectReport, Department, PlanResponse } from "../types";
 import { hhmm } from "../utils/time";
@@ -213,7 +213,7 @@ export default function ReportDefect() {
           </Field>
           <Field label="Department">
             <select value={department} onChange={(e) => pickDepartment(e.target.value as Department)} style={fieldStyle}>
-              {(Object.keys(DEFECT_TYPES) as Department[]).map((d) => (
+              {DEPARTMENTS.map((d) => (
                 <option key={d}>{d}</option>
               ))}
             </select>

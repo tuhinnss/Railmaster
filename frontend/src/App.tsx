@@ -8,7 +8,6 @@ import PrintPlan from "./pages/PrintPlan";
 import ReportDefect from "./pages/ReportDefect";
 import TaskQueue from "./pages/TaskQueue";
 import WeeklyPlan from "./pages/WeeklyPlan";
-import WhatIf from "./pages/WhatIf";
 
 type Role = "control" | "field";
 
@@ -27,7 +26,6 @@ const ROLES: Record<Role, { label: string; summary: string; links: { to: string;
       { to: "/overview", label: "Overview" },
       { to: "/plan", label: "Weekly Plan" },
       { to: "/tasks", label: "Task Queue" },
-      { to: "/what-if", label: "What-if" },
       { to: "/traffic", label: "Corridor Traffic" },
     ],
   },
@@ -141,12 +139,12 @@ function Shell() {
         <Route path="/overview" element={<Overview />} />
         <Route path="/plan" element={<WeeklyPlan />} />
         <Route path="/tasks" element={<TaskQueue />} />
-        <Route path="/what-if" element={<WhatIf />} />
         <Route path="/traffic" element={<CorridorTraffic />} />
         <Route path="/report" element={<ReportDefect />} />
-        {/* Block Decisions was removed on 2026-09-27 (its actions live on the
-            Overview); old links land there rather than on a blank page. */}
+        {/* Pages removed on 2026-09-27 (their actions live on the Overview);
+            old links land there rather than on a blank page. */}
         <Route path="/control" element={<Navigate to="/overview" replace />} />
+        <Route path="/what-if" element={<Navigate to="/overview" replace />} />
         <Route path="/print" element={<PrintPlan />} />
       </Routes>
     </div>
