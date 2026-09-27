@@ -38,6 +38,6 @@ if _dist:
         # holding an old index.html would try to run HTML as a script.
         if path.startswith("assets/"):
             raise HTTPException(status_code=404)
-        # Any other path is a dashboard route (/overview, /control, ...):
+        # Any other path is a dashboard route (/overview, /plan, ...):
         # the single-page app handles it.
         return FileResponse(FRONTEND_DIST / "index.html")

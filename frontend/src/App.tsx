@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Link, NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Link, NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { PlanProvider } from "./context/PlanContext";
 import ChooseView from "./pages/ChooseView";
-import ControlOffice from "./pages/ControlOffice";
 import CorridorTraffic from "./pages/CorridorTraffic";
 import Overview from "./pages/Overview";
 import PrintPlan from "./pages/PrintPlan";
@@ -17,7 +16,8 @@ type Role = "control" | "field";
 // switcher, not access control: there is no login and every route stays
 // reachable by URL -- the build spec leaves auth and roles out of scope.
 // The control office owns the whole block allocation (there is no separate
-// planner view for now), so it lands on the Overview.
+// planner view for now), so it lands on the Overview, where it also grants,
+// moves and deletes blocks.
 const ROLES: Record<Role, { label: string; summary: string; links: { to: string; label: string }[] }> = {
   control: {
     label: "Control office",
@@ -26,7 +26,6 @@ const ROLES: Record<Role, { label: string; summary: string; links: { to: string;
     links: [
       { to: "/overview", label: "Overview" },
       { to: "/plan", label: "Weekly Plan" },
-      { to: "/control", label: "Block Decisions" },
       { to: "/tasks", label: "Task Queue" },
       { to: "/what-if", label: "What-if" },
       { to: "/traffic", label: "Corridor Traffic" },
@@ -145,7 +144,9 @@ function Shell() {
         <Route path="/what-if" element={<WhatIf />} />
         <Route path="/traffic" element={<CorridorTraffic />} />
         <Route path="/report" element={<ReportDefect />} />
-        <Route path="/control" element={<ControlOffice />} />
+        {/* Block Decisions was removed on 2026-09-27 (its actions live on the
+            Overview); old links land there rather than on a blank page. */}
+        <Route path="/control" element={<Navigate to="/overview" replace />} />
         <Route path="/print" element={<PrintPlan />} />
       </Routes>
     </div>

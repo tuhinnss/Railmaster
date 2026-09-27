@@ -22,7 +22,7 @@ def main_with_dist(tmp_path, monkeypatch):
 
 def test_a_deployment_serves_the_dashboard_and_its_api_from_one_origin(main_with_dist):
     client = TestClient(main_with_dist.app)
-    for route in ("/", "/control", "/overview"):
+    for route in ("/", "/plan", "/overview"):
         assert client.get(route).text == "<html>dashboard</html>"
     assert client.get("/assets/app.js").text == "console.log(1)"
     assert client.get("/api/health").json() == {"status": "ok"}
@@ -33,5 +33,5 @@ def test_a_deployment_serves_the_dashboard_and_its_api_from_one_origin(main_with
 
 def test_development_serves_only_the_api():
     client = TestClient(app.main.app)
-    assert client.get("/control").status_code == 404
+    assert client.get("/plan").status_code == 404
     assert client.get("/api/health").status_code == 200

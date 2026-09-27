@@ -1,6 +1,6 @@
-// Shared by the pages where the control office acts on blocks (Overview's
-// block map and Block Decisions): date keys, labels, and the plain-language
-// account of what a decision did to the plan.
+// Shared by the places the control office acts on blocks (the Overview's
+// block panel, its off-plan list and its work that didn't fit): date keys,
+// labels, and the plain-language account of what a decision did to the plan.
 
 import type { BlockDecision, BlockDecisionKind, SectionPlanResult } from "../types";
 import { hhmm } from "./time";
@@ -13,21 +13,9 @@ export function dayKey(time: string | Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-// A control office works in nights, not calendar days: a block at 00:30 on
-// Tuesday belongs to Monday night. Keyed by the evening's date, noon to noon.
-export function nightKey(time: string | Date): string {
-  return dayKey(new Date(new Date(time).getTime() - 12 * 3_600_000));
-}
-
 export function dateLabel(key: string): string {
   const [y, m, d] = key.split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
-}
-
-export function nightLabel(key: string): string {
-  const [y, m, d] = key.split("-").map(Number);
-  const morning = new Date(y, m - 1, d + 1).toLocaleDateString(undefined, { weekday: "short" });
-  return `Night of ${dateLabel(key)} → ${morning}`;
 }
 
 export function span(start: string, end: string): string {
