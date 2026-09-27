@@ -340,7 +340,9 @@ function CorridorLine({
   );
 }
 
-function HoverCard({ block, x, y }: { block: PositionedBlock; x: number; y: number }) {
+// clickable: the map was given onSelect, so say so -- the hover card alone
+// doesn't tell anyone a block does something when clicked.
+function HoverCard({ block, x, y, clickable }: { block: PositionedBlock; x: number; y: number; clickable: boolean }) {
   const start = new Date(block.startTime);
   const end = new Date(block.endTime);
   const durationMin = Math.round((end.getTime() - start.getTime()) / 60000);
@@ -352,7 +354,8 @@ function HoverCard({ block, x, y }: { block: PositionedBlock; x: number; y: numb
       style={{
         position: "fixed",
         left: flip ? x - 290 : x + 14,
-        top: Math.min(y + 14, window.innerHeight - 220),
+        // Room for a merged block's card, click hint included, at the window's foot.
+        top: Math.min(y + 14, window.innerHeight - 260),
         width: 276,
         background: "white",
         border: "1px solid #cbd5e1",
@@ -404,6 +407,12 @@ function HoverCard({ block, x, y }: { block: PositionedBlock; x: number; y: numb
           </div>
         ))}
       </div>
+
+      {clickable && (
+        <div style={{ borderTop: "1px solid #f1f5f9", marginTop: 8, paddingTop: 6, color: SELECTED_COLOR, fontWeight: 600 }}>
+          Click to grant, move or delete this block
+        </div>
+      )}
     </div>
   );
 }
@@ -422,7 +431,7 @@ export function DepartmentLegend() {
 }
 
 // With onSelect, clicking a block selects it (the Overview then offers
-// reschedule / delete); without it the map is display-only, as on the printout.
+// grant / move / delete); without it the map is display-only, as on the printout.
 export default function CorridorMap({
   sections,
   onSelect,
@@ -452,7 +461,7 @@ export default function CorridorMap({
         />
       ))}
 
-      {hovered && <HoverCard block={hovered.block} x={hovered.x} y={hovered.y} />}
+      {hovered && <HoverCard block={hovered.block} x={hovered.x} y={hovered.y} clickable={!!onSelect} />}
     </div>
   );
 }
