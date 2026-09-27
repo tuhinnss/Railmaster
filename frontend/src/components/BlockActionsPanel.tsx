@@ -9,9 +9,9 @@ import type { BlockDecision, SectionPlanResult, TaskSummary } from "../types";
 import { DECISION_STATUS, decidedEnd, decidedStart, span, workKmRange } from "../utils/blockDecisions";
 
 // Opens when a block is clicked on the Overview's block map: what the block
-// is, and the control office's two direct actions on it -- move it, or
-// delete it (recorded as a cancellation, so it can be undone here or on
-// Block Decisions).
+// is, and every control-office decision on it -- grant it, grant it late (it
+// shortens), move it, or delete it (recorded as a cancellation, so it can be
+// undone here or on Block Decisions).
 export default function BlockActionsPanel({
   section,
   blockId,
@@ -20,6 +20,8 @@ export default function BlockActionsPanel({
   planDays,
   busy,
   message,
+  onGrant,
+  onGrantLate,
   onMove,
   onDelete,
   onUndo,
@@ -32,12 +34,15 @@ export default function BlockActionsPanel({
   planDays: string[];
   busy: boolean;
   message: DecisionMessage | null;
+  onGrant: () => void;
+  onGrantLate: (minutesLost: number) => void;
   onMove: (newStart: string, durationMin: number) => void;
   onDelete: () => void;
   onUndo: () => void;
   onClose: () => void;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [late, setLate] = useState(decision?.minutes_lost || 30);
   // A deleted block, or one moved to where no work fits, has left the plan;
   // the saved decision still says where it is.
   const block = section.blocks.find((b) => b.block_id === blockId);
@@ -124,6 +129,37 @@ export default function BlockActionsPanel({
       <div style={{ marginTop: 18 }}>
         {message && <DecisionMessageBox message={message} />}
 
+        {block && (
+          <>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", margin: "4px 0 6px" }}>
+              Go-ahead
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 14 }}>
+              <button
+                disabled={busy || decision?.decision === "granted"}
+                onClick={onGrant}
+                style={{ fontSize: 12, padding: "4px 10px", cursor: "pointer" }}
+              >
+                Grant
+              </button>
+              <span style={{ display: "inline-flex", gap: 4, alignItems: "center", fontSize: 12, color: "#475569" }}>
+                <button disabled={busy} onClick={() => onGrantLate(late)} style={{ fontSize: 12, padding: "4px 10px", cursor: "pointer" }}>
+                  Granted late by
+                </button>
+                <input
+                  type="number"
+                  min={5}
+                  step={5}
+                  value={late}
+                  onChange={(e) => setLate(Number(e.target.value))}
+                  style={{ fontSize: 12, padding: "3px 5px", border: "1px solid #cbd5e1", borderRadius: 4, width: 56 }}
+                />
+                min
+              </span>
+            </div>
+          </>
+        )}
+
         {start && (
           <>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", margin: "4px 0 6px" }}>
@@ -169,7 +205,7 @@ export default function BlockActionsPanel({
             ))}
           {decision && (
             <button disabled={busy} onClick={onUndo} style={{ fontSize: 12, padding: "4px 10px", cursor: "pointer" }}>
-              Undo {decision.decision === "cancelled" ? "delete" : decision.decision === "rescheduled" ? "move" : "decision"}
+              Undo {{ cancelled: "delete", rescheduled: "move", granted: "grant", granted_late: "late grant" }[decision.decision]}
             </button>
           )}
           {busy && <span style={{ fontSize: 12, color: "#64748b" }}>Re-planning…</span>}

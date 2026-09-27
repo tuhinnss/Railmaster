@@ -113,7 +113,7 @@ function KpiCard({ label, value, sub }: { label: string; value: string; sub?: st
 export default function Overview() {
   const { plan, loading, error, refresh } = usePlan();
   const [selected, setSelected] = useState<string | null>(null);
-  // The block clicked on the map, open in the side panel for reschedule / delete.
+  // The block clicked on the map, open in the side panel for grant / move / delete.
   const [openBlock, setOpenBlock] = useState<string | null>(null);
   const ops = useBlockDecisions();
 
@@ -203,7 +203,7 @@ export default function Overview() {
       <h2 style={{ fontSize: 15, marginTop: 28 }}>Block allocation</h2>
       <p style={{ fontSize: 12, color: "#64748b", margin: "2px 0 12px" }}>
         Each marker is a scheduled block, positioned along the corridor by the km range of the work
-        assigned to it. Hover a block for its timetable; click it to reschedule or delete it.
+        assigned to it. Hover a block for its timetable; click it to grant, reschedule or delete it.
       </p>
       {current && (
         <AllocationView
@@ -232,6 +232,8 @@ export default function Overview() {
 
       {current && openBlock && (
         <BlockActionsPanel
+          // Keyed so the late-by minutes reset for each block.
+          key={openBlock}
           section={current}
           blockId={openBlock}
           addedFor={ops.addedOf.get(openBlock)?.for_task}
@@ -239,6 +241,8 @@ export default function Overview() {
           planDays={planDaysOf(plan.sections)}
           busy={ops.busy}
           message={ops.message}
+          onGrant={() => ops.decide(current, openBlock, "granted")}
+          onGrantLate={(minutesLost) => ops.decide(current, openBlock, "granted_late", { minutesLost })}
           onMove={(newStart, durationMin) => ops.decide(current, openBlock, "rescheduled", { newStart, durationMin })}
           onDelete={() => ops.decide(current, openBlock, "cancelled")}
           onUndo={() => ops.undo(current, openBlock)}
