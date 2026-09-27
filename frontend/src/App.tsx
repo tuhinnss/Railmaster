@@ -88,8 +88,10 @@ function Shell() {
   // The first page is the view chooser itself, so it has no nav.
   const onChooser = location.pathname === "/";
 
+  // Wide enough for the block map and tables to use a laptop screen; the
+  // cap only keeps very wide monitors from stretching the cards too thin.
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: "16px 20px", fontFamily: "system-ui, sans-serif" }}>
+    <div style={{ maxWidth: 1600, margin: "0 auto", padding: "16px 24px", fontFamily: "system-ui, sans-serif" }}>
       {/* Hidden when printing, so /print comes out as just the document. */}
       {!onChooser && (
         <nav
