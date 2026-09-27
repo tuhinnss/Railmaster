@@ -106,10 +106,12 @@ plan (`WeeklyPlan.tsx` — day × section grid of blocks with capacity used,
 unscheduled work with reasons, per-rule safety checks), Task queue, and
 the Task/block detail panel. Beyond those:
 
-- `WhatIf.tsx` — spec step 8. Queues disruptions (block cancelled, block
-  granted late, new urgent defect), posts them to
-  `/api/plans/WEEKLY/what-if`, and shows the before/after diff with the
-  measured replan time and the replanned sections' safety checks.
+- `WhatIf.tsx` (spec step 8) and `ControlOffice.tsx` (Block Decisions)
+  were removed on 2026-09-27. Their actions overlapped the Overview's
+  block panel, which now also grants and grants late; a block moved or
+  deleted there re-plans the week and lists what moved, with Undo, which
+  covered what the what-if preview added. Both are recoverable from commit
+  `2258bc2`. The what-if API and its tests stay.
 - A time–distance (string) chart of blocks against paired NTES train
   movements was built and then removed on 2026-09-25 as unnecessary, along
   with the adapter's `/train-paths` endpoint that fed it. Recoverable from
@@ -119,7 +121,8 @@ the Task/block detail panel. Beyond those:
   The defect is typed in as free text and severity is a 1-10 score whose
   A/B/C band the backend works out (`operations.severity_from_score`); the
   form mirrors the bands only to show them while scoring.
-- `RescheduleForm.tsx` — shared by both places a block can be moved. As
+- `RescheduleForm.tsx` — shared by the block panel (move) and Work that
+  didn't fit (add a block). As
   the day, start and length change it checks the booked passenger
   timetable (`/api/corridors/{section}/timetable-check`, backend
   `app/timetable.py` over the adapter's "Trains between stations" data)
@@ -127,10 +130,6 @@ the Task/block detail panel. Beyond those:
   quiet times" lists the least-busy starts that day (`/quiet-slots`). A
   warning, never a veto. Passenger trains only, positions estimated —
   the form says so.
-- `ControlOffice.tsx` (`/control`, control office) — one section and one
-  night (noon to noon) at a time; grant, grant late, reschedule (new day,
-  start and length within the plan week) or cancel each planned block,
-  with the resulting task moves listed after each decision.
 - `ChooseView.tsx` (`/`) — the first page: choose a view (control office,
   which has every planning page, or field staff), which picks the pages
   `App.tsx` puts in the nav;
@@ -146,9 +145,11 @@ the Task/block detail panel. Beyond those:
 the detail panel, a count KPI on Overview) so the real-vs-synthetic
 distinction from `ntes_bridge.py` is visible, not just internal.
 `CorridorMap.tsx` on Overview shows where blocks land along the corridor
-by km; clicking a block there opens `BlockActionsPanel.tsx` to reschedule
-or delete it (saved as the same control decisions Block Decisions makes,
-through the shared `hooks/useBlockDecisions.ts`). Below the map,
+by km; clicking a block there opens `BlockActionsPanel.tsx` to grant,
+grant late, reschedule or delete it (saved as control decisions through
+`hooks/useBlockDecisions.ts`). `OffPlanBlocks.tsx` lists, under the map,
+the blocks a decision took out of the plan (deleted, or left with no work
+fitting), each with Undo. Below that,
 `UnscheduledWork.tsx` lists the work that didn't fit with the planner's
 reason and adds a block for one (`RescheduleForm` again, as "Add block"),
 and lists the added blocks with Remove; `AddedBadge.tsx` marks them

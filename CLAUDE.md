@@ -15,9 +15,12 @@ that refers to it. Deliberately out of scope: real TMS/SMMS/TDMS/COA/BDMS
 connections, trained ML models, network-scale solving, auth/roles, approval
 workflow, monthly horizon. The first page (`/`, `ChooseView.tsx`) asks which
 view to use (Control office / Field staff); that only picks which pages
-the nav shows. The control office view carries every planning page plus
-Block Decisions; there is no separate planner view for now, by the user's
-choice. It is not access
+the nav shows. The control office view carries every planning page and
+makes its block decisions (grant, grant late, move, delete) from the
+Overview's block map; there is no separate planner view for now, by the
+user's choice. The Block Decisions and What-if pages were removed on
+2026-09-27 as overlapping with that (recoverable from commit `2258bc2`);
+the what-if API stays. It is not access
 control: there is no login and every route stays reachable by URL. Don't
 describe it as roles or permissions.
 

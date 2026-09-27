@@ -27,13 +27,13 @@ and the build spec for what's in/out.
   the NTES enrichment bridge (`app/ntes_bridge.py`), REST API (`app/api`).
 - `frontend/` — React dashboard, all wired to real scheduler output:
   Overview (KPIs + corridor map), Weekly plan (day × section grid, with a
-  per-section printable version), Task queue + detail panel, What-if
-  replanning, Corridor traffic (real NTES train boards), Report Defect
-  (field staff) and Block Decisions (control office). The first page
-  (`/`) asks who you are — control office or field staff — and each
-  view gets its own nav. The control office sees the whole block
-  allocation (every planning page plus Block Decisions); there is no
-  separate planner view for now. The Overview lives at `/overview`.
+  per-section printable version), Task queue + detail panel, Corridor
+  traffic (real NTES train boards) and Report Defect (field staff). The
+  first page (`/`) asks who you are — control office or field staff —
+  and each view gets its own nav. The control office sees the whole
+  block allocation and makes every block decision from the Overview's
+  block map; there is no separate planner view for now. The Overview
+  lives at `/overview`.
 - `ntes-adapter/` — separate service; see its own README. Provides real,
   self-collected train-movement-derived predicted-availability data, plus
   real captured NTES train boards, for the three corridors.
@@ -218,8 +218,10 @@ Backend engine (schema, synthetic data, priority score, CP-SAT Stage A/B,
 safety validator, explainability, what-if replanning) is done and wired
 end to end — 127 backend + 62 adapter tests passing. Dashboard ships
 Overview, Weekly plan (+ per-section printable version), Task queue,
-detail panel, What-if, Corridor traffic, Report Defect and Block
-Decisions.
+detail panel, Corridor traffic and Report Defect. The What-if and Block
+Decisions pages were removed on 2026-09-27: their actions overlapped the
+Overview's block panel, which now also grants and grants late. They are
+recoverable from commit `2258bc2`; the what-if API below is unchanged.
 
 The solver is deterministic (one CP-SAT worker, fixed seed). The default
 parallel search returned different, equally optimal plans for the same
@@ -228,19 +230,21 @@ refresh. Each plan now carries a SHA-256 fingerprint of what it commits
 to, which is only meaningful because of that — see
 `backend/app/scheduling/common.py`.
 
-What-if (`POST /api/plans/WEEKLY/what-if`) applies block cancellations,
+What-if (`POST /api/plans/WEEKLY/what-if`, API only since its page was
+removed) applies block cancellations,
 late-granted blocks and injected urgent defects to an in-memory copy of
 the data, re-runs the full pipeline on the affected sections, and diffs
 the result. Among equally good replans it keeps the current plan (a
 strict tie-break in Stage B), so every listed change is one the
 disruption forced. Nothing is persisted.
 
-Report Defect and Block Decisions are the persisted counterpart
-(`/api/operations`, `backend/app/operations.py`). A reported defect joins
-its section's backlog as a task marked `REPORTED`; a control office can
-mark a planned block granted, granted late (the block shortens),
-rescheduled to another day and time in the plan week (optionally with a
-new length), or cancelled (it leaves the plan). Under the Overview's block
+Report Defect and the Overview's block panel are the persisted
+counterpart (`/api/operations`, `backend/app/operations.py`). A reported
+defect joins its section's backlog as a task marked `REPORTED`; clicking a
+block on the Overview's map lets the control office mark it granted,
+granted late (the block shortens), rescheduled to another day and time in
+the plan week (optionally with a new length), or deleted (it leaves the
+plan, and is listed under the map with Undo). Under the Overview's block
 map, "Work that didn't fit" lists what the plan couldn't place, with the
 planner's reason; **Schedule…** adds a block for it at a chosen time
 (checked against the booked timetable like a move). The block is held for
